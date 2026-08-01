@@ -30,6 +30,7 @@ const fragmentShader = `
   uniform vec3 uAccentColor;
   uniform float uSeed;
   uniform float uSurfaceType;
+  uniform vec3 uLightDirection;
 
   float hash13(vec3 p) {
     p = fract(p * 0.3183099 + 0.1);
@@ -94,7 +95,7 @@ const fragmentShader = `
       color = mix(uBaseColor, uAccentColor, haze);
     }
 
-    float lightDot = max(dot(normalize(vNormal), normalize(vec3(0.6, 0.5, 0.7))), 0.0);
+    float lightDot = max(dot(normalize(vNormal), normalize(uLightDirection)), 0.0);
     vec3 lit = color * (0.35 + 0.65 * lightDot);
 
     gl_FragColor = vec4(lit, 1.0);
@@ -108,6 +109,7 @@ export const PlanetSurfaceMaterial = shaderMaterial(
     uAccentColor: new THREE.Color('#444444'),
     uSeed: 0,
     uSurfaceType: 0,
+    uLightDirection: new THREE.Vector3(0.6, 0.5, 0.7),
   },
   vertexShader,
   fragmentShader
@@ -117,6 +119,7 @@ export const PlanetSurfaceMaterial = shaderMaterial(
   uAccentColor: THREE.Color;
   uSeed: number;
   uSurfaceType: number;
+  uLightDirection: THREE.Vector3;
 };
 
 extend({ PlanetSurfaceMaterial });
@@ -132,6 +135,7 @@ declare global {
         uAccentColor?: THREE.Color;
         uSeed?: number;
         uSurfaceType?: number;
+        uLightDirection?: THREE.Vector3;
       };
     }
   }

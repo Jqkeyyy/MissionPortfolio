@@ -19,9 +19,9 @@ export const usePlanetLockOn = (onConfirm: () => void, lockDurationMs: number = 
     if (timeoutRef.current !== null) return;
     setLocking(true);
     timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = null;
       setLocking(false);
       onConfirm();
-      timeoutRef.current = null;
     }, lockDurationMs);
   }, [lockDurationMs, onConfirm]);
 

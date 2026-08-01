@@ -138,108 +138,121 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
             opacity="0.08"
           />
         ))}
+        {/*
+          Terminal and airlock live inside this same viewBox/preserveAspectRatio-governed
+          coordinate space (via foreignObject) rather than as viewport-percentage-positioned
+          HTML buttons, so they scale and reposition together with the room floor on any
+          aspect ratio instead of visually detaching from it under "slice" scaling.
+        */}
+        <motion.foreignObject x={505} y={238} width={150} height={230} style={{ overflow: 'visible' }}>
+          <div style={{ position: 'relative', width: 150, height: 230 }}>
+            <motion.button
+              className="absolute bottom-0 left-0 group cursor-pointer"
+              onClick={onAccessComputer}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <svg
+                width="150"
+                height="150"
+                viewBox="0 0 150 150"
+                className="overflow-visible transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(0,200,255,0.35)]"
+              >
+                <defs>
+                  <linearGradient id="monitor-body" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(220, 25%, 20%)" />
+                    <stop offset="100%" stopColor="hsl(220, 20%, 12%)" />
+                  </linearGradient>
+                </defs>
+                <rect x="25" y="10" width="100" height="72" rx="8" fill="url(#monitor-body)" stroke="hsl(220, 18%, 34%)" strokeWidth="3" />
+                <motion.rect
+                  x="35"
+                  y="20"
+                  width="80"
+                  height="52"
+                  rx="4"
+                  fill="hsl(200, 50%, 14%)"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                />
+                <rect x="70" y="82" width="10" height="14" fill="hsl(220, 10%, 35%)" />
+                <rect x="50" y="96" width="50" height="6" rx="3" fill="hsl(220, 10%, 20%)" />
+                <rect x="20" y="102" width="110" height="16" rx="3" fill="hsl(220, 12%, 22%)" stroke="hsl(220, 12%, 30%)" strokeWidth="2" />
+                <rect x="26" y="118" width="8" height="26" fill="hsl(220, 10%, 20%)" />
+                <rect x="116" y="118" width="8" height="26" fill="hsl(220, 10%, 20%)" />
+              </svg>
+
+              <div className="absolute inset-0 flex flex-col items-center justify-start pt-4 pointer-events-none">
+                <Monitor className="w-4 h-4 text-cyan-400 mt-2" />
+                <p className="text-[9px] font-mono text-cyan-400 mt-1">MISSION TERMINAL</p>
+              </div>
+
+              <motion.div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="hud-panel px-4 py-2 rounded-lg flex items-center gap-2">
+                  <Monitor className="w-4 h-4 text-primary" />
+                  <span className="font-heading text-sm tracking-mission text-primary">Access Terminal</span>
+                </div>
+              </motion.div>
+            </motion.button>
+          </div>
+        </motion.foreignObject>
+
+        <motion.foreignObject x={325} y={308} width={110} height={230} style={{ overflow: 'visible' }}>
+          <div style={{ position: 'relative', width: 110, height: 230 }}>
+            <motion.button
+              className="absolute top-0 left-0 group cursor-pointer"
+              onClick={onExit}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.03 }}
+            >
+              <svg
+                width="110"
+                height="160"
+                viewBox="0 0 110 160"
+                className="overflow-visible transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(255,107,53,0.35)]"
+              >
+                <rect x="5" y="5" width="100" height="150" rx="14" fill="hsl(220, 15%, 22%)" stroke="hsl(220, 12%, 34%)" strokeWidth="4" />
+                <rect
+                  x="16"
+                  y="16"
+                  width="78"
+                  height="128"
+                  rx="10"
+                  fill="hsl(220, 17%, 15%)"
+                  stroke="hsl(220, 10%, 30%)"
+                  strokeWidth="2"
+                  className="transition-colors duration-300 group-hover:stroke-primary"
+                />
+                <rect x="34" y="30" width="42" height="30" rx="4" fill="hsl(220, 28%, 10%)" stroke="hsl(220, 16%, 36%)" strokeWidth="2" />
+                <rect x="82" y="70" width="8" height="30" rx="4" fill="hsl(220, 8%, 55%)" />
+                <motion.circle
+                  cx="86"
+                  cy="85"
+                  r="3"
+                  fill="hsl(140, 70%, 50%)"
+                  animate={{ opacity: [1, 0.4, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <text x="55" y="126" textAnchor="middle" fontSize="8" fill="hsl(220, 10%, 55%)" fontFamily="monospace" letterSpacing="1">
+                  AIRLOCK
+                </text>
+              </svg>
+
+              <motion.div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="hud-panel px-4 py-2 rounded-lg flex items-center gap-2">
+                  <DoorOpen className="w-4 h-4 text-primary" />
+                  <span className="font-heading text-sm tracking-mission text-primary">Exit</span>
+                </div>
+              </motion.div>
+            </motion.button>
+          </div>
+        </motion.foreignObject>
       </svg>
-
-      <motion.button
-        className="absolute left-[58%] bottom-[22%] -translate-x-1/2 z-20 group cursor-pointer"
-        onClick={onAccessComputer}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3 }}
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <svg
-          width="150"
-          height="150"
-          viewBox="0 0 150 150"
-          className="overflow-visible transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(0,200,255,0.35)]"
-        >
-          <defs>
-            <linearGradient id="monitor-body" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="hsl(220, 25%, 20%)" />
-              <stop offset="100%" stopColor="hsl(220, 20%, 12%)" />
-            </linearGradient>
-          </defs>
-          <rect x="25" y="10" width="100" height="72" rx="8" fill="url(#monitor-body)" stroke="hsl(220, 18%, 34%)" strokeWidth="3" />
-          <motion.rect
-            x="35"
-            y="20"
-            width="80"
-            height="52"
-            rx="4"
-            fill="hsl(200, 50%, 14%)"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          />
-          <rect x="70" y="82" width="10" height="14" fill="hsl(220, 10%, 35%)" />
-          <rect x="50" y="96" width="50" height="6" rx="3" fill="hsl(220, 10%, 20%)" />
-          <rect x="20" y="102" width="110" height="16" rx="3" fill="hsl(220, 12%, 22%)" stroke="hsl(220, 12%, 30%)" strokeWidth="2" />
-          <rect x="26" y="118" width="8" height="26" fill="hsl(220, 10%, 20%)" />
-          <rect x="116" y="118" width="8" height="26" fill="hsl(220, 10%, 20%)" />
-        </svg>
-
-        <div className="absolute inset-0 flex flex-col items-center justify-start pt-4 pointer-events-none">
-          <Monitor className="w-4 h-4 text-cyan-400 mt-2" />
-          <p className="text-[9px] font-mono text-cyan-400 mt-1">MISSION TERMINAL</p>
-        </div>
-
-        <motion.div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="hud-panel px-4 py-2 rounded-lg flex items-center gap-2">
-            <Monitor className="w-4 h-4 text-primary" />
-            <span className="font-heading text-sm tracking-mission text-primary">Access Terminal</span>
-          </div>
-        </motion.div>
-      </motion.button>
-
-      <motion.button
-        className="absolute bottom-[22%] left-[38%] -translate-x-1/2 z-30 group cursor-pointer"
-        onClick={onExit}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        whileHover={{ scale: 1.03 }}
-      >
-        <svg
-          width="110"
-          height="160"
-          viewBox="0 0 110 160"
-          className="overflow-visible transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(255,107,53,0.35)]"
-        >
-          <rect x="5" y="5" width="100" height="150" rx="14" fill="hsl(220, 15%, 22%)" stroke="hsl(220, 12%, 34%)" strokeWidth="4" />
-          <rect
-            x="16"
-            y="16"
-            width="78"
-            height="128"
-            rx="10"
-            fill="hsl(220, 17%, 15%)"
-            stroke="hsl(220, 10%, 30%)"
-            strokeWidth="2"
-            className="transition-colors duration-300 group-hover:stroke-primary"
-          />
-          <rect x="34" y="30" width="42" height="30" rx="4" fill="hsl(220, 28%, 10%)" stroke="hsl(220, 16%, 36%)" strokeWidth="2" />
-          <rect x="82" y="70" width="8" height="30" rx="4" fill="hsl(220, 8%, 55%)" />
-          <motion.circle
-            cx="86"
-            cy="85"
-            r="3"
-            fill="hsl(140, 70%, 50%)"
-            animate={{ opacity: [1, 0.4, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-          <text x="55" y="126" textAnchor="middle" fontSize="8" fill="hsl(220, 10%, 55%)" fontFamily="monospace" letterSpacing="1">
-            AIRLOCK
-          </text>
-        </svg>
-
-        <motion.div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="hud-panel px-4 py-2 rounded-lg flex items-center gap-2">
-            <DoorOpen className="w-4 h-4 text-primary" />
-            <span className="font-heading text-sm tracking-mission text-primary">Exit</span>
-          </div>
-        </motion.div>
-      </motion.button>
 
       <div className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-30">
         <motion.div
