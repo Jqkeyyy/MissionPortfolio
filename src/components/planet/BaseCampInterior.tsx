@@ -16,199 +16,132 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* Interior background */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `linear-gradient(180deg,
-            hsl(220, 25%, 10%) 0%,
-            hsl(220, 20%, 13%) 30%,
-            hsl(220, 18%, 16%) 70%,
-            hsl(220, 15%, 12%) 100%
-          )`,
-        }}
-      />
+      <svg
+        className="absolute inset-0 w-full h-full"
+        viewBox="0 0 1000 600"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <linearGradient id="room-bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(220, 25%, 10%)" />
+            <stop offset="45%" stopColor="hsl(220, 19%, 14%)" />
+            <stop offset="100%" stopColor="hsl(220, 15%, 12%)" />
+          </linearGradient>
+          <radialGradient id="ceiling-glow" cx="50%" cy="0%" r="80%">
+            <stop offset="0%" stopColor="hsl(220, 30%, 18%)" />
+            <stop offset="100%" stopColor="hsl(220, 25%, 12%)" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="wall-panel" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="hsl(220, 22%, 15%)" />
+            <stop offset="100%" stopColor="hsl(220, 17%, 20%)" />
+          </linearGradient>
+          <radialGradient id="viewport-glow" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stopColor={planet.color} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={planet.color} stopOpacity="0" />
+          </radialGradient>
+        </defs>
 
-      {/* Curved ceiling structure */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[40%]"
-        style={{
-          background: `radial-gradient(ellipse 130% 100% at 50% 0%,
-            hsl(220, 30%, 18%) 0%,
-            hsl(220, 25%, 12%) 60%,
-            transparent 100%
-          )`,
-        }}
-      />
+        <rect x="0" y="0" width="1000" height="600" fill="url(#room-bg)" />
+        <rect x="0" y="0" width="1000" height="240" fill="url(#ceiling-glow)" />
 
-      {/* Ceiling beams */}
-      <div className="absolute top-[15%] left-0 right-0 flex justify-between px-[10%]">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="w-3 h-32 rounded-b-lg"
-            style={{
-              background: 'linear-gradient(180deg, hsl(220, 15%, 25%), hsl(220, 12%, 18%))',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
-            }}
-          />
+        {[130, 330, 500, 670, 870].map((x) => (
+          <rect key={x} x={x - 6} y="60" width="12" height="130" rx="4" fill="hsl(220, 14%, 22%)" />
         ))}
-      </div>
 
-      {/* Wall panels - left with equipment */}
-      <div className="absolute left-0 top-[15%] bottom-[15%] w-[18%]">
-        <div
-          className="h-full"
-          style={{
-            background: 'linear-gradient(90deg, hsl(220, 22%, 15%), hsl(220, 18%, 20%))',
-            borderRight: '4px solid hsl(220, 15%, 28%)',
-          }}
-        />
-        {/* Pipes */}
-        <div className="absolute right-6 top-[10%] bottom-[10%] w-2 bg-gradient-to-b from-gray-600 via-gray-500 to-gray-600 rounded-full" />
-        <div className="absolute right-10 top-[15%] bottom-[20%] w-1.5 bg-gradient-to-b from-cyan-800 via-cyan-600 to-cyan-800 rounded-full" />
-        {/* Vent */}
-        <div className="absolute right-4 top-[30%] w-12 h-16 rounded-sm" style={{ background: 'hsl(220, 15%, 12%)' }}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-2 bg-black/40 mt-1 mx-1 rounded-sm" />
-          ))}
-        </div>
-        {/* Panel lights */}
-        {Array.from({ length: 4 }).map((_, i) => (
-          <motion.div
+        {[320, 500, 680].map((x, i) => (
+          <g key={x}>
+            <rect x={x - 55} y="34" width="110" height="14" rx="6" fill="hsl(200, 55%, 60%)" />
+            <motion.rect
+              x={x - 60}
+              y="46"
+              width="120"
+              height="120"
+              rx="60"
+              fill="hsl(200, 80%, 60%)"
+              opacity="0.08"
+              animate={{ opacity: [0.06, 0.14, 0.06] }}
+              transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
+            />
+          </g>
+        ))}
+
+        <rect x="420" y="20" width="160" height="90" rx="30" fill="hsl(230, 45%, 8%)" stroke="hsl(220, 20%, 32%)" strokeWidth="5" />
+        <rect x="420" y="20" width="160" height="90" rx="30" fill="url(#viewport-glow)" />
+
+        <rect x="0" y="90" width="170" height="420" fill="url(#wall-panel)" />
+        <rect x="164" y="90" width="6" height="420" fill="hsl(220, 15%, 28%)" />
+        <rect x="120" y="130" width="10" height="330" rx="5" fill="hsl(220, 12%, 40%)" />
+        <rect x="100" y="160" width="6" height="260" rx="3" fill="hsl(190, 55%, 32%)" />
+        {[0, 1, 2, 3].map((i) => (
+          <motion.rect
             key={i}
-            className="absolute right-3 w-3 h-10 rounded-full"
-            style={{ top: `${55 + i * 12}%`, background: 'linear-gradient(180deg, hsl(200, 80%, 50%), hsl(200, 60%, 30%))' }}
-            animate={{ opacity: [0.4, 0.8, 0.4] }}
+            x="130"
+            y={330 + i * 34}
+            width="14"
+            height="26"
+            rx="6"
+            fill="hsl(200, 70%, 45%)"
+            animate={{ opacity: [0.4, 0.85, 0.4] }}
             transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
           />
         ))}
-        {/* Equipment rack */}
-        <div className="absolute right-4 bottom-[15%] w-14 h-24 rounded-sm" style={{ background: 'linear-gradient(180deg, hsl(220, 12%, 22%), hsl(220, 10%, 16%))' }}>
-          <div className="p-1.5 space-y-1.5">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-4 rounded-sm bg-black/30 flex items-center px-1 gap-1">
-                <motion.div className="w-1.5 h-1.5 rounded-full bg-green-500" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1 + i * 0.3, repeat: Infinity }} />
-                <div className="flex-1 h-1 bg-gray-600 rounded-full" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Wall panels - right with equipment */}
-      <div className="absolute right-0 top-[15%] bottom-[15%] w-[18%]">
-        <div
-          className="h-full"
-          style={{
-            background: 'linear-gradient(270deg, hsl(220, 22%, 15%), hsl(220, 18%, 20%))',
-            borderLeft: '4px solid hsl(220, 15%, 28%)',
-          }}
+        <g transform="translate(1000,0) scale(-1,1)">
+          <rect x="0" y="90" width="170" height="420" fill="url(#wall-panel)" />
+        </g>
+        <rect x="830" y="90" width="6" height="420" fill="hsl(220, 15%, 28%)" />
+        <rect x="855" y="150" width="70" height="50" rx="6" fill="hsl(220, 20%, 10%)" stroke="hsl(220, 15%, 30%)" strokeWidth="2" />
+        <motion.rect
+          x="861"
+          y="156"
+          width="58"
+          height="38"
+          rx="4"
+          fill="hsl(150, 45%, 18%)"
+          animate={{ opacity: [0.6, 0.9, 0.6] }}
+          transition={{ duration: 4, repeat: Infinity }}
         />
-        {/* Pipes */}
-        <div className="absolute left-6 top-[5%] bottom-[15%] w-2 bg-gradient-to-b from-gray-600 via-gray-500 to-gray-600 rounded-full" />
-        <div className="absolute left-10 top-[20%] bottom-[10%] w-1 bg-gradient-to-b from-orange-800 via-orange-600 to-orange-800 rounded-full" />
-        {/* Wall monitor */}
-        <div className="absolute left-4 top-[25%] w-20 h-14 rounded-md overflow-hidden" style={{ background: 'hsl(220, 20%, 10%)', border: '2px solid hsl(220, 15%, 30%)' }}>
-          <motion.div
-            className="absolute inset-1 rounded-sm"
-            style={{ background: 'linear-gradient(180deg, hsl(150, 50%, 20%), hsl(150, 40%, 12%))' }}
-            animate={{ opacity: [0.6, 0.9, 0.6] }}
-            transition={{ duration: 4, repeat: Infinity }}
-          />
-          <div className="absolute inset-2 flex flex-col gap-1 justify-center">
-            <div className="h-0.5 bg-green-400/50 rounded-full" />
-            <div className="h-0.5 bg-green-400/40 rounded-full w-4/5" />
-            <div className="h-0.5 bg-green-400/30 rounded-full w-3/5" />
-          </div>
-        </div>
-        {/* Panel lights */}
-        {Array.from({ length: 4 }).map((_, i) => (
-          <motion.div
+        {[0, 1, 2, 3].map((i) => (
+          <motion.rect
             key={i}
-            className="absolute left-3 w-3 h-10 rounded-full"
-            style={{ top: `${55 + i * 12}%`, background: 'linear-gradient(180deg, hsl(25, 80%, 50%), hsl(25, 60%, 30%))' }}
-            animate={{ opacity: [0.4, 0.8, 0.4] }}
+            x="860"
+            y={330 + i * 34}
+            width="14"
+            height="26"
+            rx="6"
+            fill="hsl(25, 75%, 48%)"
+            animate={{ opacity: [0.4, 0.85, 0.4] }}
             transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.4 }}
           />
         ))}
-        {/* Storage locker */}
-        <div className="absolute left-4 bottom-[15%] w-14 h-28 rounded-sm" style={{ background: 'linear-gradient(180deg, hsl(220, 12%, 25%), hsl(220, 10%, 18%))', border: '2px solid hsl(220, 10%, 35%)' }}>
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-gray-600" />
-          <div className="absolute top-10 left-0 right-0 h-px bg-gray-600" />
-        </div>
-      </div>
 
-      {/* Floor with details */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-[22%]"
-        style={{
-          background: `linear-gradient(180deg,
-            hsl(220, 15%, 14%) 0%,
-            hsl(220, 12%, 10%) 100%
-          )`,
-          borderTop: '3px solid hsl(220, 10%, 22%)',
-        }}
-      >
-        {/* Floor grid pattern */}
-        <div className="absolute inset-0 opacity-15">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={`v-${i}`} className="absolute h-full w-px bg-gray-400" style={{ left: `${(i + 1) * 10}%` }} />
-          ))}
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={`h-${i}`} className="absolute w-full h-px bg-gray-400" style={{ top: `${(i + 1) * 30}%` }} />
-          ))}
-        </div>
-        {/* Floor hazard stripes near door */}
-        <div className="absolute bottom-0 left-[35%] md:left-[38%] -translate-x-1/2 w-40 h-full flex">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className={`flex-1 ${i % 2 === 0 ? 'bg-yellow-500/10' : 'bg-transparent'}`} />
-          ))}
-        </div>
-      </div>
-
-      {/* Ceiling lights */}
-      <div className="absolute top-[6%] left-1/2 -translate-x-1/2 flex gap-28">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="relative">
-            <div
-              className="w-28 h-5 rounded-b-lg"
-              style={{
-                background: 'linear-gradient(180deg, hsl(200, 50%, 55%), hsl(200, 40%, 40%))',
-                boxShadow: '0 15px 50px rgba(100, 200, 255, 0.4), 0 5px 20px rgba(100, 200, 255, 0.6)',
-              }}
-            />
-            <motion.div
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20 h-40 rounded-full pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse at top, rgba(100, 200, 255, 0.15), transparent 70%)' }}
-              animate={{ opacity: [0.5, 0.8, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Window/viewport in ceiling */}
-      <div className="absolute top-[3%] left-1/2 -translate-x-1/2">
-        <div
-          className="w-48 h-24 rounded-[40%] overflow-hidden"
-          style={{
-            background: `linear-gradient(180deg, hsl(220, 50%, 6%) 0%, hsl(240, 40%, 12%) 100%)`,
-            border: '5px solid hsl(220, 20%, 30%)',
-            boxShadow: 'inset 0 0 40px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5)',
-          }}
-        >
-          <div className="absolute inset-0 stars-bg opacity-70" />
-          <div
-            className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full opacity-30"
-            style={{ background: `radial-gradient(circle at 30% 30%, ${planet.color}, ${planet.color}80)` }}
+        <rect x="0" y="470" width="1000" height="130" fill="hsl(220, 13%, 12%)" stroke="hsl(220, 10%, 22%)" strokeWidth="3" />
+        {Array.from({ length: 9 }).map((_, i) => (
+          <line
+            key={i}
+            x1={(i + 1) * 100}
+            y1="470"
+            x2={(i + 1) * 100}
+            y2="600"
+            stroke="hsl(220, 10%, 40%)"
+            strokeOpacity="0.15"
           />
-        </div>
-      </div>
+        ))}
+        {Array.from({ length: 10 }).map((_, i) => (
+          <rect
+            key={i}
+            x={400 + i * 20}
+            y="470"
+            width="10"
+            height="130"
+            fill={i % 2 === 0 ? 'hsl(45, 90%, 55%)' : 'transparent'}
+            opacity="0.08"
+          />
+        ))}
+      </svg>
 
-      {/* MAIN COMPUTER TERMINAL - right side of room, grounded on floor */}
       <motion.button
-        className="absolute left-[60%] md:left-[58%] bottom-[22%] -translate-x-1/2 z-20 group cursor-pointer"
+        className="absolute left-[58%] bottom-[22%] -translate-x-1/2 z-20 group cursor-pointer"
         onClick={onAccessComputer}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -216,190 +149,91 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.98 }}
       >
-        {/* Computer workstation */}
-        <div className="relative flex flex-col items-center">
-          {/* Monitor */}
-          <div
-            className="w-40 h-28 md:w-48 md:h-32 rounded-lg relative overflow-hidden transition-all duration-300 group-hover:shadow-[0_0_40px_rgba(0,200,255,0.3)]"
-            style={{
-              background: 'linear-gradient(180deg, hsl(220, 25%, 18%), hsl(220, 20%, 12%))',
-              border: '4px solid hsl(220, 18%, 30%)',
-              boxShadow: 'inset 0 0 40px rgba(0, 150, 255, 0.2), 0 10px 40px rgba(0,0,0,0.6)',
-            }}
-          >
-            {/* Screen */}
-            <motion.div
-              className="absolute inset-3 rounded-md"
-              style={{
-                background: 'linear-gradient(180deg, hsl(200, 50%, 15%), hsl(200, 40%, 8%))',
-              }}
-              animate={{
-                boxShadow: [
-                  'inset 0 0 20px rgba(0, 200, 255, 0.2)',
-                  'inset 0 0 30px rgba(0, 200, 255, 0.4)',
-                  'inset 0 0 20px rgba(0, 200, 255, 0.2)',
-                ],
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            />
-
-            {/* Screen content */}
-            <div className="absolute inset-4 flex flex-col justify-center items-center">
-              <motion.div
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Monitor className="w-6 h-6 md:w-8 md:h-8 text-cyan-400 mb-1 md:mb-2" />
-              </motion.div>
-              <p className="text-[10px] md:text-xs font-mono text-cyan-400 text-center">MISSION TERMINAL</p>
-              <p className="text-[8px] md:text-[10px] font-mono text-cyan-600 mt-1">CLICK TO ACCESS</p>
-            </div>
-
-            {/* Scan lines */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
-              {Array.from({ length: 20 }).map((_, i) => (
-                <div key={i} className="h-px bg-cyan-400" style={{ marginTop: '5%' }} />
-              ))}
-            </div>
-          </div>
-
-          {/* Monitor stand neck */}
-          <div className="w-6 h-4 bg-gray-700" />
-
-          {/* Monitor stand base */}
-          <div className="w-16 h-2 bg-gray-800 rounded-sm" />
-
-          {/* Desk surface */}
-          <div
-            className="w-52 md:w-60 h-4 rounded-sm"
-            style={{
-              background: 'linear-gradient(180deg, hsl(220, 12%, 28%), hsl(220, 10%, 20%))',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
-            }}
+        <svg
+          width="150"
+          height="150"
+          viewBox="0 0 150 150"
+          className="overflow-visible transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(0,200,255,0.35)]"
+        >
+          <defs>
+            <linearGradient id="monitor-body" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="hsl(220, 25%, 20%)" />
+              <stop offset="100%" stopColor="hsl(220, 20%, 12%)" />
+            </linearGradient>
+          </defs>
+          <rect x="25" y="10" width="100" height="72" rx="8" fill="url(#monitor-body)" stroke="hsl(220, 18%, 34%)" strokeWidth="3" />
+          <motion.rect
+            x="35"
+            y="20"
+            width="80"
+            height="52"
+            rx="4"
+            fill="hsl(200, 50%, 14%)"
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 3, repeat: Infinity }}
           />
+          <rect x="70" y="82" width="10" height="14" fill="hsl(220, 10%, 35%)" />
+          <rect x="50" y="96" width="50" height="6" rx="3" fill="hsl(220, 10%, 20%)" />
+          <rect x="20" y="102" width="110" height="16" rx="3" fill="hsl(220, 12%, 22%)" stroke="hsl(220, 12%, 30%)" strokeWidth="2" />
+          <rect x="26" y="118" width="8" height="26" fill="hsl(220, 10%, 20%)" />
+          <rect x="116" y="118" width="8" height="26" fill="hsl(220, 10%, 20%)" />
+        </svg>
 
-          {/* Desk front panel */}
-          <div
-            className="w-52 md:w-60 h-8 md:h-10 rounded-b-sm"
-            style={{
-              background: 'linear-gradient(180deg, hsl(220, 10%, 18%), hsl(220, 8%, 14%))',
-              borderLeft: '2px solid hsl(220, 12%, 25%)',
-              borderRight: '2px solid hsl(220, 12%, 25%)',
-              borderBottom: '2px solid hsl(220, 12%, 25%)',
-            }}
-          />
-
-          {/* Desk legs */}
-          <div className="w-52 md:w-60 flex justify-between px-2">
-            <div
-              className="w-3 h-12 md:h-16"
-              style={{
-                background: 'linear-gradient(90deg, hsl(220, 10%, 22%), hsl(220, 8%, 16%))',
-              }}
-            />
-            <div
-              className="w-3 h-12 md:h-16"
-              style={{
-                background: 'linear-gradient(90deg, hsl(220, 8%, 16%), hsl(220, 10%, 22%))',
-              }}
-            />
-          </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-start pt-4 pointer-events-none">
+          <Monitor className="w-4 h-4 text-cyan-400 mt-2" />
+          <p className="text-[9px] font-mono text-cyan-400 mt-1">MISSION TERMINAL</p>
         </div>
 
-        {/* Hover label */}
-        <motion.div
-          className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
+        <motion.div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="hud-panel px-4 py-2 rounded-lg flex items-center gap-2">
             <Monitor className="w-4 h-4 text-primary" />
             <span className="font-heading text-sm tracking-mission text-primary">Access Terminal</span>
           </div>
         </motion.div>
-
-        {/* Interaction pulse */}
-        <motion.div
-          className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-6"
-          animate={{ y: [0, -4, 0], opacity: [0.4, 0.9, 0.4] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <div className="w-6 h-6 border-2 border-cyan-400/50 rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full" />
-          </div>
-        </motion.div>
       </motion.button>
 
-      {/* AIRLOCK DOOR - left side, clickable to exit */}
       <motion.button
-        className="absolute bottom-[22%] left-[35%] md:left-[38%] -translate-x-1/2 z-30 group cursor-pointer origin-bottom"
+        className="absolute bottom-[22%] left-[38%] -translate-x-1/2 z-30 group cursor-pointer"
         onClick={onExit}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
+        whileHover={{ scale: 1.03 }}
       >
-        {/* Door frame */}
-        <div
-          className="relative w-28 h-40 md:w-32 md:h-44 rounded-t-xl"
-          style={{
-            background: 'linear-gradient(180deg, hsl(220, 15%, 22%), hsl(220, 12%, 16%))',
-            border: '4px solid hsl(220, 12%, 32%)',
-            boxShadow: '0 0 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.3)',
-          }}
+        <svg
+          width="110"
+          height="160"
+          viewBox="0 0 110 160"
+          className="overflow-visible transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(255,107,53,0.35)]"
         >
-          {/* Door inner panel */}
-          <div
-            className="absolute inset-2 md:inset-3 rounded-t-lg transition-all duration-300 group-hover:shadow-[inset_0_0_30px_rgba(255,107,53,0.3)]"
-            style={{
-              background: 'linear-gradient(180deg, hsl(220, 18%, 18%), hsl(220, 15%, 12%))',
-              border: '2px solid hsl(220, 10%, 28%)',
-            }}
-          >
-            {/* Door window */}
-            <div
-              className="absolute top-3 md:top-4 left-1/2 -translate-x-1/2 w-14 md:w-16 h-10 md:h-12 rounded-md overflow-hidden"
-              style={{
-                background: 'linear-gradient(180deg, hsl(220, 30%, 8%), hsl(220, 25%, 15%))',
-                border: '2px solid hsl(220, 15%, 35%)',
-                boxShadow: 'inset 0 0 15px rgba(0,0,0,0.8)',
-              }}
-            >
-              <div className="absolute inset-0 opacity-40">
-                <div className="absolute bottom-0 left-0 right-0 h-1/2" style={{ background: `linear-gradient(180deg, transparent, ${planet.color}40)` }} />
-              </div>
-            </div>
-
-            {/* Door handle */}
-            <div className="absolute top-1/2 right-2 md:right-3 -translate-y-1/2">
-              <div className="w-2.5 md:w-3 h-10 md:h-12 rounded-full bg-gray-500 shadow-lg" />
-              <motion.div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-green-500"
-                animate={{ opacity: [1, 0.4, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-            </div>
-
-            {/* Door label */}
-            <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 text-center">
-              <p className="text-[8px] md:text-[10px] font-mono text-gray-500 tracking-wider">AIRLOCK</p>
-            </div>
-          </div>
-
-          {/* Door frame lights */}
-          <motion.div
-            className="absolute -left-1 top-1/4 w-1 md:w-1.5 h-6 md:h-8 rounded-full bg-green-500"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
+          <rect x="5" y="5" width="100" height="150" rx="14" fill="hsl(220, 15%, 22%)" stroke="hsl(220, 12%, 34%)" strokeWidth="4" />
+          <rect
+            x="16"
+            y="16"
+            width="78"
+            height="128"
+            rx="10"
+            fill="hsl(220, 17%, 15%)"
+            stroke="hsl(220, 10%, 30%)"
+            strokeWidth="2"
+            className="transition-colors duration-300 group-hover:stroke-primary"
           />
-          <motion.div
-            className="absolute -right-1 top-1/4 w-1 md:w-1.5 h-6 md:h-8 rounded-full bg-green-500"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          <rect x="34" y="30" width="42" height="30" rx="4" fill="hsl(220, 28%, 10%)" stroke="hsl(220, 16%, 36%)" strokeWidth="2" />
+          <rect x="82" y="70" width="8" height="30" rx="4" fill="hsl(220, 8%, 55%)" />
+          <motion.circle
+            cx="86"
+            cy="85"
+            r="3"
+            fill="hsl(140, 70%, 50%)"
+            animate={{ opacity: [1, 0.4, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
           />
-        </div>
+          <text x="55" y="126" textAnchor="middle" fontSize="8" fill="hsl(220, 10%, 55%)" fontFamily="monospace" letterSpacing="1">
+            AIRLOCK
+          </text>
+        </svg>
 
-        {/* Exit label on hover */}
-        <motion.div
-          className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
+        <motion.div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="hud-panel px-4 py-2 rounded-lg flex items-center gap-2">
             <DoorOpen className="w-4 h-4 text-primary" />
             <span className="font-heading text-sm tracking-mission text-primary">Exit</span>
@@ -407,7 +241,6 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
         </motion.div>
       </motion.button>
 
-      {/* Interior header */}
       <div className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-30">
         <motion.div
           className="hud-panel px-4 md:px-8 py-3 md:py-4 rounded-lg text-center"
@@ -421,7 +254,6 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
         </motion.div>
       </div>
 
-      {/* Exit button (bottom HUD) */}
       <motion.button
         className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-50 hud-panel px-4 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 md:gap-3 hover:bg-accent/20 transition-colors"
         onClick={onExit}
@@ -435,7 +267,6 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
         <span className="font-heading text-xs md:text-sm tracking-mission">Exit Base Camp</span>
       </motion.button>
 
-      {/* HUD corners */}
       <div className="fixed top-4 left-4 text-[10px] md:text-xs font-mono text-muted-foreground z-30 hidden md:block">
         <p>LOCATION: INTERIOR</p>
         <p>LIFE SUPPORT: ACTIVE</p>
@@ -449,7 +280,6 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
         <p>O₂ RECYCLER: ACTIVE</p>
       </div>
 
-      {/* Ambient particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {Array.from({ length: 12 }).map((_, i) => (
           <motion.div
@@ -459,15 +289,8 @@ export const BaseCampInterior = ({ planet, onExit, onAccessComputer }: BaseCampI
               left: `${15 + Math.random() * 70}%`,
               top: `${25 + Math.random() * 50}%`,
             }}
-            animate={{
-              y: [0, -15, 0],
-              opacity: [0.1, 0.25, 0.1],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 3,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
+            animate={{ y: [0, -15, 0], opacity: [0.1, 0.25, 0.1] }}
+            transition={{ duration: 4 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 2 }}
           />
         ))}
       </div>
