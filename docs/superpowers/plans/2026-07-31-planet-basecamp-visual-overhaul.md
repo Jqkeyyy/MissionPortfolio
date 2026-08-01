@@ -306,11 +306,18 @@ export const PlanetSurfaceMaterial = shaderMaterial(
   },
   vertexShader,
   fragmentShader
-);
+) as unknown as new () => THREE.ShaderMaterial & {
+  uTime: number;
+  uBaseColor: THREE.Color;
+  uAccentColor: THREE.Color;
+  uSeed: number;
+  uSurfaceType: number;
+};
 
 extend({ PlanetSurfaceMaterial });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       planetSurfaceMaterial: JSX.IntrinsicElements['shaderMaterial'] & {
@@ -325,6 +332,8 @@ declare global {
   }
 }
 ```
+
+**Note (added after task review — this pattern as originally written breaks `npm run lint` (`@typescript-eslint/no-namespace`) and `tsc --noEmit` against the installed `@react-three/drei@9.122.0`, whose `shaderMaterial()` return type doesn't expose custom uniforms as instance properties):** the `as unknown as new () => THREE.ShaderMaterial & {...}` cast makes `material.uTime` etc. type-check without `any`, and the `eslint-disable-next-line` comment must sit directly above the `namespace JSX {` line (not above `declare global {`) since that's the line ESLint's rule flags. The runtime behavior is unaffected — the cast is compile-time only. The same fix applies to `AtmosphereMaterial` (Task 3) and `RingBandMaterial` (Task 4) below.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -413,11 +422,15 @@ export const AtmosphereMaterial = shaderMaterial(
   },
   vertexShader,
   fragmentShader
-);
+) as unknown as new () => THREE.ShaderMaterial & {
+  uColor: THREE.Color;
+  uIntensity: number;
+};
 
 extend({ AtmosphereMaterial });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       atmosphereMaterial: JSX.IntrinsicElements['shaderMaterial'] & {
@@ -428,6 +441,8 @@ declare global {
   }
 }
 ```
+
+**Note (added after Task 2's review found this pattern breaks `npm run lint` and `tsc --noEmit` against the installed `@react-three/drei@9.122.0`, whose `shaderMaterial()` return type doesn't expose custom uniforms as instance properties):** the `as unknown as new () => THREE.ShaderMaterial & {...}` cast makes `material.uColor` / `material.uIntensity` type-check without `any`, and the `eslint-disable-next-line` comment must sit directly above the `namespace JSX {` line (not above `declare global {`) since that's the line ESLint's `@typescript-eslint/no-namespace` rule flags. The runtime behavior is unaffected — the cast is compile-time only.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -539,11 +554,18 @@ export const RingBandMaterial = shaderMaterial(
   },
   vertexShader,
   fragmentShader
-);
+) as unknown as new () => THREE.ShaderMaterial & {
+  uColorA: THREE.Color;
+  uColorB: THREE.Color;
+  uSeed: number;
+  uInnerRadius: number;
+  uOuterRadius: number;
+};
 
 extend({ RingBandMaterial });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       ringBandMaterial: JSX.IntrinsicElements['shaderMaterial'] & {
@@ -557,6 +579,8 @@ declare global {
   }
 }
 ```
+
+**Note (added after Task 2's review found this pattern breaks `npm run lint` and `tsc --noEmit` against the installed `@react-three/drei@9.122.0`, whose `shaderMaterial()` return type doesn't expose custom uniforms as instance properties):** the `as unknown as new () => THREE.ShaderMaterial & {...}` cast makes `material.uColorA` etc. type-check without `any`, and the `eslint-disable-next-line` comment must sit directly above the `namespace JSX {` line (not above `declare global {`) since that's the line ESLint's `@typescript-eslint/no-namespace` rule flags. The runtime behavior is unaffected — the cast is compile-time only.
 
 - [ ] **Step 4: Run test to verify it passes**
 
