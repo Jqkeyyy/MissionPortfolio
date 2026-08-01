@@ -111,11 +111,18 @@ export const PlanetSurfaceMaterial = shaderMaterial(
   },
   vertexShader,
   fragmentShader
-);
+) as unknown as new () => THREE.ShaderMaterial & {
+  uTime: number;
+  uBaseColor: THREE.Color;
+  uAccentColor: THREE.Color;
+  uSeed: number;
+  uSurfaceType: number;
+};
 
 extend({ PlanetSurfaceMaterial });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       planetSurfaceMaterial: JSX.IntrinsicElements['shaderMaterial'] & {
