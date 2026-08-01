@@ -5,9 +5,11 @@ interface HudCornersProps {
 }
 
 export const HudCorners = ({ active, converge = false, size = 'md' }: HudCornersProps) => {
-  const wrapperClassName = `absolute inset-0 pointer-events-none transition-opacity duration-200 ${
-    active ? 'opacity-100' : 'opacity-0'
-  }`;
+  const opacityClassName = active ? 'opacity-100' : 'opacity-0';
+  // The sm variant frames rounded-corner panels (rounded/rounded-lg), so its brackets
+  // are inset slightly to sit inside the curve instead of floating in the bounding-box corner.
+  const insetClassName = size === 'sm' ? 'inset-1' : 'inset-0';
+  const wrapperClassName = `absolute ${insetClassName} pointer-events-none transition-opacity duration-200 ${opacityClassName}`;
 
   if (size === 'sm') {
     return (

@@ -16,7 +16,7 @@ describe('HudCorners', () => {
   it('applies converge translate classes to a corner when active and converging', () => {
     const { container } = render(<HudCorners active converge size="md" />);
     const corner = container.querySelector('span');
-    expect(corner?.className).toContain('translate-x-6');
+    expect(corner?.className?.split(' ')).toContain('translate-x-6');
   });
 
   it('renders smaller corner marks for size="sm"', () => {
@@ -29,5 +29,16 @@ describe('HudCorners', () => {
     const { container } = render(<HudCorners active />);
     const corner = container.querySelector('span');
     expect(corner?.className).toContain('w-4 h-4');
+  });
+
+  it('has pointer-events-none so it never blocks clicks on its parent', () => {
+    render(<HudCorners active />);
+    expect(screen.getByTestId('hud-corners').className).toContain('pointer-events-none');
+  });
+
+  it('does not apply converge translate classes when converge is false', () => {
+    const { container } = render(<HudCorners active converge={false} size="md" />);
+    const corner = container.querySelector('span');
+    expect(corner?.className).not.toContain('translate-x-6');
   });
 });
