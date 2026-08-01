@@ -19,4 +19,9 @@ describe('PlanetReticle', () => {
     render(<PlanetReticle name="Earth" description="Experience" hovered={false} locking={false} />);
     expect(screen.getByTestId('planet-reticle').className).toContain('opacity-0');
   });
+
+  it('renders the shared HudCorners targeting brackets', () => {
+    render(<PlanetReticle name="Earth" description="Experience" hovered locking={false} />);
+    expect(screen.getByTestId('hud-corners')).toBeInTheDocument();
+  });
 });
