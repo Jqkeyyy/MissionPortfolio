@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { ContentSign as ContentSignType } from '@/data/planets';
 import { X } from 'lucide-react';
+import { HudCorners } from '@/components/HudCorners';
+import { ScanlineReveal } from '@/components/ScanlineReveal';
 
 interface SignModalProps {
   sign: ContentSignType;
@@ -50,6 +52,7 @@ export const SignModal = ({ sign, onClose }: SignModalProps) => {
     >
       {/* Backdrop */}
       <motion.div
+        data-testid="modal-backdrop"
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         onClick={onClose}
         initial={{ opacity: 0 }}
@@ -86,18 +89,17 @@ export const SignModal = ({ sign, onClose }: SignModalProps) => {
           </h3>
         </div>
 
-        <p className="text-foreground leading-relaxed whitespace-pre-line">
-          {sign.content}
-        </p>
+        <ScanlineReveal duration={0.4}>
+          <p className="text-foreground leading-relaxed whitespace-pre-line">
+            {sign.content}
+          </p>
+        </ScanlineReveal>
 
         {/* Decorative elements */}
         <div className="mt-6 h-px bg-gradient-to-r from-transparent via-hud-line/50 to-transparent" />
-        
-        {/* Corner accents */}
-        <div className="absolute top-2 left-2 w-4 h-4 border-l-2 border-t-2 border-primary/30 rounded-tl" />
-        <div className="absolute top-2 right-2 w-4 h-4 border-r-2 border-t-2 border-primary/30 rounded-tr" />
-        <div className="absolute bottom-2 left-2 w-4 h-4 border-l-2 border-b-2 border-primary/30 rounded-bl" />
-        <div className="absolute bottom-2 right-2 w-4 h-4 border-r-2 border-b-2 border-primary/30 rounded-br" />
+
+        {/* Targeting frame corners */}
+        <HudCorners active size="sm" />
       </motion.div>
     </motion.div>
   );
