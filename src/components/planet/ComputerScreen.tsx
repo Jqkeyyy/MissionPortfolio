@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { PlanetData, ContentSign as ContentSignType } from '@/data/planets';
 import { Monitor, X, ChevronRight, Database, FileText, Terminal, Package } from 'lucide-react';
+import { ScanlineReveal } from '@/components/ScanlineReveal';
 
 interface ComputerScreenProps {
   planet: PlanetData;
@@ -79,6 +80,7 @@ export const ComputerScreen = ({ planet, onClose, onSelectItem }: ComputerScreen
                   </div>
                 </div>
                 <button
+                  data-testid="computer-screen-close"
                   onClick={onClose}
                   className="p-2 rounded-lg hover:bg-white/10 transition-colors"
                 >
@@ -131,9 +133,11 @@ export const ComputerScreen = ({ planet, onClose, onSelectItem }: ComputerScreen
 
                         {/* Text */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-heading text-base md:text-lg text-white group-hover:text-cyan-300 transition-colors truncate">
-                            {item.title}
-                          </h3>
+                          <ScanlineReveal delay={0.1 + index * 0.1} duration={0.3}>
+                            <h3 className="font-heading text-base md:text-lg text-white group-hover:text-cyan-300 transition-colors truncate">
+                              {item.title}
+                            </h3>
+                          </ScanlineReveal>
                           <p className="text-xs text-gray-500 font-mono uppercase">
                             {item.type} FILE
                           </p>
