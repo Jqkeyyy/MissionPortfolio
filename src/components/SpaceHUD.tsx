@@ -3,10 +3,12 @@ import { useGameState } from '@/hooks/useGameState';
 import { planets } from '@/data/planets';
 import { Rocket, ChevronDown, ChevronUp, Menu } from 'lucide-react';
 import { useState } from 'react';
+import { HudCorners } from '@/components/HudCorners';
 
 export const SpaceHUD = () => {
   const { currentView, selectedPlanet, travelToPlanet } = useGameState();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hoveredDestination, setHoveredDestination] = useState<string | null>(null);
 
   if (currentView !== 'space') return null;
 
@@ -38,37 +40,43 @@ export const SpaceHUD = () => {
           <p className="text-xs tracking-mission text-muted-foreground text-center mb-3">
             DESTINATIONS
           </p>
-          
+
           {/* Sun/Intro */}
           <motion.button
-            className={`w-full px-3 py-2 rounded text-left text-sm transition-colors flex items-center gap-2 ${
+            className={`relative w-full px-3 py-2 rounded text-left text-sm transition-colors flex items-center gap-2 ${
               selectedPlanet === 'sun'
                 ? 'bg-primary/20 text-primary'
                 : 'hover:bg-accent/20 text-muted-foreground hover:text-foreground'
             }`}
             onClick={() => travelToPlanet('sun')}
+            onMouseEnter={() => setHoveredDestination('sun')}
+            onMouseLeave={() => setHoveredDestination(null)}
             whileHover={{ x: -3 }}
           >
+            <HudCorners active={hoveredDestination === 'sun'} size="sm" />
             <div
               className="w-3 h-3 rounded-full flex-shrink-0"
               style={{ backgroundColor: '#FDB813' }}
             />
             <span className="font-heading tracking-wide text-xs">☀ Intro</span>
           </motion.button>
-          
+
           <div className="h-px bg-border/30 my-2" />
-          
+
           {planets.filter(p => p.id !== 'sun').map((planet) => (
             <motion.button
               key={planet.id}
-              className={`w-full px-3 py-2 rounded text-left text-sm transition-colors flex items-center gap-2 ${
+              className={`relative w-full px-3 py-2 rounded text-left text-sm transition-colors flex items-center gap-2 ${
                 selectedPlanet === planet.id
                   ? 'bg-primary/20 text-primary'
                   : 'hover:bg-accent/20 text-muted-foreground hover:text-foreground'
               }`}
               onClick={() => travelToPlanet(planet.id)}
+              onMouseEnter={() => setHoveredDestination(planet.id)}
+              onMouseLeave={() => setHoveredDestination(null)}
               whileHover={{ x: -3 }}
             >
+              <HudCorners active={hoveredDestination === planet.id} size="sm" />
               <div
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: planet.color }}
@@ -102,7 +110,7 @@ export const SpaceHUD = () => {
               <ChevronUp className="w-4 h-4" />
             )}
           </button>
-          
+
           <AnimatePresence>
             {mobileMenuOpen && (
               <motion.div
