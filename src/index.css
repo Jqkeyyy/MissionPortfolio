@@ -1,0 +1,236 @@
+@import url('@fontsource/space-grotesk/400.css');
+@import url('@fontsource/space-grotesk/500.css');
+@import url('@fontsource/space-grotesk/700.css');
+@import url('@fontsource/inter/400.css');
+@import url('@fontsource/inter/500.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Space Mission Color Palette */
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 96%;
+
+    /* Mission Orange - Primary */
+    --primary: 24 95% 53%;
+    --primary-foreground: 222 47% 6%;
+
+    /* Cool Blue - Secondary */
+    --secondary: 200 80% 50%;
+    --secondary-foreground: 222 47% 6%;
+
+    /* Muted space tones */
+    --muted: 222 30% 15%;
+    --muted-foreground: 215 20% 60%;
+
+    /* Accent - subtle glow */
+    --accent: 200 60% 30%;
+    --accent-foreground: 210 40% 96%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 30% 20%;
+    --input: 222 30% 18%;
+    --ring: 24 95% 53%;
+
+    --radius: 0.5rem;
+
+    /* Custom space variables */
+    --space-deep: 222 60% 4%;
+    --space-nebula: 260 50% 20%;
+    --planet-rock: 30 15% 35%;
+    --planet-sand: 35 30% 55%;
+    --planet-basalt: 220 10% 25%;
+    --hud-line: 200 80% 50%;
+    --hud-glow: 24 95% 53%;
+    
+    /* Gradients */
+    --gradient-space: linear-gradient(180deg, hsl(222 60% 4%) 0%, hsl(260 50% 10%) 50%, hsl(222 47% 6%) 100%);
+    --gradient-atmosphere: radial-gradient(ellipse at center, transparent 0%, hsl(222 47% 6% / 0.8) 100%);
+    --gradient-hud: linear-gradient(90deg, transparent, hsl(200 80% 50% / 0.3), transparent);
+
+    /* Typography */
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Sidebar defaults */
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 200 60% 30%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 30% 20%;
+    --sidebar-ring: 24 95% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+}
+
+@layer components {
+  /* HUD Line Styles */
+  .hud-line {
+    @apply relative;
+  }
+  
+  .hud-line::before {
+    content: '';
+    @apply absolute left-0 top-0 h-px w-full;
+    background: var(--gradient-hud);
+  }
+
+  /* Breathing animation for idle states */
+  .breathing {
+    animation: breathing 4s ease-in-out infinite;
+  }
+
+  /* Planet glow effect */
+  .planet-glow {
+    filter: drop-shadow(0 0 20px hsl(var(--primary) / 0.3));
+  }
+
+  /* HUD panel styling */
+  .hud-panel {
+    @apply relative border border-border/30 bg-card/80 backdrop-blur-md;
+    box-shadow: 
+      0 0 20px hsl(var(--hud-line) / 0.1),
+      inset 0 1px 0 hsl(var(--foreground) / 0.05);
+  }
+
+  .hud-panel::before {
+    content: '';
+    @apply absolute -top-px left-4 right-4 h-px;
+    background: linear-gradient(90deg, transparent, hsl(var(--hud-line) / 0.5), transparent);
+  }
+
+  /* Interactive sign styling */
+  .mission-sign {
+    @apply relative cursor-pointer transition-all duration-300;
+  }
+
+  .mission-sign:hover {
+    @apply scale-105;
+    filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5));
+  }
+
+  /* Node hotspot */
+  .node-hotspot {
+    @apply relative cursor-pointer;
+  }
+
+  .node-hotspot::after {
+    content: '';
+    @apply absolute inset-0 rounded-full;
+    background: radial-gradient(circle, hsl(var(--primary) / 0.3), transparent);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Stars background */
+  .stars-bg {
+    background: 
+      radial-gradient(2px 2px at 20px 30px, hsl(var(--foreground)), transparent),
+      radial-gradient(2px 2px at 40px 70px, hsl(var(--foreground) / 0.8), transparent),
+      radial-gradient(1px 1px at 90px 40px, hsl(var(--foreground)), transparent),
+      radial-gradient(2px 2px at 130px 80px, hsl(var(--foreground) / 0.6), transparent),
+      radial-gradient(1px 1px at 160px 120px, hsl(var(--foreground)), transparent);
+    background-repeat: repeat;
+    background-size: 200px 200px;
+  }
+}
+
+@layer utilities {
+  /* Text glow */
+  .text-glow {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+
+  .text-glow-blue {
+    text-shadow: 0 0 20px hsl(var(--secondary) / 0.5);
+  }
+
+  /* Letter spacing for NASA vibe */
+  .tracking-mission {
+    letter-spacing: 0.15em;
+  }
+}
+
+@keyframes breathing {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
