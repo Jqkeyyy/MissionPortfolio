@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Sphere, Html } from '@react-three/drei';
 import * as THREE from 'three';
+import { usePlanetLockOn } from '@/hooks/usePlanetLockOn';
+import { PlanetReticle } from './PlanetReticle';
 
 interface SunProps {
   onClick?: () => void;
@@ -10,7 +12,8 @@ interface SunProps {
 export const Sun = ({ onClick }: SunProps) => {
   const sunRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
+
+  const { hovered, locking, setHovered, trigger } = usePlanetLockOn(() => onClick?.());
 
   useFrame((state) => {
     if (sunRef.current) {
@@ -22,16 +25,19 @@ export const Sun = ({ onClick }: SunProps) => {
     }
   });
 
+  const handleClick = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
+    trigger();
+  };
+
   return (
     <group position={[0, 15, 0]}>
       {/* Sun core */}
       <Sphere
         ref={sunRef}
         args={[2.5, 64, 64]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick?.();
-        }}
+        scale={locking ? 1.08 : 1}
+        onClick={handleClick}
         onPointerOver={(e) => {
           e.stopPropagation();
           setHovered(true);
@@ -44,7 +50,7 @@ export const Sun = ({ onClick }: SunProps) => {
       >
         <meshBasicMaterial color="#FDB813" />
       </Sphere>
-      
+
       {/* Inner glow */}
       <Sphere ref={glowRef} args={[3, 32, 32]}>
         <meshBasicMaterial
@@ -71,23 +77,15 @@ export const Sun = ({ onClick }: SunProps) => {
         decay={2}
       />
 
-      {/* Label when hovered */}
-      {hovered && (
-        <Html
-          position={[0, 4, 0]}
-          center
-          style={{ pointerEvents: 'none' }}
-        >
-          <div className="hud-panel px-4 py-2 rounded-lg whitespace-nowrap">
-            <p className="font-heading text-sm tracking-mission text-primary">
-              The Sun
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Identity / Introduction
-            </p>
-          </div>
-        </Html>
-      )}
+      {/* Reticle with lock-on animation */}
+      <Html position={[0, 4, 0]} center style={{ pointerEvents: 'none' }}>
+        <PlanetReticle
+          name="The Sun"
+          description="Identity / Introduction"
+          hovered={hovered}
+          locking={locking}
+        />
+      </Html>
     </group>
   );
 };
