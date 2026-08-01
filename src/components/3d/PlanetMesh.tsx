@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, extend } from '@react-three/fiber';
 import { Sphere, Ring, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { PlanetData } from '@/data/planets';
@@ -10,6 +10,13 @@ import { PlanetReticle } from './PlanetReticle';
 import { PlanetSurfaceMaterial, SURFACE_TYPES } from './shaders/PlanetSurfaceMaterial';
 import { AtmosphereMaterial } from './shaders/AtmosphereMaterial';
 import { RingBandMaterial } from './shaders/RingBandMaterial';
+
+// Each shader module also calls extend() itself as a module-level side effect, but a
+// side-effect-only import (the binding is used solely in JSX intrinsic tags and type
+// positions, never as a runtime value) is not reliably preserved by Vite's dev-server
+// module graph on cold start. Extending explicitly here — where the bindings are
+// visibly consumed — guarantees registration before this component's first render.
+extend({ PlanetSurfaceMaterial, AtmosphereMaterial, RingBandMaterial });
 
 interface PlanetMeshProps {
   planet: PlanetData;
