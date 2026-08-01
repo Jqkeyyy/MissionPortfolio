@@ -51,6 +51,8 @@ export const SpaceHUD = () => {
             onClick={() => travelToPlanet('sun')}
             onMouseEnter={() => setHoveredDestination('sun')}
             onMouseLeave={() => setHoveredDestination(null)}
+            onFocus={() => setHoveredDestination('sun')}
+            onBlur={() => setHoveredDestination(null)}
             whileHover={{ x: -3 }}
           >
             <HudCorners active={hoveredDestination === 'sun'} size="sm" />
@@ -74,6 +76,8 @@ export const SpaceHUD = () => {
               onClick={() => travelToPlanet(planet.id)}
               onMouseEnter={() => setHoveredDestination(planet.id)}
               onMouseLeave={() => setHoveredDestination(null)}
+              onFocus={() => setHoveredDestination(planet.id)}
+              onBlur={() => setHoveredDestination(null)}
               whileHover={{ x: -3 }}
             >
               <HudCorners active={hoveredDestination === planet.id} size="sm" />
