@@ -1,8 +1,11 @@
+export type PlanetSurface = 'cratered' | 'banded' | 'earthlike' | 'venusAtmo';
+
 export interface PlanetData {
   id: string;
   name: string;
   displayName: string;
   color: string;
+  surface: PlanetSurface;
   size: number;
   orbitRadius: number;
   orbitSpeed: number;
@@ -23,6 +26,7 @@ export const planets: PlanetData[] = [
     name: 'sun',
     displayName: 'The Sun',
     color: '#FDB813',
+    surface: 'cratered',
     size: 2.5,
     orbitRadius: 0,
     orbitSpeed: 0,
@@ -47,6 +51,7 @@ export const planets: PlanetData[] = [
     name: 'mercury',
     displayName: 'Mercury',
     color: '#8C7853',
+    surface: 'cratered',
     size: 0.4,
     orbitRadius: 8,
     orbitSpeed: 4.7,
@@ -77,6 +82,7 @@ export const planets: PlanetData[] = [
     name: 'venus',
     displayName: 'Venus',
     color: '#E6C68A',
+    surface: 'venusAtmo',
     size: 0.9,
     orbitRadius: 12,
     orbitSpeed: 3.5,
@@ -107,6 +113,7 @@ export const planets: PlanetData[] = [
     name: 'earth',
     displayName: 'Earth',
     color: '#4B7BE5',
+    surface: 'earthlike',
     size: 1,
     orbitRadius: 16,
     orbitSpeed: 3,
@@ -137,6 +144,7 @@ export const planets: PlanetData[] = [
     name: 'moon',
     displayName: 'The Moon',
     color: '#C4C4C4',
+    surface: 'cratered',
     size: 0.27,
     orbitRadius: 18,
     orbitSpeed: 2.8,
@@ -161,6 +169,7 @@ export const planets: PlanetData[] = [
     name: 'mars',
     displayName: 'Mars',
     color: '#E27B58',
+    surface: 'cratered',
     size: 0.53,
     orbitRadius: 22,
     orbitSpeed: 2.4,
@@ -191,6 +200,7 @@ export const planets: PlanetData[] = [
     name: 'jupiter',
     displayName: 'Jupiter',
     color: '#D4A574',
+    surface: 'banded',
     size: 2,
     orbitRadius: 30,
     orbitSpeed: 1.3,
@@ -221,6 +231,7 @@ export const planets: PlanetData[] = [
     name: 'saturn',
     displayName: 'Saturn',
     color: '#E8D4A8',
+    surface: 'banded',
     size: 1.7,
     orbitRadius: 38,
     orbitSpeed: 0.97,
@@ -251,6 +262,7 @@ export const planets: PlanetData[] = [
     name: 'uranus',
     displayName: 'Uranus',
     color: '#7FDBDA',
+    surface: 'banded',
     size: 1.3,
     orbitRadius: 46,
     orbitSpeed: 0.68,
@@ -275,6 +287,7 @@ export const planets: PlanetData[] = [
     name: 'neptune',
     displayName: 'Neptune',
     color: '#4B70DD',
+    surface: 'banded',
     size: 1.2,
     orbitRadius: 54,
     orbitSpeed: 0.54,
