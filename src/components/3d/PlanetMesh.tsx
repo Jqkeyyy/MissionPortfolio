@@ -11,17 +11,22 @@ import { PlanetSurfaceMaterial, SURFACE_TYPES } from './shaders/PlanetSurfaceMat
 import { AtmosphereMaterial } from './shaders/AtmosphereMaterial';
 import { RingBandMaterial } from './shaders/RingBandMaterial';
 
-// Each shader module also calls extend() itself as a module-level side effect, but a
-// side-effect-only import (the binding is used solely in JSX intrinsic tags and type
-// positions, never as a runtime value) is not reliably preserved by Vite's dev-server
-// module graph on cold start. Extending explicitly here — where the bindings are
-// visibly consumed — guarantees registration before this component's first render.
+// Each shader module also calls extend() itself as a module-level side effect, but
+// tsconfig.app.json sets neither verbatimModuleSyntax nor preserveValueImports, so
+// esbuild/SWC elides an import whose binding never appears in a value position in the
+// importing file. AtmosphereMaterial/RingBandMaterial were only referenced via the
+// lowercase JSX intrinsics <atmosphereMaterial>/<ringBandMaterial> (string tags, not
+// value references), so those imports — and their extend() side effects — were dropped
+// entirely, in production builds too, not just dev. Extending explicitly here forces a
+// value-position usage of each binding, guaranteeing registration.
 extend({ PlanetSurfaceMaterial, AtmosphereMaterial, RingBandMaterial });
 
 interface PlanetMeshProps {
   planet: PlanetData;
   onClick?: () => void;
 }
+
+const SUN_WORLD_POSITION = new THREE.Vector3(0, 15, 0);
 
 const ATMOSPHERE_INTENSITY: Record<PlanetSurface, number> = {
   cratered: 0.35,
@@ -59,6 +64,8 @@ export const PlanetMesh = ({ planet, onClick }: PlanetMeshProps) => {
 
   const initialAngle = useRef(Math.random() * Math.PI * 2);
   const seed = useRef(Math.random() * 100);
+  const planetWorldPosRef = useRef(new THREE.Vector3());
+  const lightDirRef = useRef(new THREE.Vector3());
 
   const baseColor = useMemo(() => new THREE.Color(planet.color), [planet.color]);
   const accentColor = useMemo(() => deriveAccentColor(planet.color, surface), [planet.color, surface]);
@@ -80,6 +87,15 @@ export const PlanetMesh = ({ planet, onClick }: PlanetMeshProps) => {
 
     if (materialRef.current) {
       materialRef.current.uTime = state.clock.elapsedTime;
+    }
+
+    if (materialRef.current && groupRef.current) {
+      const planetWorldPos = groupRef.current.getWorldPosition(planetWorldPosRef.current);
+      const lightDir = lightDirRef.current
+        .subVectors(SUN_WORLD_POSITION, planetWorldPos)
+        .normalize()
+        .transformDirection(state.camera.matrixWorldInverse);
+      materialRef.current.uLightDirection = lightDir;
     }
   });
 
