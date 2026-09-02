@@ -21,6 +21,20 @@ describe('SpaceHUD', () => {
     expect(useGameState.getState().selectedPlanet).toBe('earth');
   });
 
+  it('shows a visible interception status while the shuttle crosses the solar system', () => {
+    useGameState.setState({
+      currentView: 'intercepting',
+      selectedPlanet: 'mars',
+      isTransitioning: true,
+      travelDirection: 'toPlanet',
+    });
+
+    render(<SpaceHUD />);
+
+    expect(screen.getByTestId('solar-intercept-status')).toBeInTheDocument();
+    expect(screen.getByText(/shuttle en route to mars/i)).toBeInTheDocument();
+  });
+
   it('shows hud-corners brackets on the desktop destination buttons', () => {
     render(<SpaceHUD />);
     expect(screen.getAllByTestId('hud-corners').length).toBeGreaterThan(0);

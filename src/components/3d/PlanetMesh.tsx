@@ -24,6 +24,7 @@ extend({ PlanetSurfaceMaterial, AtmosphereMaterial, RingBandMaterial });
 interface PlanetMeshProps {
   planet: PlanetData;
   onClick?: () => void;
+  onPositionUpdate?: (position: THREE.Vector3) => void;
 }
 
 const SUN_WORLD_POSITION = new THREE.Vector3(0, 15, 0);
@@ -54,7 +55,7 @@ const deriveAccentColor = (baseHex: string, surface: PlanetSurface): THREE.Color
   }
 };
 
-export const PlanetMesh = ({ planet, onClick }: PlanetMeshProps) => {
+export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProps) => {
   const groupRef = useRef<THREE.Group>(null);
   const planetRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<InstanceType<typeof PlanetSurfaceMaterial>>(null);
@@ -91,6 +92,7 @@ export const PlanetMesh = ({ planet, onClick }: PlanetMeshProps) => {
 
     if (materialRef.current && groupRef.current) {
       const planetWorldPos = groupRef.current.getWorldPosition(planetWorldPosRef.current);
+      onPositionUpdate?.(planetWorldPos);
       const lightDir = lightDirRef.current
         .subVectors(SUN_WORLD_POSITION, planetWorldPos)
         .normalize()

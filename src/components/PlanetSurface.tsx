@@ -3,9 +3,11 @@ import { useGameState } from '@/hooks/useGameState';
 import { getPlanetById } from '@/data/planets';
 import { ContentSign as ContentSignType } from '@/data/planets';
 import { ChevronLeft, ChevronRight, Rocket } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { PlanetTerrain } from './planet/PlanetTerrain';
 import { BaseCamp } from './planet/BaseCamp';
+import { LandingPad } from './planet/LandingPad';
+import { PlanetLandingShip } from './planet/PlanetLandingShip';
 import { BaseCampInterior } from './planet/BaseCampInterior';
 import { ComputerScreen } from './planet/ComputerScreen';
 import { SignModal } from './planet/SignModal';
@@ -16,6 +18,7 @@ export const PlanetSurface = () => {
   const [activeSign, setActiveSign] = useState<ContentSignType | null>(null);
   const [isInsideBaseCamp, setIsInsideBaseCamp] = useState(false);
   const [showComputerScreen, setShowComputerScreen] = useState(false);
+  const landingTargetRef = useRef<HTMLSpanElement>(null);
 
   if (!planet) return null;
 
@@ -65,6 +68,10 @@ export const PlanetSurface = () => {
 
       {/* Planet-specific terrain with curve */}
       <PlanetTerrain planet={planet} />
+
+      {/* Landing zone and responsive orbit-to-pad touchdown */}
+      <LandingPad planet={planet} targetRef={landingTargetRef} />
+      <PlanetLandingShip planet={planet} targetRef={landingTargetRef} />
 
       {/* Physical Base Camp - click to enter */}
       <BaseCamp planet={planet} onClick={handleEnterBaseCamp} />
