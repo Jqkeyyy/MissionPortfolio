@@ -4,6 +4,7 @@ import { SolarSystem } from '@/components/3d/SolarSystem';
 import { TravelSequence } from '@/components/TravelSequence';
 import { PlanetSurface } from '@/components/PlanetSurface';
 import { SpaceHUD } from '@/components/SpaceHUD';
+import { ShipFlightLayer } from '@/components/ShipFlightLayer';
 
 const Index = () => {
   const { currentView } = useGameState();
@@ -11,7 +12,7 @@ const Index = () => {
   return (
     <div className="w-screen h-screen overflow-hidden bg-background">
       {/* Space view with 3D solar system */}
-      {currentView === 'space' && (
+      {(currentView === 'space' || currentView === 'intercepting') && (
         <>
           <SolarSystem />
           <SpaceHUD />
@@ -27,6 +28,9 @@ const Index = () => {
       <AnimatePresence>
         {currentView === 'planet' && <PlanetSurface />}
       </AnimatePresence>
+
+      {/* Lightweight ship sprite shared by cruise and travel views */}
+      <ShipFlightLayer />
     </div>
   );
 };

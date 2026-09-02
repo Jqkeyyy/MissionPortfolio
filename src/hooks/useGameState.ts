@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 
-export type ViewMode = 'space' | 'traveling' | 'planet';
+export type ViewMode = 'space' | 'intercepting' | 'traveling' | 'planet';
+export type TravelDirection = 'toPlanet' | 'toSpace' | null;
 
 interface GameState {
   currentView: ViewMode;
   selectedPlanet: string | null;
   previousPlanet: string | null;
   isTransitioning: boolean;
+  travelDirection: TravelDirection;
   activeSign: string | null;
   
   // Actions
@@ -22,11 +24,15 @@ interface GameState {
 
 import { planets } from '@/data/planets';
 
+export const PLANET_TRAVEL_DURATION_MS = 2400;
+export const SOLAR_INTERCEPT_DURATION_MS = 3200;
+
 export const useGameState = create<GameState>((set, get) => ({
   currentView: 'space',
   selectedPlanet: null,
   previousPlanet: null,
   isTransitioning: false,
+  travelDirection: null,
   activeSign: null,
 
   selectPlanet: (planetId) => {
@@ -34,26 +40,43 @@ export const useGameState = create<GameState>((set, get) => ({
   },
 
   travelToPlanet: (planetId) => {
-    const { selectedPlanet } = get();
+    const { selectedPlanet, currentView, isTransitioning } = get();
+    if (isTransitioning) return;
+
+    const beginsInSolarSystem = currentView === 'space';
     set({
       previousPlanet: selectedPlanet,
       selectedPlanet: planetId,
       isTransitioning: true,
-      currentView: 'traveling',
+      travelDirection: 'toPlanet',
+      currentView: beginsInSolarSystem ? 'intercepting' : 'traveling',
     });
 
-    // Simulate travel time
-    setTimeout(() => {
+    const beginCloseApproach = () => {
       set({
-        currentView: 'planet',
-        isTransitioning: false,
+        currentView: 'traveling',
       });
-    }, 2000);
+
+      setTimeout(() => {
+        set({
+          currentView: 'planet',
+          isTransitioning: false,
+          travelDirection: null,
+        });
+      }, PLANET_TRAVEL_DURATION_MS);
+    };
+
+    if (beginsInSolarSystem) {
+      setTimeout(beginCloseApproach, SOLAR_INTERCEPT_DURATION_MS);
+    } else {
+      beginCloseApproach();
+    }
   },
 
   returnToSpace: () => {
     set({
       isTransitioning: true,
+      travelDirection: 'toSpace',
       currentView: 'traveling',
     });
 
@@ -61,6 +84,7 @@ export const useGameState = create<GameState>((set, get) => ({
       set({
         currentView: 'space',
         isTransitioning: false,
+        travelDirection: null,
         activeSign: null,
       });
     }, 1500);

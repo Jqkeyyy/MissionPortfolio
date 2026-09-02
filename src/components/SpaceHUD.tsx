@@ -4,11 +4,51 @@ import { planets } from '@/data/planets';
 import { Rocket, ChevronDown, ChevronUp, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { HudCorners } from '@/components/HudCorners';
+import { getPlanetById } from '@/data/planets';
 
 export const SpaceHUD = () => {
   const { currentView, selectedPlanet, travelToPlanet } = useGameState();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredDestination, setHoveredDestination] = useState<string | null>(null);
+
+  if (currentView === 'intercepting') {
+    const destination = selectedPlanet ? getPlanetById(selectedPlanet) : null;
+
+    return (
+      <div
+        className="pointer-events-none fixed inset-0 z-10"
+        data-testid="solar-intercept-status"
+        aria-live="polite"
+      >
+        <motion.div
+          className="absolute left-1/2 top-6 w-[min(88vw,430px)] -translate-x-1/2 rounded-md border border-primary/35 bg-background/75 px-5 py-3 text-center shadow-[0_0_30px_hsl(var(--primary)/0.14)] backdrop-blur-sm md:top-8"
+          initial={{ opacity: 0, y: -14 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <p className="text-[10px] tracking-mission text-primary">AUTOPILOT INTERCEPT</p>
+          <p className="mt-1 font-heading text-lg tracking-wide text-foreground md:text-xl">
+            SHUTTLE EN ROUTE TO {destination?.displayName.toUpperCase() ?? 'DESTINATION'}
+          </p>
+          <div className="mt-2 h-px overflow-hidden bg-border/70">
+            <motion.div
+              className="h-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]"
+              initial={{ width: '0%' }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 3.1, ease: 'easeInOut' }}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 rounded border border-primary/25 bg-background/65 px-4 py-2 font-mono text-[10px] tracking-mission text-primary backdrop-blur-sm"
+          animate={{ opacity: [0.55, 1, 0.55] }}
+          transition={{ duration: 1.1, repeat: Infinity }}
+        >
+          TRACKING LIVE ORBIT • VISUAL LOCK CONFIRMED
+        </motion.div>
+      </div>
+    );
+  }
 
   if (currentView !== 'space') return null;
 

@@ -11,6 +11,8 @@ describe('BaseCamp', () => {
     expect(screen.getByText(planet.displayName)).toBeInTheDocument();
     expect(screen.getByText(planet.description)).toBeInTheDocument();
     expect(screen.getByText('Enter Base Camp')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toHaveAccessibleName(`Enter the base camp on ${planet.displayName}`);
+    expect(document.querySelector('img')).toHaveAttribute('src', '/base-camp-exterior.png');
   });
 
   it('calls onClick when clicked', () => {
