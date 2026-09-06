@@ -1,13 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameState } from '@/hooks/useGameState';
 import { planets } from '@/data/planets';
-import { Rocket, ChevronDown, ChevronUp, Menu } from 'lucide-react';
+import { Rocket, ChevronDown, ChevronUp, FileUser, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { HudCorners } from '@/components/HudCorners';
 import { getPlanetById } from '@/data/planets';
 
 export const SpaceHUD = () => {
-  const { currentView, selectedPlanet, travelToPlanet } = useGameState();
+  const { currentView, selectedPlanet, travelToPlanet, openQuickPortfolio } = useGameState();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredDestination, setHoveredDestination] = useState<string | null>(null);
 
@@ -77,6 +77,15 @@ export const SpaceHUD = () => {
         transition={{ delay: 0.7 }}
       >
         <div className="hud-panel p-3 rounded-lg space-y-1 max-h-[70vh] overflow-y-auto">
+          <button
+            type="button"
+            data-testid="desktop-quick-portfolio"
+            onClick={openQuickPortfolio}
+            className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded border border-primary/35 bg-primary/10 px-3 font-heading text-xs tracking-wide text-primary transition-colors hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <FileUser className="h-4 w-4" aria-hidden="true" />
+            Quick Portfolio
+          </button>
           <p className="text-xs tracking-mission text-muted-foreground text-center mb-3">
             DESTINATIONS
           </p>
@@ -141,6 +150,17 @@ export const SpaceHUD = () => {
           transition={{ delay: 0.7 }}
         >
           <button
+            type="button"
+            data-testid="mobile-quick-portfolio"
+            onClick={openQuickPortfolio}
+            className="hud-panel mb-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border-primary/40 bg-primary/10 px-4 font-heading text-sm tracking-mission text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <FileUser className="h-4 w-4" aria-hidden="true" />
+            Quick Portfolio
+          </button>
+          <button
+            type="button"
+            aria-label="Toggle destination menu"
             className="hud-panel w-full px-4 py-3 rounded-lg flex items-center justify-between"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >

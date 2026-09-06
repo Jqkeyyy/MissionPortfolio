@@ -1,3 +1,5 @@
+import type { ProjectId } from './projects';
+
 export type PlanetSurface = 'cratered' | 'banded' | 'earthlike' | 'venusAtmo';
 
 export interface PlanetData {
@@ -18,6 +20,7 @@ export interface ContentSign {
   title: string;
   content: string;
   type: 'sign' | 'tablet' | 'console' | 'crate';
+  projectId?: ProjectId;
 }
 
 export const planets: PlanetData[] = [
@@ -248,18 +251,21 @@ export const planets: PlanetData[] = [
         title: 'Fantasy Football Platform',
         content: 'A Python decision system built on 740K+ historical records, with league-aware projections, draft and waiver analysis, leakage-safe ML, up to 20K matchup simulations, and 1,265 pytest tests.',
         type: 'console',
+        projectId: 'fantasy-football',
       },
       {
         id: 'proj-2',
         title: 'QuizClone',
         content: 'A React and TypeScript study platform with flashcards, adaptive Leitner review, configurable tests, progress history, set sharing, portable backups, and Supabase Row Level Security.',
         type: 'tablet',
+        projectId: 'quizclone',
       },
       {
         id: 'proj-3',
         title: 'Campus Marketplace',
         content: 'A full-stack marketplace for the UWW campus community with verified accounts, listings and image uploads, search and filters, favorites, buyer-seller messaging, and administration tools.',
         type: 'sign',
+        projectId: 'campus-marketplace',
       },
     ],
   },
@@ -279,18 +285,21 @@ export const planets: PlanetData[] = [
         title: 'Mission Portfolio',
         content: 'This interactive React and Three.js portfolio replaces a conventional scrolling page with an orbiting solar system, animated travel, explorable planet surfaces, and a sci-fi desktop interface.',
         type: 'crate',
+        projectId: 'mission-portfolio',
       },
       {
         id: 'side-2',
         title: "What's Jake Doing?",
         content: 'A cosmic availability and calendar app with live free/busy status, day/week/month views, recurring events, an ICS feed, and a protected admin workflow backed by Supabase and Vercel Functions.',
         type: 'tablet',
+        projectId: 'whats-jake-doing',
       },
       {
         id: 'side-3',
         title: 'Arena Tracker',
         content: 'A League of Legends Arena companion that scans supported queues, tracks champion wins locally, and protects the Riot API key behind a validated, rate-limited serverless endpoint.',
         type: 'console',
+        projectId: 'arena-tracker',
       },
     ],
   },

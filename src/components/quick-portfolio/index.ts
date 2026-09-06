@@ -1,0 +1,1 @@
+export { QuickPortfolio } from './QuickPortfolio';

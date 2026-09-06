@@ -5,9 +5,10 @@ import { TravelSequence } from '@/components/TravelSequence';
 import { PlanetSurface } from '@/components/PlanetSurface';
 import { SpaceHUD } from '@/components/SpaceHUD';
 import { ShipFlightLayer } from '@/components/ShipFlightLayer';
+import { QuickPortfolio } from '@/components/quick-portfolio';
 
 const Index = () => {
-  const { currentView } = useGameState();
+  const { currentView, quickPortfolioOpen, closeQuickPortfolio } = useGameState();
 
   return (
     <div className="w-screen h-screen overflow-hidden bg-background">
@@ -31,6 +32,8 @@ const Index = () => {
 
       {/* Lightweight ship sprite shared by cruise and travel views */}
       <ShipFlightLayer />
+
+      {quickPortfolioOpen && <QuickPortfolio onClose={closeQuickPortfolio} />}
     </div>
   );
 };

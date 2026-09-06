@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import { SpaceHUD } from './SpaceHUD';
 import { useGameState } from '@/hooks/useGameState';
 
 describe('SpaceHUD', () => {
   beforeEach(() => {
-    useGameState.setState({ currentView: 'space', selectedPlanet: null });
+    useGameState.setState({ currentView: 'space', selectedPlanet: null, quickPortfolioOpen: false });
   });
 
   it('renders a destination button for every planet plus the intro', () => {
@@ -38,5 +38,16 @@ describe('SpaceHUD', () => {
   it('shows hud-corners brackets on the desktop destination buttons', () => {
     render(<SpaceHUD />);
     expect(screen.getAllByTestId('hud-corners').length).toBeGreaterThan(0);
+  });
+
+  it('opens Quick Portfolio from both desktop and mobile controls', () => {
+    render(<SpaceHUD />);
+
+    fireEvent.click(screen.getByTestId('desktop-quick-portfolio'));
+    expect(useGameState.getState().quickPortfolioOpen).toBe(true);
+
+    act(() => useGameState.getState().closeQuickPortfolio());
+    fireEvent.click(screen.getByTestId('mobile-quick-portfolio'));
+    expect(useGameState.getState().quickPortfolioOpen).toBe(true);
   });
 });

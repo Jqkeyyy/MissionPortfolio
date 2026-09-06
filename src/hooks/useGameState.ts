@@ -10,6 +10,7 @@ interface GameState {
   isTransitioning: boolean;
   travelDirection: TravelDirection;
   activeSign: string | null;
+  quickPortfolioOpen: boolean;
   
   // Actions
   selectPlanet: (planetId: string) => void;
@@ -17,6 +18,8 @@ interface GameState {
   returnToSpace: () => void;
   openSign: (signId: string) => void;
   closeSign: () => void;
+  openQuickPortfolio: () => void;
+  closeQuickPortfolio: () => void;
   setTransitioning: (isTransitioning: boolean) => void;
   goToNextPlanet: () => void;
   goToPreviousPlanet: () => void;
@@ -34,6 +37,7 @@ export const useGameState = create<GameState>((set, get) => ({
   isTransitioning: false,
   travelDirection: null,
   activeSign: null,
+  quickPortfolioOpen: false,
 
   selectPlanet: (planetId) => {
     set({ selectedPlanet: planetId });
@@ -96,6 +100,14 @@ export const useGameState = create<GameState>((set, get) => ({
 
   closeSign: () => {
     set({ activeSign: null });
+  },
+
+  openQuickPortfolio: () => {
+    set({ quickPortfolioOpen: true });
+  },
+
+  closeQuickPortfolio: () => {
+    set({ quickPortfolioOpen: false });
   },
 
   setTransitioning: (isTransitioning) => {

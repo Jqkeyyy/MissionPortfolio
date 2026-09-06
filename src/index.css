@@ -424,3 +424,58 @@
     display: none;
   }
 }
+
+@media print {
+  html,
+  body,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .quick-portfolio-overlay,
+  .quick-portfolio-overlay * {
+    visibility: visible;
+  }
+
+  .quick-portfolio-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+    color: #0f172a !important;
+  }
+
+  .quick-portfolio-overlay .quick-portfolio-toolbar,
+  .quick-portfolio-overlay .quick-portfolio-actions {
+    display: none !important;
+  }
+
+  .quick-portfolio-overlay article,
+  .quick-portfolio-overlay section {
+    break-inside: avoid;
+  }
+
+  .quick-portfolio-overlay [class*='text-white'],
+  .quick-portfolio-overlay [class*='text-cyan'],
+  .quick-portfolio-overlay [class*='text-orange'],
+  .quick-portfolio-overlay [class*='text-emerald'],
+  .quick-portfolio-overlay [class*='text-violet'],
+  .quick-portfolio-overlay [class*='text-amber'],
+  .quick-portfolio-overlay [class*='text-rose'] {
+    color: #0f172a !important;
+  }
+
+  .quick-portfolio-overlay [class*='bg-'] {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .quick-portfolio-overlay article {
+    border-color: #cbd5e1 !important;
+  }
+}

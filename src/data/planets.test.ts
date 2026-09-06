@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { planets } from './planets';
 import type { ContentSign, PlanetSurface } from './planets';
+import { projects } from './projects';
 
 const VALID_SURFACES: PlanetSurface[] = ['cratered', 'banded', 'earthlike', 'venusAtmo'];
 const VALID_CONTENT_TYPES: ContentSign['type'][] = ['sign', 'tablet', 'console', 'crate'];
@@ -89,5 +90,15 @@ describe('planets data', () => {
     ]) {
       expect(portfolioCopy).not.toContain(placeholder);
     }
+  });
+
+  it('connects every Saturn and Uranus archive entry to one catalog project', () => {
+    const archiveEntries = planets
+      .filter((planet) => planet.id === 'saturn' || planet.id === 'uranus')
+      .flatMap((planet) => planet.content);
+    const projectIds = new Set(projects.map((project) => project.id));
+
+    expect(archiveEntries.map((entry) => entry.projectId)).toHaveLength(projects.length);
+    expect(new Set(archiveEntries.map((entry) => entry.projectId))).toEqual(projectIds);
   });
 });

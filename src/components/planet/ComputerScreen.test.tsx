@@ -36,6 +36,28 @@ describe('ComputerScreen', () => {
     expect(screen.getByRole('dialog', { name: `${planet.displayName} Mission Archive` })).toBeInTheDocument();
   });
 
+  it('renders shared project case studies for the Saturn archive', () => {
+    const saturn = planets.find((candidate) => candidate.id === 'saturn')!;
+    render(<ComputerScreen planet={saturn} onClose={() => {}} />);
+
+    fireEvent.click(screen.getByText('Fantasy Football Platform'));
+
+    expect(screen.getByRole('heading', { name: 'Fantasy Football Decision-Support Platform' })).toBeInTheDocument();
+    expect(screen.getByText('740K+')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /view repository for fantasy football/i })).toBeInTheDocument();
+  });
+
+  it('renders direct contact actions in the Neptune archive', () => {
+    const neptune = planets.find((candidate) => candidate.id === 'neptune')!;
+    render(<ComputerScreen planet={neptune} onClose={() => {}} />);
+
+    fireEvent.click(screen.getByTestId('desktop-archive'));
+
+    expect(screen.getByRole('link', { name: 'Email Jake Sass' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Download Jacob Sass resume as a PDF' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open the live Campus Marketplace project' })).toBeInTheDocument();
+  });
+
   it('runs commands in the interactive terminal', () => {
     render(<ComputerScreen planet={planet} onClose={() => {}} />);
     fireEvent.click(screen.getByTestId('desktop-terminal'));

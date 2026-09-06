@@ -41,6 +41,10 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { ContentSign, PlanetData } from '@/data/planets';
+import { contactActions } from '@/data/contact';
+import { getProjectById } from '@/data/projects';
+import { ContactActions } from '@/components/portfolio/ContactActions';
+import { ProjectCaseStudy } from '@/components/portfolio/ProjectCaseStudy';
 import { ScanlineReveal } from '@/components/ScanlineReveal';
 import { FUN_APPS, FunAppContent, isFunApp, type FunAppDefinition, type FunAppId } from './HabitatFunApps';
 
@@ -733,6 +737,17 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
             <div className="mb-4 flex items-center gap-2 rounded-md border border-white/10 bg-black/20 px-3 py-2 font-mono text-xs text-white/40">
               <span>HAB</span><ChevronRight className="h-3 w-3" /><span>{planetCode}</span><ChevronRight className="h-3 w-3" /><span className="text-white/70">ARCHIVE</span>
             </div>
+            {planet.id === 'neptune' && (
+              <section aria-labelledby="neptune-contact-heading" className="mb-4 rounded-lg border border-cyan-200/15 bg-cyan-200/[0.035] p-4">
+                <h3 id="neptune-contact-heading" className="font-heading text-base tracking-[0.08em] text-cyan-100">
+                  Direct communication channels
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-white/50">
+                  Email, professional profiles, résumé, and live projects.
+                </p>
+                <ContactActions actions={contactActions} variant="compact" className="mt-3 sm:grid-cols-2" />
+              </section>
+            )}
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
               {planet.content.map((item) => {
                 const Icon = getItemIcon(item.type);
@@ -813,6 +828,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
 
     const item = entry.item!;
     const ItemIcon = getItemIcon(item.type);
+    const project = item.projectId ? getProjectById(item.projectId) : undefined;
     return (
       <article className="h-full overflow-auto bg-[linear-gradient(145deg,#08151e,#040b10)] p-5 sm:p-8">
         <div className="mb-6 flex items-start gap-4 border-b border-white/10 pb-5">
@@ -827,7 +843,11 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
           </div>
         </div>
         <ScanlineReveal duration={0.35}>
-          <p className="max-w-3xl whitespace-pre-line text-base leading-8 text-white/78 sm:text-lg">{item.content}</p>
+          {project ? (
+            <ProjectCaseStudy project={project} variant="full" className="max-w-5xl" />
+          ) : (
+            <p className="max-w-3xl whitespace-pre-line text-base leading-8 text-white/78 sm:text-lg">{item.content}</p>
+          )}
         </ScanlineReveal>
       </article>
     );
