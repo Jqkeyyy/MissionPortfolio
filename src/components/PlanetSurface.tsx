@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameState } from '@/hooks/useGameState';
 import { getPlanetById } from '@/data/planets';
-import { ContentSign as ContentSignType } from '@/data/planets';
 import { ChevronLeft, ChevronRight, Rocket } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { PlanetTerrain } from './planet/PlanetTerrain';
@@ -9,26 +8,26 @@ import { BaseCamp } from './planet/BaseCamp';
 import { LandingPad } from './planet/LandingPad';
 import { PlanetLandingShip } from './planet/PlanetLandingShip';
 import { BaseCampInterior } from './planet/BaseCampInterior';
-import { ComputerScreen } from './planet/ComputerScreen';
-import { SignModal } from './planet/SignModal';
 
 export const PlanetSurface = () => {
   const { selectedPlanet, returnToSpace, goToNextPlanet, goToPreviousPlanet } = useGameState();
   const planet = selectedPlanet ? getPlanetById(selectedPlanet) : null;
-  const [activeSign, setActiveSign] = useState<ContentSignType | null>(null);
   const [isInsideBaseCamp, setIsInsideBaseCamp] = useState(false);
   const [showComputerScreen, setShowComputerScreen] = useState(false);
+  const [computerBootStartedAt, setComputerBootStartedAt] = useState<number | null>(null);
   const landingTargetRef = useRef<HTMLSpanElement>(null);
 
   if (!planet) return null;
 
   const handleEnterBaseCamp = () => {
+    setComputerBootStartedAt(Date.now());
     setIsInsideBaseCamp(true);
   };
 
   const handleExitBaseCamp = () => {
     setIsInsideBaseCamp(false);
     setShowComputerScreen(false);
+    setComputerBootStartedAt(null);
   };
 
   const handleAccessComputer = () => {
@@ -37,10 +36,6 @@ export const PlanetSurface = () => {
 
   const handleCloseComputer = () => {
     setShowComputerScreen(false);
-  };
-
-  const handleSelectItem = (item: ContentSignType) => {
-    setActiveSign(item);
   };
 
   return (
@@ -135,25 +130,12 @@ export const PlanetSurface = () => {
             planet={planet}
             onExit={handleExitBaseCamp}
             onAccessComputer={handleAccessComputer}
+            onLeaveComputer={handleCloseComputer}
+            computerActive={showComputerScreen}
+            bootStartedAt={computerBootStartedAt}
           />
         )}
       </AnimatePresence>
-
-      {/* Computer Screen overlay */}
-      <AnimatePresence>
-        {showComputerScreen && (
-          <ComputerScreen
-            planet={planet}
-            onClose={handleCloseComputer}
-            onSelectItem={handleSelectItem}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Sign modal */}
-      {activeSign && (
-        <SignModal sign={activeSign} onClose={() => setActiveSign(null)} />
-      )}
     </motion.div>
   );
 };

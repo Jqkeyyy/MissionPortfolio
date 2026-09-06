@@ -31,6 +31,7 @@ dist-ssr
 .claude/
 .codex/
 .agents/
+.worktrees/
 
 # Private keys and local credentials
 *.pem

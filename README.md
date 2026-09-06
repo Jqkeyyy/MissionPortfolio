@@ -7,12 +7,12 @@ An interactive 3D space-themed portfolio site. Instead of a scrolling page, visi
 | Sun | Identity / Introduction |
 | Mercury | Education |
 | Venus | Skills |
-| Earth | Experience / Job History |
-| Moon | References / Testimonials |
+| Earth | Experience |
+| Moon | Engineering Principles |
 | Mars | About Me |
 | Jupiter | Summit Moving |
-| Saturn | Major Projects |
-| Uranus | Side Projects |
+| Saturn | Flagship Projects |
+| Uranus | Experiments & Tools |
 | Neptune | Contact / Hire Me |
 
 Navigation flows through three views — a 3D **space** view with clickable orbiting planets, an animated **travel** sequence between stops, and a 2D **planet surface** landing page for each section's content.
@@ -42,8 +42,10 @@ npm run build       # production build
 npm run build:dev   # development-mode build
 npm run preview     # preview a production build
 npm run lint         # eslint
+npm run typecheck    # TypeScript validation
 npm test             # run tests once
 npm run test:watch  # tests in watch mode
+npm run check        # lint, typecheck, test, and production build
 ```
 
 ## Project structure

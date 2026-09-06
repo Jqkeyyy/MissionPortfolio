@@ -10,12 +10,20 @@ describe('BaseCampInterior', () => {
     render(<BaseCampInterior planet={planet} onExit={() => {}} onAccessComputer={() => {}} />);
     expect(screen.getByText('BASE CAMP INTERIOR')).toBeInTheDocument();
     expect(screen.getAllByText(planet.displayName).length).toBeGreaterThan(0);
+    expect(document.querySelector('img')).toHaveAttribute('src', '/base-camp-interior-v6-stool.png');
   });
 
   it('calls onAccessComputer when the terminal is clicked', () => {
     const onAccessComputer = vi.fn();
     render(<BaseCampInterior planet={planet} onExit={() => {}} onAccessComputer={onAccessComputer} />);
-    fireEvent.click(screen.getByText('MISSION TERMINAL').closest('button')!);
+    fireEvent.click(screen.getByRole('button', { name: 'Sit down at the mission computer' }));
+    expect(onAccessComputer).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers a clickable stool in front of the mission computer', () => {
+    const onAccessComputer = vi.fn();
+    render(<BaseCampInterior planet={planet} onExit={() => {}} onAccessComputer={onAccessComputer} />);
+    fireEvent.click(screen.getByText('SIT DOWN TO VIEW').closest('button')!);
     expect(onAccessComputer).toHaveBeenCalledTimes(1);
   });
 
@@ -24,5 +32,49 @@ describe('BaseCampInterior', () => {
     render(<BaseCampInterior planet={planet} onExit={onExit} onAccessComputer={() => {}} />);
     fireEvent.click(screen.getByText('Exit Base Camp'));
     expect(onExit).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves Escape handling to the computer while the operator is seated', () => {
+    const onExit = vi.fn();
+    render(<BaseCampInterior planet={planet} onExit={onExit} onAccessComputer={() => {}} computerActive />);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(onExit).not.toHaveBeenCalled();
+  });
+
+  it('shows the computer booting in the room before it is ready', () => {
+    render(<BaseCampInterior planet={planet} onExit={() => {}} onAccessComputer={() => {}} bootStartedAt={Date.now()} />);
+    expect(screen.getByText('HAB/OS')).toBeInTheDocument();
+  });
+
+  it('makes the desktop inside the physical monitor interactive when seated', () => {
+    render(
+      <BaseCampInterior
+        planet={planet}
+        onExit={() => {}}
+        onAccessComputer={() => {}}
+        onLeaveComputer={() => {}}
+        computerActive
+        bootStartedAt={Date.now() - 5000}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('desktop-archive'));
+    expect(screen.getByRole('dialog', { name: `${planet.displayName} Mission Archive` })).toBeInTheDocument();
+  });
+
+  it('offers a stand-up button while seated at the computer', () => {
+    const onLeaveComputer = vi.fn();
+    render(
+      <BaseCampInterior
+        planet={planet}
+        onExit={() => {}}
+        onAccessComputer={() => {}}
+        onLeaveComputer={onLeaveComputer}
+        computerActive
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Stand up from the mission computer' }));
+    expect(onLeaveComputer).toHaveBeenCalledTimes(1);
   });
 });

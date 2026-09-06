@@ -4,6 +4,8 @@ import { PlanetData } from '@/data/planets';
 
 interface PlanetTerrainProps {
   planet: PlanetData;
+  fillBackground?: boolean;
+  idSuffix?: string;
 }
 
 type TerrainKind = 'rocky' | 'terrestrial' | 'cloud' | 'ice' | 'solar';
@@ -246,14 +248,14 @@ const shouldUseDetailedTerrain = () => {
   return !reducedMotion && !limitedCpu && !limitedMemory;
 };
 
-export const PlanetTerrain = ({ planet }: PlanetTerrainProps) => {
+export const PlanetTerrain = ({ planet, fillBackground = false, idSuffix = '' }: PlanetTerrainProps) => {
   const profile = terrainProfiles[planet.id] ?? fallbackProfile;
   const detailed = useMemo(shouldUseDetailedTerrain, []);
   const mainRidge = useMemo(() => makeRidge(profile.seed, 45, profile.relief, 5), [profile]);
   const horizon = useMemo(() => makeHorizon(profile.seed, 45, profile.relief, 5), [profile]);
   const farRidge = useMemo(() => makeRidge(profile.seed + 23, 51, profile.relief * 0.55, 7), [profile]);
   const particles = useMemo(() => makeFeatures({ ...profile, seed: profile.seed + 61 }, detailed ? 9 : 0), [detailed, profile]);
-  const id = `terrain-${planet.id}`;
+  const id = `terrain-${planet.id}${idSuffix ? `-${idSuffix}` : ''}`;
 
   return (
     <motion.div
@@ -263,6 +265,15 @@ export const PlanetTerrain = ({ planet }: PlanetTerrainProps) => {
       transition={{ delay: 0.15, duration: 0.7 }}
       aria-hidden="true"
     >
+      {fillBackground && (
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(180deg, ${profile.sky} 0%, ${profile.sky} 34%, ${profile.haze} 72%, ${profile.low} 100%)`,
+          }}
+        />
+      )}
+
       <div
         className="absolute inset-x-0 bottom-[35%] h-[45%]"
         style={{

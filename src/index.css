@@ -304,3 +304,123 @@
     transform: translateX(-42%) scaleX(0.75);
   }
 }
+
+.camp-room-stage {
+  width: max(100vw, 177.87vh);
+  height: max(56.22vw, 100vh);
+}
+
+.camp-window-view {
+  left: 29%;
+  top: 22%;
+  width: 43%;
+  height: 28%;
+  box-shadow: inset 0 0 40px rgb(2 8 12 / 0.58);
+}
+
+.camp-terminal-monitor {
+  /* Render at seated-view resolution, then scale down in the room for a sharp zoom. */
+  left: 10.34%;
+  bottom: 42%;
+  width: 77.42%;
+  transform-origin: 50% 100%;
+}
+
+.camp-terminal-seat {
+  left: 46.2%;
+  bottom: 24.6%;
+  width: 6%;
+  height: 11.5%;
+  transform-origin: 50% 100%;
+}
+
+.camp-glass-panel {
+  position: relative;
+  border: 1px solid rgb(255 255 255 / 0.13);
+  border-radius: 0.5rem;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.075), transparent 45%),
+    rgb(3 9 13 / 0.72);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 18px 45px rgb(0 0 0 / 0.3);
+  backdrop-filter: blur(16px);
+}
+
+.camp-glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: -1px auto -1px -1px;
+  width: 2px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, transparent, var(--camp-accent), transparent);
+  opacity: 0.72;
+}
+
+.camp-computer-active .camp-glass-panel {
+  backdrop-filter: none;
+}
+
+.camp-scanlines {
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 3px,
+    rgb(173 232 244 / 0.22) 4px
+  );
+  mix-blend-mode: soft-light;
+}
+
+.terminal-perspective {
+  perspective: 1400px;
+  perspective-origin: 50% 42%;
+}
+
+.terminal-workstation {
+  width: min(96vw, 1280px, calc(177.78vh - 14rem));
+}
+
+.seated-monitor-frame {
+  width: min(96vw, calc((100vh - 2rem) * 1.7778));
+  aspect-ratio: 16 / 9;
+}
+
+.terminal-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(90deg, black, transparent 92%);
+}
+
+.terminal-desktop {
+  scrollbar-color: rgb(255 255 255 / 0.18) transparent;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 639px) {
+  .terminal-workstation {
+    width: calc(100vw - 1rem);
+  }
+
+  .terminal-desktop {
+    height: calc(100vh - 2.5rem);
+    aspect-ratio: auto;
+  }
+
+  .seated-monitor-frame {
+    width: calc(100vw - 0.75rem);
+    height: calc(100vh - 0.75rem);
+    aspect-ratio: auto;
+  }
+
+  .seated-monitor-frame .terminal-desktop {
+    height: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camp-scanlines {
+    display: none;
+  }
+}
