@@ -60,6 +60,37 @@ Important consequences:
 - `base-camp-exterior.png`, `landing-pad.png`, and `mission-shuttle.png` are already compressed PNGs, so HTTP gzip provides almost no benefit. Image-format conversion and responsive variants are the useful levers.
 - The current initial route correctly avoids requesting HAB imagery, but it still downloads the JavaScript that implements the HAB.
 
+## Wave 2 optimized asset candidates
+
+Wave 2 created full-resolution WebP and AVIF candidates under `public/optimized/`; it did not replace, edit, or delete any source image. All ten candidates decode successfully, retain the source dimensions and aspect ratio, and expose an RGBA channel with the original transparent/opaque range (`0` through `255`). They are intentionally not referenced by application code until the serial performance-integration packet can add format selection and verify browser request timing.
+
+| Source | Candidate | Dimensions | Candidate bytes | Saved vs. source | RGBA PSNR |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `base-camp-interior-v5-cutout.png` (3,327,791 bytes) | `optimized/base-camp-interior-v5-cutout.webp` | 1672 x 940 | 153,080 | 3,174,711 (95.40%) | 38.38 dB |
+| `base-camp-interior-v5-cutout.png` (3,327,791 bytes) | `optimized/base-camp-interior-v5-cutout.avif` | 1672 x 940 | 333,918 | 2,993,873 (89.97%) | 47.00 dB |
+| `base-camp-interior-v6-stool.png` (3,448,745 bytes) | `optimized/base-camp-interior-v6-stool.webp` | 1672 x 940 | 160,414 | 3,288,331 (95.35%) | 38.67 dB |
+| `base-camp-interior-v6-stool.png` (3,448,745 bytes) | `optimized/base-camp-interior-v6-stool.avif` | 1672 x 940 | 344,415 | 3,104,330 (90.01%) | 47.00 dB |
+| `base-camp-exterior.png` (914,356 bytes) | `optimized/base-camp-exterior.webp` | 1100 x 660 | 84,096 | 830,260 (90.80%) | 37.60 dB |
+| `base-camp-exterior.png` (914,356 bytes) | `optimized/base-camp-exterior.avif` | 1100 x 660 | 138,066 | 776,290 (84.90%) | 48.78 dB |
+| `landing-pad.png` (342,013 bytes) | `optimized/landing-pad.webp` | 720 x 456 | 30,436 | 311,577 (91.10%) | 38.26 dB |
+| `landing-pad.png` (342,013 bytes) | `optimized/landing-pad.avif` | 720 x 456 | 61,936 | 280,077 (81.89%) | 48.53 dB |
+| `mission-shuttle.png` (281,679 bytes) | `optimized/mission-shuttle.webp` | 640 x 427 | 33,300 | 248,379 (88.18%) | 37.06 dB |
+| `mission-shuttle.png` (281,679 bytes) | `optimized/mission-shuttle.avif` | 640 x 427 | 53,192 | 228,487 (81.12%) | 48.92 dB |
+
+The five source PNGs total 8,314,584 bytes. The equivalent WebP set totals 461,326 bytes, a 94.45% reduction; the higher-fidelity AVIF set totals 931,527 bytes, an 88.80% reduction. The v6 interior candidates are 160.41 kB WebP and 344.42 kB AVIF, so either meets the 450 kB largest-deferred-HAB-image budget. The shuttle candidates are 33.30 kB WebP and 53.19 kB AVIF, so either brings the initial raster request below the 250 kB budget if the original PNG is no longer requested.
+
+### Encoding and transparency choices
+
+- Pillow 12.0.0 encoded WebP with libwebp 1.6.0 at quality 82, method 6, and `exact=True`. This keeps the source alpha values byte-for-byte exact while applying lossy compression only to color data.
+- Pillow 12.0.0 encoded AVIF with libavif 1.3.0 at quality 90, speed 6, and 4:4:4 chroma sampling. The intentionally conservative quality and full chroma sampling protect the hard orange, cyan, and white edges in the spacecraft and habitat artwork. AVIF preserves full transparency and opacity; lossy intermediate alpha values differed by at most 3 levels for the interiors, 15 for the exterior, and 10 for the landing pad and shuttle on a 0-255 scale.
+- RGBA PSNR was calculated after decoding each candidate and comparing all four channels with its source. It is a repeatable regression signal, not a substitute for visual review.
+
+### Visual comparison
+
+The source PNG, WebP, and decoded AVIF were inspected at native dimensions for the active v6 interior and the mission shuttle, then compared in source/WebP/AVIF order on a high-contrast checkerboard (v6 at 50% scale and shuttle at native scale). The review specifically checked the transparent window, ship silhouette, exhaust plumes, thin cyan fringe, orange trim, small illuminated details, and high-frequency wall/floor seams. No missing transparency, matte halo, aspect-ratio change, blocking, or objectionable color shift was visible. WebP shows minor expected texture smoothing under close inspection; AVIF retains finer edge and panel detail at its higher-fidelity setting.
+
+These files are candidates rather than a final source-set decision. WebP is smaller for every image in this particular encoding set; AVIF is deliberately larger and measurably higher fidelity. The integration packet should compare real browser rendering and use `<picture>` or equivalent format selection only if it benefits the chosen quality/transfer tradeoff. Until integration removes or excludes superseded files, retaining PNG, WebP, and AVIF together increases deployment storage by 1,392,853 bytes even though only one format should be requested by a visitor.
+
 ## Import and loading analysis
 
 `src/main.tsx` synchronously imports `App.tsx`, and `App.tsx` synchronously imports both routes and every global provider. `src/pages/Index.tsx` then synchronously imports all four experience states. No `React.lazy`, `lazy(...)`, or dynamic `import(...)` call exists under `src`, and the build confirms that there is only one JavaScript chunk.
