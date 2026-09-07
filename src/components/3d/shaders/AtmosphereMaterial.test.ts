@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { AtmosphereMaterial } from './AtmosphereMaterial';
+
+vi.mock('@react-three/fiber', () => ({ extend: vi.fn() }));
 
 describe('AtmosphereMaterial', () => {
   it('constructs with the expected default uniforms', () => {

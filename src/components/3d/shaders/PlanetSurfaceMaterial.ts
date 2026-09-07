@@ -1,4 +1,4 @@
-import { shaderMaterial } from '@react-three/drei';
+import { shaderMaterial } from '@react-three/drei/core/shaderMaterial.js';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { PlanetSurface } from '@/data/planets';

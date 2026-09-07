@@ -63,6 +63,7 @@ describe('useGameState accessible travel controls', () => {
 
   it('skips travel immediately and ignores the superseded timers', () => {
     act(() => useGameState.getState().travelToPlanet('earth'));
+    expect(vi.getTimerCount()).toBe(1);
     act(() => useGameState.getState().skipTravel());
 
     expect(useGameState.getState()).toMatchObject({
@@ -72,6 +73,7 @@ describe('useGameState accessible travel controls', () => {
       travelDirection: null,
     });
     expect(useGameState.getState().announcement).toMatch(/travel skipped/i);
+    expect(vi.getTimerCount()).toBe(0);
 
     act(() => vi.runAllTimers());
     expect(useGameState.getState().currentView).toBe('planet');
@@ -85,6 +87,33 @@ describe('useGameState accessible travel controls', () => {
     expect(useGameState.getState()).toMatchObject({
       currentView: 'space',
       selectedPlanet: 'saturn',
+      isTransitioning: false,
+      travelDirection: null,
+    });
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('cancels an inbound journey before scheduling a return', () => {
+    act(() => useGameState.getState().travelToPlanet('saturn'));
+    act(() => useGameState.getState().returnToSpace());
+
+    expect(vi.getTimerCount()).toBe(1);
+    act(() => vi.runAllTimers());
+    expect(useGameState.getState()).toMatchObject({
+      currentView: 'space',
+      isTransitioning: false,
+      travelDirection: null,
+    });
+  });
+
+  it('resets exploration and clears every pending transition', () => {
+    act(() => useGameState.getState().travelToPlanet('mars'));
+    act(() => useGameState.getState().resetExploration());
+
+    expect(vi.getTimerCount()).toBe(0);
+    expect(useGameState.getState()).toMatchObject({
+      currentView: 'space',
+      selectedPlanet: null,
       isTransitioning: false,
       travelDirection: null,
     });

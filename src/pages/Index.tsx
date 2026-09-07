@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
+import { ExplorationRecoveryBoundary } from '@/components/ExplorationRecoveryBoundary';
 
 const SolarSystem = lazy(() => import('@/components/3d/SolarSystem').then((module) => ({ default: module.SolarSystem })));
 const TravelSequence = lazy(() => import('@/components/TravelSequence').then((module) => ({ default: module.TravelSequence })));
@@ -96,6 +97,7 @@ const Index = () => {
     quickPortfolioOpen,
     openQuickPortfolio,
     closeQuickPortfolio,
+    resetExploration,
   } = useGameState();
   const [explorationMode, setExplorationMode] = useState<ExplorationMode>('prompt');
 
@@ -116,28 +118,37 @@ const Index = () => {
         <ExperiencePrompt unavailable onExplore={launchExploration} onOpenQuickPortfolio={openQuickPortfolio} />
       )}
 
-      {/* Space view with 3D solar system */}
-      {spaceViewActive && (
-        <Suspense fallback={<StageFallback label="Initializing solar system..." />}>
-          <SolarSystem onUnavailable={() => setExplorationMode('unavailable')} onOpenQuickPortfolio={openQuickPortfolio} />
-          <SpaceHUD />
-        </Suspense>
-      )}
+      <ExplorationRecoveryBoundary
+        resetKey={`${explorationMode}:${currentView}`}
+        onReset={() => {
+          resetExploration();
+          setExplorationMode('prompt');
+        }}
+        onOpenQuickPortfolio={openQuickPortfolio}
+      >
+        {/* Space view with 3D solar system */}
+        {spaceViewActive && (
+          <Suspense fallback={<StageFallback label="Initializing solar system..." />}>
+            <SolarSystem onUnavailable={() => setExplorationMode('unavailable')} onOpenQuickPortfolio={openQuickPortfolio} />
+            <SpaceHUD />
+          </Suspense>
+        )}
 
-      {/* Travel transition */}
-      {currentView === 'traveling' && (
-        <Suspense fallback={<StageFallback label="Calculating flight path..." />}>
-          <TravelSequence />
-          <ShipFlightLayer />
-        </Suspense>
-      )}
+        {/* Travel transition */}
+        {currentView === 'traveling' && (
+          <Suspense fallback={<StageFallback label="Calculating flight path..." />}>
+            <TravelSequence />
+            <ShipFlightLayer />
+          </Suspense>
+        )}
 
-      {/* Planet surface view */}
-      {currentView === 'planet' && (
-        <Suspense fallback={<StageFallback label="Preparing planet surface..." />}>
-          <PlanetSurface />
-        </Suspense>
-      )}
+        {/* Planet surface view */}
+        {currentView === 'planet' && (
+          <Suspense fallback={<StageFallback label="Preparing planet surface..." />}>
+            <PlanetSurface />
+          </Suspense>
+        )}
+      </ExplorationRecoveryBoundary>
 
       {quickPortfolioOpen && (
         <Suspense fallback={<PortfolioFallback />}>

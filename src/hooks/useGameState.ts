@@ -22,6 +22,7 @@ interface GameState {
   closeSign: () => void;
   openQuickPortfolio: () => void;
   closeQuickPortfolio: () => void;
+  resetExploration: () => void;
   setTransitioning: (isTransitioning: boolean) => void;
   goToNextPlanet: () => void;
   goToPreviousPlanet: () => void;
@@ -42,6 +43,21 @@ const prefersReducedMotion = () => (
 );
 
 let transitionSequence = 0;
+const pendingTransitionTimers = new Set<ReturnType<typeof setTimeout>>();
+
+const cancelPendingTransitions = () => {
+  transitionSequence += 1;
+  pendingTransitionTimers.forEach((timer) => clearTimeout(timer));
+  pendingTransitionTimers.clear();
+};
+
+const scheduleTransition = (callback: () => void, duration: number) => {
+  const timer = setTimeout(() => {
+    pendingTransitionTimers.delete(timer);
+    callback();
+  }, duration);
+  pendingTransitionTimers.add(timer);
+};
 
 const planetName = (planetId: string | null) => (
   planets.find((planet) => planet.id === planetId)?.displayName ?? 'destination'
@@ -66,7 +82,8 @@ export const useGameState = create<GameState>((set, get) => ({
     if (isTransitioning) return;
 
     const beginsInSolarSystem = currentView === 'space';
-    const sequence = ++transitionSequence;
+    cancelPendingTransitions();
+    const sequence = transitionSequence;
     const reducedMotion = prefersReducedMotion();
     const interceptDuration = reducedMotion
       ? REDUCED_MOTION_TRANSITION_DURATION_MS
@@ -93,7 +110,7 @@ export const useGameState = create<GameState>((set, get) => ({
         announcement: `Close approach to ${destinationName}.`,
       });
 
-      setTimeout(() => {
+      scheduleTransition(() => {
         if (sequence !== transitionSequence) return;
         set({
           currentView: 'planet',
@@ -105,14 +122,15 @@ export const useGameState = create<GameState>((set, get) => ({
     };
 
     if (beginsInSolarSystem) {
-      setTimeout(beginCloseApproach, interceptDuration);
+      scheduleTransition(beginCloseApproach, interceptDuration);
     } else {
       beginCloseApproach();
     }
   },
 
   returnToSpace: () => {
-    const sequence = ++transitionSequence;
+    cancelPendingTransitions();
+    const sequence = transitionSequence;
     const returnDuration = prefersReducedMotion()
       ? REDUCED_MOTION_TRANSITION_DURATION_MS
       : SPACE_RETURN_DURATION_MS;
@@ -123,7 +141,7 @@ export const useGameState = create<GameState>((set, get) => ({
       announcement: 'Returning to the solar system map.',
     });
 
-    setTimeout(() => {
+    scheduleTransition(() => {
       if (sequence !== transitionSequence) return;
       set({
         currentView: 'space',
@@ -139,7 +157,7 @@ export const useGameState = create<GameState>((set, get) => ({
     const { currentView, travelDirection, selectedPlanet } = get();
     if (currentView !== 'intercepting' && currentView !== 'traveling') return;
 
-    transitionSequence += 1;
+    cancelPendingTransitions();
     if (travelDirection === 'toSpace') {
       set({
         currentView: 'space',
@@ -175,7 +193,21 @@ export const useGameState = create<GameState>((set, get) => ({
     set({ quickPortfolioOpen: false });
   },
 
+  resetExploration: () => {
+    cancelPendingTransitions();
+    set({
+      currentView: 'space',
+      selectedPlanet: null,
+      previousPlanet: null,
+      isTransitioning: false,
+      travelDirection: null,
+      activeSign: null,
+      announcement: 'Solar system map ready. Select a destination to begin exploring.',
+    });
+  },
+
   setTransitioning: (isTransitioning) => {
+    if (!isTransitioning) cancelPendingTransitions();
     set({ isTransitioning });
   },
 

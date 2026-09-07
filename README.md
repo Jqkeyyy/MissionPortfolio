@@ -23,7 +23,7 @@ Navigation flows through an opt-in route prompt, 3D **space** and **intercept** 
 - **Three.js** / **React Three Fiber** / **drei** for the 3D solar system
 - **Zustand** for view/navigation state
 - **Tailwind CSS** + **shadcn/ui** for the sci-fi HUD design system
-- **Vitest** + **Testing Library** for tests
+- **Vitest** + **Testing Library** + **Playwright** for unit, component, and browser tests
 
 ## Getting started
 
@@ -46,6 +46,7 @@ npm run typecheck    # TypeScript validation
 npm test             # run tests once
 npm run test:watch  # tests in watch mode
 npm run check        # lint, typecheck, test, and production build
+npm run test:e2e     # production critical-path checks in Chromium
 ```
 
 ## Project structure
@@ -57,7 +58,7 @@ npm run check        # lint, typecheck, test, and production build
 - `src/components/ui/` — shadcn/ui design system components
 - `src/data/planets.ts` — all planet metadata and portfolio content
 - `src/data/projects.ts` / `src/data/contact.ts` — shared project and contact records
-- `src/data/planetThemes.ts` — validated theme configuration awaiting Wave 6 integration
+- `src/data/planetThemes.ts` — shared visual, habitat, and telemetry identity for every destination
 - `src/hooks/useGameState.ts` — global view/navigation state (Zustand)
 
 See `CLAUDE.md` for the architecture and conventions. See `docs/session-handoff.md` for current progress, verification, known risks, and the exact next packet.

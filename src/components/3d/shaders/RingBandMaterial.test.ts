@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { RingBandMaterial } from './RingBandMaterial';
+
+vi.mock('@react-three/fiber', () => ({ extend: vi.fn() }));
 
 describe('RingBandMaterial', () => {
   it('constructs with the expected default uniforms', () => {

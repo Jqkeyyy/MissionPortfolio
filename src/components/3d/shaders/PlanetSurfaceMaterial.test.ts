@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { PlanetSurfaceMaterial, SURFACE_TYPES } from './PlanetSurfaceMaterial';
+
+vi.mock('@react-three/fiber', () => ({ extend: vi.fn() }));
 
 describe('PlanetSurfaceMaterial', () => {
   it('exposes the expected surface type indices', () => {

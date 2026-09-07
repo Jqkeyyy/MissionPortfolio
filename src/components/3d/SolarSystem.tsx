@@ -27,6 +27,19 @@ interface GraphicsProfile {
   powerPreference: WebGLPowerPreference;
 }
 
+export const registerWebGLContextLoss = (
+  canvas: HTMLCanvasElement,
+  onUnavailable?: () => void,
+) => {
+  const handleContextLost = (event: Event) => {
+    event.preventDefault();
+    onUnavailable?.();
+  };
+
+  canvas.addEventListener('webglcontextlost', handleContextLost);
+  return () => canvas.removeEventListener('webglcontextlost', handleContextLost);
+};
+
 export const getGraphicsProfile = (): GraphicsProfile => {
   if (typeof window === 'undefined') {
     return { dpr: [1, 1.5], starCount: 6000, antialias: true, powerPreference: 'high-performance' };
@@ -88,6 +101,14 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
   const planetPositions = useRef(new Map<string, THREE.Vector3>([
     ['sun', new THREE.Vector3(0, 15, 0)],
   ]));
+  const removeContextLossListener = useRef<(() => void) | null>(null);
+
+  useEffect(() => () => removeContextLossListener.current?.(), []);
+
+  const handleCanvasCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
+    removeContextLossListener.current?.();
+    removeContextLossListener.current = registerWebGLContextLoss(gl.domElement, onUnavailable);
+  }, [onUnavailable]);
 
   const handlePlanetClick = (planetId: string) => {
     if (currentView !== 'space') return;
@@ -106,6 +127,7 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
   return (
     <div className="w-full h-full">
       <Canvas
+        onCreated={handleCanvasCreated}
         dpr={graphics.dpr}
         gl={{
           antialias: graphics.antialias,

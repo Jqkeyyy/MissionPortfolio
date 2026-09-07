@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
-import { getGraphicsProfile, SolarSystem } from './SolarSystem';
+import { getGraphicsProfile, registerWebGLContextLoss, SolarSystem } from './SolarSystem';
 
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ fallback }: { fallback: React.ReactNode }) => fallback,
@@ -65,5 +65,20 @@ describe('SolarSystem capability handling', () => {
       '/optimized/mission-shuttle.webp',
     );
     expect(THREE.DefaultLoadingManager.resolveURL('/unrelated.png')).toBe('/unrelated.png');
+  });
+
+  it('reports WebGL context loss and removes its listener on cleanup', () => {
+    const canvas = document.createElement('canvas');
+    const onUnavailable = vi.fn();
+    const cleanup = registerWebGLContextLoss(canvas, onUnavailable);
+    const event = new Event('webglcontextlost', { cancelable: true });
+
+    canvas.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(onUnavailable).toHaveBeenCalledTimes(1);
+
+    cleanup();
+    canvas.dispatchEvent(new Event('webglcontextlost', { cancelable: true }));
+    expect(onUnavailable).toHaveBeenCalledTimes(1);
   });
 });
