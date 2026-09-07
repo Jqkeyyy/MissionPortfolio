@@ -19,6 +19,7 @@ const fragmentShader = `
   uniform float uSeed;
   uniform float uInnerRadius;
   uniform float uOuterRadius;
+  uniform float uOpacity;
 
   float hash11(float p) {
     p = fract(p * 0.1031);
@@ -39,7 +40,7 @@ const fragmentShader = `
 
     vec3 color = mix(uColorA, uColorB, band);
     float edgeFade = smoothstep(0.0, 0.06, t) * smoothstep(1.0, 0.9, t);
-    float alpha = mix(0.25, 0.75, band) * edgeFade;
+    float alpha = mix(0.25, 0.75, band) * edgeFade * uOpacity;
 
     gl_FragColor = vec4(color, alpha);
   }
@@ -52,6 +53,7 @@ export const RingBandMaterial = shaderMaterial(
     uSeed: 0,
     uInnerRadius: 1,
     uOuterRadius: 2,
+    uOpacity: 1,
   },
   vertexShader,
   fragmentShader
@@ -61,6 +63,7 @@ export const RingBandMaterial = shaderMaterial(
   uSeed: number;
   uInnerRadius: number;
   uOuterRadius: number;
+  uOpacity: number;
 };
 
 extend({ RingBandMaterial });
@@ -75,6 +78,7 @@ declare global {
         uSeed?: number;
         uInnerRadius?: number;
         uOuterRadius?: number;
+        uOpacity?: number;
       };
     }
   }

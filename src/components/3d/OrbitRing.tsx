@@ -1,36 +1,38 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Line } from '@react-three/drei';
 import * as THREE from 'three';
+import type { PlanetData } from '@/data/planets';
+import { getOrbitPathPoints, writeOrbitCenterPosition } from './orbitalSimulation';
 
 interface OrbitRingProps {
-  radius: number;
+  planet: PlanetData;
   color?: string;
 }
 
-export const OrbitRing = ({ radius, color = '#3d5a80' }: OrbitRingProps) => {
-  const points = useMemo(() => {
-    const segments = 128;
-    const pts: THREE.Vector3[] = [];
-    
-    for (let i = 0; i <= segments; i++) {
-      const angle = (i / segments) * Math.PI * 2;
-      pts.push(new THREE.Vector3(
-        Math.cos(angle) * radius,
-        15,
-        Math.sin(angle) * radius
-      ));
+export const OrbitRing = ({ planet, color = '#3d5a80' }: OrbitRingProps) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const points = useMemo(() => getOrbitPathPoints(planet), [planet]);
+  const initialCenter = useMemo(
+    () => writeOrbitCenterPosition(planet, 0, new THREE.Vector3()).toArray() as [number, number, number],
+    [planet],
+  );
+
+  useFrame((state) => {
+    if (planet.orbitParentId && groupRef.current) {
+      writeOrbitCenterPosition(planet, state.clock.elapsedTime, groupRef.current.position);
     }
-    
-    return pts;
-  }, [radius]);
+  });
 
   return (
-    <Line
-      points={points}
-      color={color}
-      lineWidth={1}
-      transparent
-      opacity={0.4}
-    />
+    <group ref={groupRef} position={initialCenter}>
+      <Line
+        points={points}
+        color={color}
+        lineWidth={1}
+        transparent
+        opacity={planet.orbitParentId ? 0.3 : 0.4}
+      />
+    </group>
   );
 };

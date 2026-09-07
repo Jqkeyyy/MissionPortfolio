@@ -91,6 +91,12 @@ describe('SpaceHUD', () => {
     expect(screen.getAllByTestId('hud-corners').length).toBeGreaterThan(0);
   });
 
+  it('discloses the separate readable orbit and spin time scales', () => {
+    render(<SpaceHUD />);
+    expect(screen.getByText('ORBIT_SCALE: 1Y / 60S')).toBeInTheDocument();
+    expect(screen.getByText('SPIN_SCALE: 1D / 12S')).toBeInTheDocument();
+  });
+
   it('opens Quick Portfolio from both desktop and mobile controls', () => {
     render(<SpaceHUD />);
 

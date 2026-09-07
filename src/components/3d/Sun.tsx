@@ -3,11 +3,17 @@ import { useFrame } from '@react-three/fiber';
 import { Sphere, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { usePlanetLockOn } from '@/hooks/usePlanetLockOn';
+import { getPlanetById } from '@/data/planets';
 import { PlanetReticle } from './PlanetReticle';
+import { getAxialRotationStep, getVisualAxialTilt } from './orbitalSimulation';
 
 interface SunProps {
   onClick?: () => void;
 }
+
+const sun = getPlanetById('sun');
+
+if (!sun) throw new Error('Sun data is required to render the solar system.');
 
 export const Sun = ({ onClick }: SunProps) => {
   const sunRef = useRef<THREE.Mesh>(null);
@@ -15,9 +21,9 @@ export const Sun = ({ onClick }: SunProps) => {
 
   const { hovered, locking, setHovered, trigger } = usePlanetLockOn(() => onClick?.());
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (sunRef.current) {
-      sunRef.current.rotation.y += 0.001;
+      sunRef.current.rotation.y += getAxialRotationStep(sun, delta);
     }
     if (glowRef.current) {
       const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
@@ -32,24 +38,28 @@ export const Sun = ({ onClick }: SunProps) => {
 
   return (
     <group position={[0, 15, 0]}>
-      {/* Sun core */}
-      <Sphere
-        ref={sunRef}
-        args={[2.5, 64, 64]}
-        scale={locking ? 1.08 : 1}
-        onClick={handleClick}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          document.body.style.cursor = 'default';
-        }}
+      <group
+        rotation={[0, 0, THREE.MathUtils.degToRad(getVisualAxialTilt(sun.axialTiltDeg))]}
       >
-        <meshBasicMaterial color="#FDB813" />
-      </Sphere>
+        {/* Sun core */}
+        <Sphere
+          ref={sunRef}
+          args={[2.5, 64, 64]}
+          scale={locking ? 1.08 : 1}
+          onClick={handleClick}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setHovered(true);
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={() => {
+            setHovered(false);
+            document.body.style.cursor = 'default';
+          }}
+        >
+          <meshBasicMaterial color="#FDB813" />
+        </Sphere>
+      </group>
 
       {/* Inner glow */}
       <Sphere ref={glowRef} args={[3, 32, 32]}>

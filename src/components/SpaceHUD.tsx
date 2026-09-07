@@ -5,6 +5,10 @@ import { Rocket, ChevronDown, ChevronUp, FileUser, Menu } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { HudCorners } from '@/components/HudCorners';
 import { getPlanetById } from '@/data/planets';
+import {
+  ORBITAL_EARTH_YEAR_SECONDS,
+  ROTATION_EARTH_DAY_SECONDS,
+} from '@/components/3d/orbitalSimulation';
 
 export const SpaceHUD = () => {
   const {
@@ -300,6 +304,12 @@ export const SpaceHUD = () => {
           <p>SOLAR_SYS: ACTIVE</p>
           <p>NAV_MODE: ORBIT</p>
           <p>ZOOM: SYSTEM VIEW</p>
+          <p title="Planetary years are proportional: one Earth year passes every 60 seconds.">
+            ORBIT_SCALE: 1Y / {ORBITAL_EARTH_YEAR_SECONDS}S
+          </p>
+          <p title="Planetary rotations are proportional: one Earth day passes every 12 seconds.">
+            SPIN_SCALE: 1D / {ROTATION_EARTH_DAY_SECONDS}S
+          </p>
         </motion.div>
       </div>
 

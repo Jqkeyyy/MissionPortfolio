@@ -10,6 +10,11 @@ import { PlanetReticle } from './PlanetReticle';
 import { PlanetSurfaceMaterial, SURFACE_TYPES } from './shaders/PlanetSurfaceMaterial';
 import { AtmosphereMaterial } from './shaders/AtmosphereMaterial';
 import { RingBandMaterial } from './shaders/RingBandMaterial';
+import {
+  getAxialRotationStep,
+  getVisualAxialTilt,
+  writeBodyPosition,
+} from './orbitalSimulation';
 
 // Each shader module also calls extend() itself as a module-level side effect, but
 // tsconfig.app.json sets neither verbatimModuleSyntax nor preserveValueImports, so
@@ -63,27 +68,30 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
   const isSelected = selectedPlanet === planet.id;
   const surface = planet.surface;
 
-  const initialAngle = useRef(Math.random() * Math.PI * 2);
   const seed = useRef(Math.random() * 100);
   const planetWorldPosRef = useRef(new THREE.Vector3());
   const lightDirRef = useRef(new THREE.Vector3());
+  const initialPosition = useMemo(
+    () => writeBodyPosition(planet, 0, new THREE.Vector3()).toArray() as [number, number, number],
+    [planet],
+  );
 
   const baseColor = useMemo(() => new THREE.Color(planet.color), [planet.color]);
   const accentColor = useMemo(() => deriveAccentColor(planet.color, surface), [planet.color, surface]);
+  const ringColors = useMemo(() => planet.rings ? {
+    colorA: new THREE.Color(planet.rings.colorA),
+    colorB: new THREE.Color(planet.rings.colorB),
+  } : null, [planet.rings]);
 
   const { hovered, locking, setHovered, trigger } = usePlanetLockOn(() => onClick?.());
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (groupRef.current && planet.orbitRadius > 0) {
-      const time = state.clock.elapsedTime;
-      const angle = initialAngle.current + time * planet.orbitSpeed * 0.05;
-
-      groupRef.current.position.x = Math.cos(angle) * planet.orbitRadius;
-      groupRef.current.position.z = Math.sin(angle) * planet.orbitRadius;
+      writeBodyPosition(planet, state.clock.elapsedTime, groupRef.current.position);
     }
 
     if (planetRef.current) {
-      planetRef.current.rotation.y += 0.002;
+      planetRef.current.rotation.y += getAxialRotationStep(planet, delta);
     }
 
     if (materialRef.current) {
@@ -106,59 +114,67 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
     trigger();
   };
 
-  const isSaturn = planet.id === 'saturn';
-
   return (
-    <group ref={groupRef} position={[planet.orbitRadius, 15, 0]}>
-      <Sphere
-        ref={planetRef}
-        args={[planet.size, 64, 64]}
-        scale={locking ? 1.08 : 1}
-        onClick={handleClick}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          document.body.style.cursor = 'default';
-        }}
-      >
-        <planetSurfaceMaterial
-          ref={materialRef}
-          uBaseColor={baseColor}
-          uAccentColor={accentColor}
-          uSeed={seed.current}
-          uSurfaceType={SURFACE_TYPES[surface]}
-        />
-      </Sphere>
-
-      {isSaturn && (
-        <Ring args={[planet.size * 1.4, planet.size * 2.2, 64]} rotation={[-Math.PI / 3, 0, 0]}>
-          <ringBandMaterial
-            uColorA={new THREE.Color('#B79B6B')}
-            uColorB={new THREE.Color('#E8D4A8')}
+    <group ref={groupRef} position={initialPosition}>
+      <group rotation={[0, 0, THREE.MathUtils.degToRad(getVisualAxialTilt(planet.axialTiltDeg))]}>
+        <Sphere
+          ref={planetRef}
+          args={[planet.size, 64, 64]}
+          scale={locking ? 1.08 : 1}
+          onClick={handleClick}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setHovered(true);
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={() => {
+            setHovered(false);
+            document.body.style.cursor = 'default';
+          }}
+        >
+          <planetSurfaceMaterial
+            ref={materialRef}
+            uBaseColor={baseColor}
+            uAccentColor={accentColor}
             uSeed={seed.current}
-            uInnerRadius={planet.size * 1.4}
-            uOuterRadius={planet.size * 2.2}
-            transparent
-            side={THREE.DoubleSide}
-            depthWrite={false}
+            uSurfaceType={SURFACE_TYPES[surface]}
           />
-        </Ring>
-      )}
+        </Sphere>
 
-      <Sphere args={[planet.size * 1.15, 32, 32]}>
-        <atmosphereMaterial
-          uColor={baseColor}
-          uIntensity={ATMOSPHERE_INTENSITY[surface] * (hovered || isSelected ? 1.6 : 1)}
-          transparent
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </Sphere>
+        {planet.rings && ringColors && (
+          <Ring
+            args={[
+              planet.size * planet.rings.innerRadiusMultiplier,
+              planet.size * planet.rings.outerRadiusMultiplier,
+              96,
+            ]}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <ringBandMaterial
+              uColorA={ringColors.colorA}
+              uColorB={ringColors.colorB}
+              uSeed={seed.current}
+              uInnerRadius={planet.size * planet.rings.innerRadiusMultiplier}
+              uOuterRadius={planet.size * planet.rings.outerRadiusMultiplier}
+              uOpacity={planet.rings.opacity}
+              transparent
+              side={THREE.DoubleSide}
+              depthWrite={false}
+            />
+          </Ring>
+        )}
+
+        <Sphere args={[planet.size * 1.15, 32, 32]}>
+          <atmosphereMaterial
+            uColor={baseColor}
+            uIntensity={ATMOSPHERE_INTENSITY[surface] * (hovered || isSelected ? 1.6 : 1)}
+            transparent
+            side={THREE.BackSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </Sphere>
+      </group>
 
       <Html position={[0, planet.size + 1.8, 0]} center style={{ pointerEvents: 'none' }}>
         <PlanetReticle

@@ -58,10 +58,45 @@ describe('planets data', () => {
       expect(planet.size).toBeGreaterThan(0);
       expect(Number.isFinite(planet.orbitRadius)).toBe(true);
       expect(planet.orbitRadius).toBeGreaterThanOrEqual(0);
-      expect(Number.isFinite(planet.orbitSpeed)).toBe(true);
-      expect(planet.orbitSpeed).toBeGreaterThanOrEqual(0);
+      expect(Number.isFinite(planet.orbitalPeriodDays)).toBe(true);
+      expect(planet.orbitalPeriodDays).toBeGreaterThanOrEqual(0);
+      expect(Number.isFinite(planet.orbitalEccentricity)).toBe(true);
+      expect(planet.orbitalEccentricity).toBeGreaterThanOrEqual(0);
+      expect(planet.orbitalEccentricity).toBeLessThan(1);
+      expect(Number.isFinite(planet.orbitInclinationDeg)).toBe(true);
+      expect(Number.isFinite(planet.rotationPeriodHours)).toBe(true);
+      expect(planet.rotationPeriodHours).not.toBe(0);
+      expect(Number.isFinite(planet.axialTiltDeg)).toBe(true);
+      expect(planet.axialTiltDeg).toBeGreaterThanOrEqual(0);
+      expect(planet.axialTiltDeg).toBeLessThanOrEqual(180);
       expect(planet.content.length).toBeGreaterThanOrEqual(2);
     }
+  });
+
+  it('models rings on all four giant planets and no other bodies', () => {
+    expect(planets.filter((planet) => planet.rings).map((planet) => planet.id)).toEqual([
+      'jupiter',
+      'saturn',
+      'uranus',
+      'neptune',
+    ]);
+
+    for (const planet of planets.filter((candidate) => candidate.rings)) {
+      const rings = planet.rings!;
+      expect(rings.innerRadiusMultiplier).toBeGreaterThan(1);
+      expect(rings.outerRadiusMultiplier).toBeGreaterThan(rings.innerRadiusMultiplier);
+      expect(rings.colorA).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(rings.colorB).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(rings.opacity).toBeGreaterThan(0);
+      expect(rings.opacity).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('makes the Moon an Earth satellite', () => {
+    expect(planets.find((planet) => planet.id === 'moon')?.orbitParentId).toBe('earth');
+    expect(planets.filter((planet) => planet.orbitParentId).map((planet) => planet.id)).toEqual([
+      'moon',
+    ]);
   });
 
   it('gives every content file a unique id and meaningful copy', () => {

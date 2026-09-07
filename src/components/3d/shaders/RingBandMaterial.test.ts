@@ -9,6 +9,7 @@ describe('RingBandMaterial', () => {
     expect(material.uSeed).toBe(0);
     expect(material.uInnerRadius).toBe(1);
     expect(material.uOuterRadius).toBe(2);
+    expect(material.uOpacity).toBe(1);
     expect(material.uColorA.isColor).toBe(true);
     expect(material.uColorB.isColor).toBe(true);
   });

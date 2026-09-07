@@ -3,6 +3,14 @@ import type { PlanetThemeId } from './planetThemes';
 
 export type PlanetSurface = 'cratered' | 'banded' | 'earthlike' | 'venusAtmo';
 
+export interface PlanetRingSystem {
+  innerRadiusMultiplier: number;
+  outerRadiusMultiplier: number;
+  colorA: string;
+  colorB: string;
+  opacity: number;
+}
+
 export interface PlanetData {
   id: PlanetThemeId;
   name: string;
@@ -11,7 +19,13 @@ export interface PlanetData {
   surface: PlanetSurface;
   size: number;
   orbitRadius: number;
-  orbitSpeed: number;
+  orbitalPeriodDays: number;
+  orbitalEccentricity: number;
+  orbitInclinationDeg: number;
+  rotationPeriodHours: number;
+  axialTiltDeg: number;
+  orbitParentId?: PlanetThemeId;
+  rings?: PlanetRingSystem;
   description: string;
   content: ContentSign[];
 }
@@ -33,7 +47,11 @@ export const planets: PlanetData[] = [
     surface: 'cratered',
     size: 2.5,
     orbitRadius: 0,
-    orbitSpeed: 0,
+    orbitalPeriodDays: 0,
+    orbitalEccentricity: 0,
+    orbitInclinationDeg: 0,
+    rotationPeriodHours: 609.12,
+    axialTiltDeg: 7.25,
     description: 'Identity / Introduction',
     content: [
       {
@@ -58,7 +76,11 @@ export const planets: PlanetData[] = [
     surface: 'cratered',
     size: 0.4,
     orbitRadius: 8,
-    orbitSpeed: 4.7,
+    orbitalPeriodDays: 88,
+    orbitalEccentricity: 0.2056,
+    orbitInclinationDeg: 7.005,
+    rotationPeriodHours: 1407.6,
+    axialTiltDeg: 2,
     description: 'Education',
     content: [
       {
@@ -89,7 +111,11 @@ export const planets: PlanetData[] = [
     surface: 'venusAtmo',
     size: 0.9,
     orbitRadius: 12,
-    orbitSpeed: 3.5,
+    orbitalPeriodDays: 225,
+    orbitalEccentricity: 0.0068,
+    orbitInclinationDeg: 3.394,
+    rotationPeriodHours: -5832,
+    axialTiltDeg: 177.36,
     description: 'Skills',
     content: [
       {
@@ -120,7 +146,11 @@ export const planets: PlanetData[] = [
     surface: 'earthlike',
     size: 1,
     orbitRadius: 16,
-    orbitSpeed: 3,
+    orbitalPeriodDays: 365.25,
+    orbitalEccentricity: 0.0167,
+    orbitInclinationDeg: 0,
+    rotationPeriodHours: 23.9,
+    axialTiltDeg: 23.4,
     description: 'Experience',
     content: [
       {
@@ -150,8 +180,13 @@ export const planets: PlanetData[] = [
     color: '#C4C4C4',
     surface: 'cratered',
     size: 0.27,
-    orbitRadius: 18,
-    orbitSpeed: 2.8,
+    orbitRadius: 2.2,
+    orbitalPeriodDays: 27.322,
+    orbitalEccentricity: 0.0549,
+    orbitInclinationDeg: 5.145,
+    rotationPeriodHours: 655.728,
+    axialTiltDeg: 6.68,
+    orbitParentId: 'earth',
     description: 'Engineering Principles',
     content: [
       {
@@ -182,7 +217,11 @@ export const planets: PlanetData[] = [
     surface: 'cratered',
     size: 0.53,
     orbitRadius: 22,
-    orbitSpeed: 2.4,
+    orbitalPeriodDays: 687,
+    orbitalEccentricity: 0.0934,
+    orbitInclinationDeg: 1.85,
+    rotationPeriodHours: 24.6,
+    axialTiltDeg: 25.2,
     description: 'About Me',
     content: [
       {
@@ -213,7 +252,18 @@ export const planets: PlanetData[] = [
     surface: 'banded',
     size: 2,
     orbitRadius: 30,
-    orbitSpeed: 1.3,
+    orbitalPeriodDays: 4333,
+    orbitalEccentricity: 0.0489,
+    orbitInclinationDeg: 1.303,
+    rotationPeriodHours: 9.9,
+    axialTiltDeg: 3.13,
+    rings: {
+      innerRadiusMultiplier: 1.18,
+      outerRadiusMultiplier: 1.48,
+      colorA: '#4f4638',
+      colorB: '#8c7657',
+      opacity: 0.16,
+    },
     description: 'Summit Moving',
     content: [
       {
@@ -244,7 +294,18 @@ export const planets: PlanetData[] = [
     surface: 'banded',
     size: 1.7,
     orbitRadius: 38,
-    orbitSpeed: 0.97,
+    orbitalPeriodDays: 10756,
+    orbitalEccentricity: 0.0565,
+    orbitInclinationDeg: 2.489,
+    rotationPeriodHours: 10.7,
+    axialTiltDeg: 26.73,
+    rings: {
+      innerRadiusMultiplier: 1.32,
+      outerRadiusMultiplier: 2.34,
+      colorA: '#B79B6B',
+      colorB: '#E8D4A8',
+      opacity: 0.92,
+    },
     description: 'Flagship Projects',
     content: [
       {
@@ -278,7 +339,18 @@ export const planets: PlanetData[] = [
     surface: 'banded',
     size: 1.3,
     orbitRadius: 46,
-    orbitSpeed: 0.68,
+    orbitalPeriodDays: 30687,
+    orbitalEccentricity: 0.0457,
+    orbitInclinationDeg: 0.773,
+    rotationPeriodHours: -17.2,
+    axialTiltDeg: 97.77,
+    rings: {
+      innerRadiusMultiplier: 1.38,
+      outerRadiusMultiplier: 1.92,
+      colorA: '#4f7778',
+      colorB: '#92c9c8',
+      opacity: 0.34,
+    },
     description: 'Experiments & Tools',
     content: [
       {
@@ -312,7 +384,18 @@ export const planets: PlanetData[] = [
     surface: 'banded',
     size: 1.2,
     orbitRadius: 54,
-    orbitSpeed: 0.54,
+    orbitalPeriodDays: 60190,
+    orbitalEccentricity: 0.0113,
+    orbitInclinationDeg: 1.77,
+    rotationPeriodHours: 16.1,
+    axialTiltDeg: 28.32,
+    rings: {
+      innerRadiusMultiplier: 1.4,
+      outerRadiusMultiplier: 1.78,
+      colorA: '#26395f',
+      colorB: '#5875a6',
+      opacity: 0.22,
+    },
     description: 'Contact / Hire Me',
     content: [
       {

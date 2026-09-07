@@ -158,7 +158,7 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
         
         {/* Orbit rings */}
         {planets.filter(p => p.orbitRadius > 0).map((planet) => (
-          <OrbitRing key={`orbit-${planet.id}`} radius={planet.orbitRadius} />
+          <OrbitRing key={`orbit-${planet.id}`} planet={planet} />
         ))}
         
         {/* Planets */}

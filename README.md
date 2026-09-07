@@ -17,6 +17,19 @@ An interactive space-themed portfolio with two entry paths: visitors can launch 
 
 Navigation flows through an opt-in route prompt, 3D **space** and **intercept** views, an animated **travel** sequence, and a 2D **planet surface** with an explorable base camp. Quick Portfolio provides the same professional content, project case studies, résumé, and contact actions through an accessible printable overlay. Heavy 3D, planet, and HAB modules are loaded only when requested.
 
+## Astronomical simulation
+
+The immersive map uses approximate NASA planetary periods and axial tilts with elliptical,
+inclined orbits. The Moon follows Earth, and Jupiter, Saturn, Uranus, and Neptune each have
+their corresponding ring systems. Motion is accelerated with two clearly displayed visual
+scales: one Earth year passes in 60 seconds for orbits, while one Earth day passes in 12
+seconds for axial rotation. Keeping those scales separate makes both the inner and outer
+planets readable without turning the fast-spinning giants into a blur.
+
+Planet sizes, interplanetary distances, ring widths, and deterministic starting positions
+remain artistically compressed for navigation; this is a proportional educational model,
+not a live ephemeris.
+
 ## Tech stack
 
 - **Vite** + **React** + **TypeScript**
