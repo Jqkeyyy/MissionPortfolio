@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import {
   Activity,
@@ -11,7 +11,10 @@ import {
 } from 'lucide-react';
 import { PlanetData } from '@/data/planets';
 import { PlanetTerrain } from './PlanetTerrain';
-import { HabitatDesktop } from './HabitatDesktop';
+
+const HabitatDesktop = lazy(() => import('./HabitatDesktop').then((module) => ({
+  default: module.HabitatDesktop,
+})));
 
 interface BaseCampInteriorProps {
   planet: PlanetData;
@@ -39,6 +42,28 @@ const roomParticles = [
 
 const COMPUTER_ZOOM_SCALE = 7.9;
 const MONITOR_RENDER_SCALE = 1 / COMPUTER_ZOOM_SCALE;
+
+const DesktopLoading = ({ planetName }: { planetName: string }) => (
+  <div className="flex h-full w-full items-center justify-center bg-[#061017] text-center text-cyan-100" aria-busy="true">
+    <div role="status" aria-live="polite">
+      <p className="font-heading text-[52px] tracking-[0.16em]">HAB/OS</p>
+      <p className="mt-5 font-mono text-[20px] uppercase tracking-[0.22em] text-cyan-100/55">
+        Loading {planetName} mission archive...
+      </p>
+    </div>
+  </div>
+);
+
+const DesktopPreview = ({ planetName }: { planetName: string }) => (
+  <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_50%_30%,rgba(34,211,238,0.14),transparent_42%),#061017] text-center text-cyan-100">
+    <div>
+      <p className="font-heading text-[58px] tracking-[0.16em]">HAB/OS</p>
+      <p className="mt-4 font-mono text-[18px] uppercase tracking-[0.25em] text-cyan-100/45">
+        {planetName} station standby
+      </p>
+    </div>
+  </div>
+);
 
 export const BaseCampInterior = ({
   planet,
@@ -91,13 +116,19 @@ export const BaseCampInterior = ({
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_32%,rgba(1,6,10,0.16))]" />
           </div>
 
-          <img
-            src="/base-camp-interior-v6-stool.png"
-            alt=""
-            aria-hidden="true"
-            draggable={false}
-            className="absolute inset-0 z-10 h-full w-full select-none"
-          />
+          <picture>
+            <source srcSet="/optimized/base-camp-interior-v6-stool.webp" type="image/webp" />
+            <img
+              src="/base-camp-interior-v6-stool.png"
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              decoding="async"
+              width="1672"
+              height="940"
+              className="absolute inset-0 z-10 h-full w-full select-none"
+            />
+          </picture>
 
           <motion.div
             className="camp-terminal-monitor pointer-events-auto absolute z-20 focus:outline-none"
@@ -120,12 +151,17 @@ export const BaseCampInterior = ({
                   <foreignObject x="0" y="0" width="1600" height="900">
                     <div className="h-[900px] w-[1600px] overflow-hidden">
                       <div className={`${computerActive ? 'pointer-events-auto' : 'pointer-events-none'} h-full w-full select-none`} aria-hidden={!computerActive}>
-                        <HabitatDesktop
-                          planet={planet}
-                          onStandUp={onLeaveComputer}
-                          bootStartedAt={bootStartedAt}
-                          preview={!computerActive}
-                        />
+                        {computerActive ? (
+                          <Suspense fallback={<DesktopLoading planetName={planet.displayName} />}>
+                            <HabitatDesktop
+                              planet={planet}
+                              onStandUp={onLeaveComputer}
+                              bootStartedAt={bootStartedAt}
+                            />
+                          </Suspense>
+                        ) : (
+                          <DesktopPreview planetName={planet.displayName} />
+                        )}
                       </div>
                     </div>
                   </foreignObject>

@@ -11,6 +11,10 @@ describe('BaseCampInterior', () => {
     expect(screen.getByText('BASE CAMP INTERIOR')).toBeInTheDocument();
     expect(screen.getAllByText(planet.displayName).length).toBeGreaterThan(0);
     expect(document.querySelector('img')).toHaveAttribute('src', '/base-camp-interior-v6-stool.png');
+    expect(document.querySelector('source')).toHaveAttribute(
+      'srcset',
+      '/optimized/base-camp-interior-v6-stool.webp',
+    );
   });
 
   it('calls onAccessComputer when the terminal is clicked', () => {
@@ -46,7 +50,7 @@ describe('BaseCampInterior', () => {
     expect(screen.getByText('HAB/OS')).toBeInTheDocument();
   });
 
-  it('makes the desktop inside the physical monitor interactive when seated', () => {
+  it('lazily loads an interactive desktop inside the physical monitor when seated', async () => {
     render(
       <BaseCampInterior
         planet={planet}
@@ -58,7 +62,7 @@ describe('BaseCampInterior', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('desktop-archive'));
+    fireEvent.click(await screen.findByTestId('desktop-archive', {}, { timeout: 5000 }));
     expect(screen.getByRole('dialog', { name: `${planet.displayName} Mission Archive` })).toBeInTheDocument();
   });
 
