@@ -4,7 +4,7 @@
 
 ## Read this first
 
-The portfolio-improvement roadmap is active. Waves 1 through 6 are complete. Continue with **Wave 7** using the ownership and merge rules in `docs/superpowers/plans/2026-09-06-agent-work-packets.md`.
+The portfolio-improvement roadmap is complete. Waves 1 through 7 have been implemented, merged, and verified on `main`. See `docs/audits/release-quality.md` for the final release evidence.
 
 Do not modify, delete, stage, or move the user's four untracked local files:
 
@@ -18,9 +18,9 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest implementation commit: `249216f` (`Integrate planet and habitat themes`)
-- `origin/main` was last observed at `fe0eee2`; Waves 5-6 and handoff documentation still need to be pushed.
-- The development server was last observed responding at `http://127.0.0.1:8081/` because port 8080 was already occupied. A new session should verify or restart it rather than assume the process survived.
+- Latest implementation commit: `2e38f06` (`Complete release reliability gate`)
+- `origin/main` was last observed at `fe0eee2`; Waves 5-7 and handoff documentation still need to be pushed.
+- No development or preview server is expected to be running. Start a fresh server when needed.
 
 ## Completed roadmap work
 
@@ -64,43 +64,44 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 - Disabled ambient and entrance motion for visitors who prefer reduced motion.
 - Integration commit: `249216f`.
 
+### Wave 7: reliability and release gate
+
+- Travel timeouts are tracked and canceled when navigation is skipped, reversed, reset, or superseded.
+- Added React render recovery and WebGL context-loss handling with route-selection and Quick Portfolio fallbacks.
+- Isolated shader unit tests from renderer registration so the duplicate Three.js warning no longer appears.
+- Added Playwright production smoke coverage for the recruiter route, metadata, full Earth-to-HAB exploration path, and phone viewport.
+- GitHub Actions now installs Chromium and runs the critical browser suite.
+- Removed unused `@hookform/resolvers` and `zod` dependencies and patched the transitive `fflate` advisory without force upgrades.
+- Integration commit: `2e38f06`.
+
 ## Latest verification and performance evidence
 
-`npm run check` passed on merged `main` after Wave 6:
+`npm run check` and `npm run test:e2e` passed on merged `main` after Wave 7:
 
 - ESLint: passed
 - TypeScript: passed
-- Vitest: **30 files / 132 tests passed**
+- Vitest: **31 files / 137 tests passed**
 - Production build: passed
+- Playwright Chromium: **3 critical-path tests passed**
+- Production dependency audit: **0 vulnerabilities**
 
 Measured production changes:
 
-- Initial JavaScript request closure: **430.49 kB gzip → 68.14 kB gzip** (about 84% smaller)
+- Initial JavaScript request closure: **430.49 kB gzip → 68.66 kB gzip** (about 84% smaller)
 - Initial raster request: **281.68 kB → 0** until exploration is selected
 - Shuttle: **281,679-byte PNG → 33,300-byte WebP** when exploration loads
 - Active HAB interior: **3,448,745-byte PNG → 160,414-byte WebP** on base-camp entry
-- Three.js exploration is isolated in an **865.66 kB raw / 236.42 kB gzip** deferred chunk
+- Three.js exploration is isolated in an **865.98 kB raw / 236.52 kB gzip** deferred chunk
 
-The browser-control surface and Playwright were unavailable during this session, so real-browser network/Lighthouse traces remain a Wave 7 responsibility. Component tests cover the new performance entry and failure paths.
+Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and all identity logic remains in deferred planet/HAB chunks. The deferred Planet Surface and HAB Desktop chunks are **18.40 kB gzip** and **22.04 kB gzip**, respectively.
 
-Wave 6 preserved the Wave 5 request budget: the initial JavaScript request closure remains about **68.14 kB gzip**, no new raster assets were added, and all identity logic remains in deferred planet/HAB chunks. The deferred Planet Surface and HAB Desktop chunks are **18.39 kB gzip** and **22.03 kB gzip**, respectively.
+## Roadmap status
 
-## Next and final packet: Wave 7
-
-After Wave 6 is merged, run one serial release-quality packet covering:
-
-- transition cancellation/reliability review;
-- React/WebGL recovery boundary;
-- duplicate Three.js warning investigation and fix;
-- Playwright critical-path smoke tests and CI integration;
-- verified unused dependency cleanup;
-- final accessibility, responsive, bundle, link, metadata, and production checks.
+All planned implementation packets are complete. The next meaningful work is deployment-specific: select the production URL, add canonical/absolute social URL metadata, push the accumulated commits, and verify the live deployment.
 
 ## Known remaining risks and follow-ups
 
-- Shader tests still warn about multiple Three.js instances. The likely source is Drei's `stats-gl` dependency resolving a second Three.js version; Wave 7 owns the investigation.
-- The deferred SolarSystem chunk still triggers Vite's raw 500 kB warning. It is not part of the initial request path, but Wave 7 should record and assess it.
-- `npm` reports two moderate dependency vulnerabilities; review them without applying an unscoped force upgrade.
+- The deferred SolarSystem chunk still triggers Vite's default raw 500 kB advisory. It is explicitly deferred behind exploration opt-in and measured at 236.52 kB gzip; the final audit records this accepted tradeoff.
 - Original large PNG files still exist in `public/` as fallbacks/source artifacts, so deployment size remains larger than transfer size.
 - The production canonical URL and `og:url` must be added once the final domain is known.
-- Social unfurls and responsive/Lighthouse behavior still require real-browser/deployed verification.
+- Social unfurls and Lighthouse behavior still require verification against the deployed production URL.
