@@ -18,7 +18,7 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest implementation commit: `2e38f06` (`Complete release reliability gate`)
+- Latest implementation commit: `1471aed` (`Model proportional planetary motion and rings`)
 - `origin/main` was last observed at `fe0eee2`; Waves 5-7 and handoff documentation still need to be pushed.
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
@@ -97,7 +97,7 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-All planned implementation packets are complete. The next meaningful work is deployment-specific: select the production URL, add canonical/absolute social URL metadata, push the accumulated commits, and verify the live deployment.
+The original Waves 1–7 are complete. The next milestone is deployment-specific: select the production URL, add canonical/absolute social URL metadata, push the accumulated commits, and verify the live deployment. After deployment, execute the multi-agent plan in `docs/superpowers/plans/2026-09-07-post-deployment-enhancements.md` for the science console, guided tour, exploration progress, sound, solar details, and privacy-safe observability.
 
 ## Known remaining risks and follow-ups
 
