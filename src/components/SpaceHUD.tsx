@@ -1,15 +1,46 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useGameState } from '@/hooks/useGameState';
 import { planets } from '@/data/planets';
 import { Rocket, ChevronDown, ChevronUp, FileUser, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HudCorners } from '@/components/HudCorners';
 import { getPlanetById } from '@/data/planets';
 
 export const SpaceHUD = () => {
-  const { currentView, selectedPlanet, travelToPlanet, openQuickPortfolio } = useGameState();
+  const {
+    announcement,
+    currentView,
+    selectedPlanet,
+    travelToPlanet,
+    openQuickPortfolio,
+    skipTravel,
+  } = useGameState();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredDestination, setHoveredDestination] = useState<string | null>(null);
+  const reducedMotion = useReducedMotion();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const interceptSkipRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuToggleRef = useRef<HTMLButtonElement>(null);
+  const firstMobileDestinationRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (currentView === 'space') headingRef.current?.focus();
+    if (currentView === 'intercepting') interceptSkipRef.current?.focus();
+  }, [currentView]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    firstMobileDestinationRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setMobileMenuOpen(false);
+      mobileMenuToggleRef.current?.focus();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
 
   if (currentView === 'intercepting') {
     const destination = selectedPlanet ? getPlanetById(selectedPlanet) : null;
@@ -18,8 +49,10 @@ export const SpaceHUD = () => {
       <div
         className="pointer-events-none fixed inset-0 z-10"
         data-testid="solar-intercept-status"
-        aria-live="polite"
       >
+        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {announcement}
+        </p>
         <motion.div
           className="absolute left-1/2 top-6 w-[min(88vw,430px)] -translate-x-1/2 rounded-md border border-primary/35 bg-background/75 px-5 py-3 text-center shadow-[0_0_30px_hsl(var(--primary)/0.14)] backdrop-blur-sm md:top-8"
           initial={{ opacity: 0, y: -14 }}
@@ -34,18 +67,26 @@ export const SpaceHUD = () => {
               className="h-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]"
               initial={{ width: '0%' }}
               animate={{ width: '100%' }}
-              transition={{ duration: 3.1, ease: 'easeInOut' }}
+              transition={{ duration: reducedMotion ? 0.1 : 3.1, ease: 'easeInOut' }}
             />
           </div>
         </motion.div>
 
         <motion.div
           className="absolute bottom-7 left-1/2 -translate-x-1/2 rounded border border-primary/25 bg-background/65 px-4 py-2 font-mono text-[10px] tracking-mission text-primary backdrop-blur-sm"
-          animate={{ opacity: [0.55, 1, 0.55] }}
-          transition={{ duration: 1.1, repeat: Infinity }}
+          animate={reducedMotion ? { opacity: 1 } : { opacity: [0.55, 1, 0.55] }}
+          transition={{ duration: 1.1, repeat: reducedMotion ? 0 : Infinity }}
         >
           TRACKING LIVE ORBIT • VISUAL LOCK CONFIRMED
         </motion.div>
+        <button
+          ref={interceptSkipRef}
+          type="button"
+          onClick={skipTravel}
+          className="pointer-events-auto absolute bottom-20 left-1/2 min-h-11 -translate-x-1/2 rounded border border-primary/45 bg-background/85 px-5 py-3 font-heading text-sm tracking-mission text-primary shadow-lg backdrop-blur-sm hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          Skip travel
+        </button>
       </div>
     );
   }
@@ -54,6 +95,9 @@ export const SpaceHUD = () => {
 
   return (
     <>
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
       {/* Title overlay */}
       <motion.div
         className="fixed top-6 md:top-8 left-1/2 -translate-x-1/2 text-center z-10 px-4"
@@ -61,7 +105,11 @@ export const SpaceHUD = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <h1 className="font-heading text-2xl md:text-5xl tracking-mission text-primary text-glow">
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="font-heading text-2xl md:text-5xl tracking-mission text-primary text-glow focus:outline-none"
+        >
           Mission Portfolio
         </h1>
         <p className="text-muted-foreground mt-1 md:mt-2 tracking-wide text-sm md:text-base">
@@ -76,7 +124,10 @@ export const SpaceHUD = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.7 }}
       >
-        <div className="hud-panel p-3 rounded-lg space-y-1 max-h-[70vh] overflow-y-auto">
+        <nav
+          aria-label="Solar system destinations"
+          className="hud-panel p-3 rounded-lg space-y-1 max-h-[70vh] overflow-y-auto"
+        >
           <button
             type="button"
             data-testid="desktop-quick-portfolio"
@@ -139,7 +190,7 @@ export const SpaceHUD = () => {
               </span>
             </motion.button>
           ))}
-        </div>
+        </nav>
       </motion.div>
 
       {/* Mobile: Expandable menu */}
@@ -159,25 +210,30 @@ export const SpaceHUD = () => {
             Quick Portfolio
           </button>
           <button
+            ref={mobileMenuToggleRef}
             type="button"
-            aria-label="Toggle destination menu"
+            aria-label="Select destination"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-destination-menu"
             className="hud-panel w-full px-4 py-3 rounded-lg flex items-center justify-between"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <div className="flex items-center gap-2">
-              <Menu className="w-4 h-4 text-primary" />
+              <Menu className="w-4 h-4 text-primary" aria-hidden="true" />
               <span className="font-heading text-sm tracking-mission">SELECT DESTINATION</span>
             </div>
             {mobileMenuOpen ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4" aria-hidden="true" />
             ) : (
-              <ChevronUp className="w-4 h-4" />
+              <ChevronUp className="w-4 h-4" aria-hidden="true" />
             )}
           </button>
 
           <AnimatePresence>
             {mobileMenuOpen && (
-              <motion.div
+              <motion.nav
+                id="mobile-destination-menu"
+                aria-label="Mobile solar system destinations"
                 className="hud-panel mt-2 p-3 rounded-lg max-h-[50vh] overflow-y-auto"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -185,6 +241,7 @@ export const SpaceHUD = () => {
               >
                 <div className="grid grid-cols-2 gap-2">
                   <button
+                    ref={firstMobileDestinationRef}
                     className="px-3 py-2 rounded text-left text-sm flex items-center gap-2 hover:bg-accent/20"
                     onClick={() => {
                       travelToPlanet('sun');
@@ -211,7 +268,7 @@ export const SpaceHUD = () => {
                     </button>
                   ))}
                 </div>
-              </motion.div>
+              </motion.nav>
             )}
           </AnimatePresence>
         </motion.div>
@@ -226,7 +283,7 @@ export const SpaceHUD = () => {
       >
         <div className="hud-panel px-6 py-3 rounded-lg flex items-center gap-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Rocket className="w-4 h-4" />
+            <Rocket className="w-4 h-4" aria-hidden="true" />
             <span>Click a planet or select from the list • Drag to orbit • Scroll to zoom</span>
           </div>
         </div>
@@ -250,12 +307,10 @@ export const SpaceHUD = () => {
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-5">
         <motion.div
           className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-hud-line/10 to-transparent"
-          animate={{
-            top: ['0%', '100%'],
-          }}
+          animate={reducedMotion ? { top: '50%' } : { top: ['0%', '100%'] }}
           transition={{
             duration: 10,
-            repeat: Infinity,
+            repeat: reducedMotion ? 0 : Infinity,
             ease: 'linear',
           }}
         />

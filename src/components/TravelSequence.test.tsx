@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useGameState } from '@/hooks/useGameState';
 import { TravelSequence } from './TravelSequence';
@@ -24,5 +24,21 @@ describe('TravelSequence', () => {
     const { container } = render(<TravelSequence />);
     expect(screen.getByText('Solar System')).toBeInTheDocument();
     expect(container.querySelector('[data-destination-planet]')).not.toBeInTheDocument();
+  });
+
+  it('provides a focused skip action and announces the travel state', () => {
+    useGameState.setState({ announcement: 'Close approach to Mars.' });
+    render(<TravelSequence />);
+
+    const skipButton = screen.getByRole('button', { name: /skip travel/i });
+    expect(skipButton).toHaveFocus();
+    expect(screen.getByRole('status')).toHaveTextContent('Close approach to Mars.');
+
+    fireEvent.click(skipButton);
+    expect(useGameState.getState()).toMatchObject({
+      currentView: 'planet',
+      isTransitioning: false,
+      travelDirection: null,
+    });
   });
 });

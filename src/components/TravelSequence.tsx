@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useGameState } from '@/hooks/useGameState';
 import { getPlanetById } from '@/data/planets';
+import { useEffect, useRef } from 'react';
 
 const streaks = Array.from({ length: 28 }, (_, index) => ({
   top: 4 + ((index * 37) % 92),
@@ -11,11 +12,16 @@ const streaks = Array.from({ length: 28 }, (_, index) => ({
 }));
 
 export const TravelSequence = () => {
-  const { selectedPlanet, travelDirection } = useGameState();
+  const { announcement, selectedPlanet, skipTravel, travelDirection } = useGameState();
   const reducedMotion = useReducedMotion();
+  const skipButtonRef = useRef<HTMLButtonElement>(null);
   const planet = selectedPlanet ? getPlanetById(selectedPlanet) : null;
   const approachingPlanet = travelDirection !== 'toSpace';
   const distance = planet ? Math.max(12, Math.round((planet.orbitRadius || 4) * 11.8)) : 0;
+
+  useEffect(() => {
+    skipButtonRef.current?.focus();
+  }, []);
 
   return (
     <motion.div
@@ -28,7 +34,11 @@ export const TravelSequence = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      aria-labelledby="travel-heading"
     >
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
       <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         {streaks.map((streak, index) => (
           <motion.span
@@ -42,8 +52,8 @@ export const TravelSequence = () => {
             initial={{ x: '-45vw' }}
             animate={{ x: reducedMotion ? '30vw' : '145vw' }}
             transition={{
-              duration: reducedMotion ? 1.2 : streak.duration,
-              delay: streak.delay,
+              duration: reducedMotion ? 0.1 : streak.duration,
+              delay: reducedMotion ? 0 : streak.delay,
               repeat: reducedMotion ? 0 : Infinity,
               repeatDelay: 0.28 + (index % 4) * 0.05,
               ease: 'linear',
@@ -60,7 +70,7 @@ export const TravelSequence = () => {
           animate={reducedMotion
             ? { opacity: 0.7, scale: 0.72, x: 0 }
             : { opacity: [0, 0.76, 1], scale: [0.3, 0.58, 1], x: [90, 42, 0] }}
-          transition={{ duration: reducedMotion ? 0.8 : 2.25, ease: [0.2, 0.7, 0.15, 1] }}
+          transition={{ duration: reducedMotion ? 0.1 : 2.25, ease: [0.2, 0.7, 0.15, 1] }}
           aria-hidden="true"
         >
           <motion.div
@@ -102,7 +112,7 @@ export const TravelSequence = () => {
           <p className="mb-2 text-sm tracking-mission text-muted-foreground">
             {approachingPlanet ? 'DESTINATION APPROACH ACTIVE' : 'RETURN VECTOR ACTIVE'}
           </p>
-          <h2 className="font-heading text-3xl text-primary text-glow md:text-5xl">
+          <h2 id="travel-heading" className="font-heading text-3xl text-primary text-glow md:text-5xl">
             {approachingPlanet ? planet?.displayName || 'Unknown' : 'Solar System'}
           </h2>
           <p className="mt-2 text-muted-foreground">
@@ -121,7 +131,10 @@ export const TravelSequence = () => {
               className="h-full bg-primary"
               initial={{ width: '0%' }}
               animate={{ width: '100%' }}
-              transition={{ duration: approachingPlanet ? 2.2 : 1.25, ease: 'easeInOut' }}
+              transition={{
+                duration: reducedMotion ? 0.1 : approachingPlanet ? 2.2 : 1.25,
+                ease: 'easeInOut',
+              }}
             />
           </div>
           <p className="mt-2 text-xs tracking-mission text-muted-foreground">
@@ -138,6 +151,14 @@ export const TravelSequence = () => {
         <p>FUEL: 87%</p>
         <p>HULL: NOMINAL</p>
       </div>
+      <button
+        ref={skipButtonRef}
+        type="button"
+        onClick={skipTravel}
+        className="absolute bottom-8 left-1/2 z-20 min-h-11 -translate-x-1/2 rounded border border-primary/45 bg-background/85 px-5 py-3 font-heading text-sm tracking-mission text-primary shadow-lg backdrop-blur-sm hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      >
+        Skip travel
+      </button>
     </motion.div>
   );
 };
