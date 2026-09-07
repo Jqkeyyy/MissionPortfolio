@@ -113,6 +113,5 @@ Tests located in `src/test/` using Vitest + jsdom. Setup file: `src/test/setup.t
 ## Development Notes
 
 - Built from Lovable.dev template - some references remain in README
-- Uses component tagging in development mode (lovable-tagger plugin)
 - Vite dev server runs on port 8080 with HMR overlay disabled
 - Font loading: Space Grotesk (headings), Inter (body) from @fontsource packages
