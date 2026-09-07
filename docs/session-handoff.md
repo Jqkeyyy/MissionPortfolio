@@ -18,8 +18,9 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest implementation commit: `1471aed` (`Model proportional planetary motion and rings`)
-- `origin/main` was last observed at `fe0eee2`; Waves 5-7 and handoff documentation still need to be pushed.
+- Latest production implementation commit: `9d929d5` (`Harden Vercel production deployment`)
+- `main` and `origin/main` were synchronized through `9d929d5` before the final deployment audit.
+- Public production URL: `https://mission-portfolio-amber.vercel.app/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
 ## Completed roadmap work
@@ -97,11 +98,11 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-The original Waves 1–7 are complete. The next milestone is deployment-specific: select the production URL, add canonical/absolute social URL metadata, push the accumulated commits, and verify the live deployment. After deployment, execute the multi-agent plan in `docs/superpowers/plans/2026-09-07-post-deployment-enhancements.md` for the science console, guided tour, exploration progress, sound, solar details, and privacy-safe observability.
+The original Waves 1–7 and the temporary-domain deployment gate are complete. Production metadata, security headers, sitemap discovery, SPA fallback, social-crawler access, Lighthouse, Quick Portfolio, mobile layout, and the live WebGL journey were verified. See `docs/audits/production-deployment.md`. The next work is Wave 1 of `docs/superpowers/plans/2026-09-07-post-deployment-enhancements.md`: the science/simulation, guided-tour, and exploration-progress foundations can begin in parallel.
 
 ## Known remaining risks and follow-ups
 
 - The deferred SolarSystem chunk still triggers Vite's default raw 500 kB advisory. It is explicitly deferred behind exploration opt-in and measured at 236.52 kB gzip; the final audit records this accepted tradeoff.
 - Original large PNG files still exist in `public/` as fallbacks/source artifacts, so deployment size remains larger than transfer size.
-- The production canonical URL and `og:url` must be added once the final domain is known.
-- Social unfurls and Lighthouse behavior still require verification against the deployed production URL.
+- The current canonical, social, structured-data, robots, and sitemap URLs use the temporary public Vercel alias and must be replaced when the custom domain is known.
+- Social platforms can cache older unfurls even though crawler access and live metadata are verified.

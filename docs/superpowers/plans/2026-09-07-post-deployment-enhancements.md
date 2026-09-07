@@ -5,6 +5,9 @@ production deployment is complete and verified.
 
 **Sequence:** Plan now -> deploy and verify production -> execute this plan.
 
+**Deployment gate status:** Complete on 2026-09-07 at production implementation commit
+`9d929d5`. Wave 1 may begin after the documentation handoff is merged.
+
 **Baseline:** `main` at or after `1471aed` (`Model proportional planetary motion and
 rings`), plus the deployment-specific metadata commit.
 
