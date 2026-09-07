@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { getGraphicsProfile, registerWebGLContextLoss, SolarSystem } from './SolarSystem';
@@ -23,7 +23,7 @@ describe('SolarSystem capability handling', () => {
     vi.restoreAllMocks();
   });
 
-  it('offers Quick Portfolio through the Canvas fallback', async () => {
+  it('offers Quick Portfolio without reporting a failure merely because fallback content mounts', () => {
     const onUnavailable = vi.fn();
     const onOpenQuickPortfolio = vi.fn();
 
@@ -35,7 +35,7 @@ describe('SolarSystem capability handling', () => {
     );
 
     expect(screen.getByRole('alert')).toHaveTextContent('Immersive view unavailable');
-    await waitFor(() => expect(onUnavailable).toHaveBeenCalledTimes(1));
+    expect(onUnavailable).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'View Quick Portfolio' }));
     expect(onOpenQuickPortfolio).toHaveBeenCalledTimes(1);
   });

@@ -37,14 +37,9 @@ test('exploration reaches a themed planet, base camp, and HAB desktop', async ({
   await page.goto('/');
   await page.getByRole('button', { name: 'Launch exploration' }).click();
 
-  const unavailableAlert = page.getByRole('alert').filter({ hasText: 'Immersive exploration is unavailable' });
   const destinationNav = page.getByRole('navigation', { name: 'Solar system destinations' });
-  await expect(unavailableAlert.or(destinationNav)).toBeVisible({ timeout: 15_000 });
-
-  if (await unavailableAlert.isVisible()) {
-    await expect(page.getByRole('button', { name: 'View Quick Portfolio' })).toBeVisible();
-    return;
-  }
+  await expect(destinationNav).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('Immersive exploration is unavailable on this device.')).not.toBeVisible();
 
   await destinationNav.getByRole('button', { name: 'Earth' }).click();
   await expect(page.getByRole('heading', { name: 'Earth planet surface' })).toBeAttached({ timeout: 10_000 });

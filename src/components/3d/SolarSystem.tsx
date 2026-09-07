@@ -63,14 +63,10 @@ export const getGraphicsProfile = (): GraphicsProfile => {
 };
 
 const CanvasUnavailable = ({
-  onUnavailable,
   onOpenQuickPortfolio,
 }: {
-  onUnavailable?: () => void;
   onOpenQuickPortfolio: () => void;
 }) => {
-  useEffect(() => onUnavailable?.(), [onUnavailable]);
-
   return (
     <div className="flex h-full w-full items-center justify-center bg-[#02070d] px-6 text-center text-white" role="alert">
       <div className="max-w-lg">
@@ -138,7 +134,6 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
         performance={{ min: 0.5 }}
         fallback={(
           <CanvasUnavailable
-            onUnavailable={onUnavailable}
             onOpenQuickPortfolio={onOpenQuickPortfolio}
           />
         )}
