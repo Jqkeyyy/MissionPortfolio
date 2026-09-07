@@ -8,7 +8,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useReducedMotion } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
@@ -41,12 +41,22 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { ContentSign, PlanetData } from '@/data/planets';
+import {
+  formatTelemetryReading,
+  getHabitatFamily,
+  getPlanetTheme,
+  getTelemetryReading,
+} from '@/data/planetThemes';
 import { contactActions } from '@/data/contact';
 import { getProjectById } from '@/data/projects';
 import { ContactActions } from '@/components/portfolio/ContactActions';
 import { ProjectCaseStudy } from '@/components/portfolio/ProjectCaseStudy';
 import { ScanlineReveal } from '@/components/ScanlineReveal';
 import { FUN_APPS, FunAppContent, isFunApp, type FunAppDefinition, type FunAppId } from './HabitatFunApps';
+import {
+  getPlanetThemeCssVariables,
+  getPlanetThemeDataAttributes,
+} from './theme/themeStyles';
 
 type SystemApp = 'archive' | 'terminal' | 'system' | 'giggle' | 'mail' | 'notes' | FunAppId;
 type WindowKind = SystemApp | 'file';
@@ -233,6 +243,7 @@ const DesktopWindow = ({
   onMaximize,
   children,
 }: DesktopWindowProps) => {
+  const prefersReducedMotion = Boolean(useReducedMotion());
   const windowRef = useRef<HTMLElement>(null);
   const positionX = useMotionValue(0);
   const positionY = useMotionValue(0);
@@ -299,10 +310,12 @@ const DesktopWindow = ({
         y: windowState.maximized ? 0 : positionY,
       }}
       onPointerDown={onFocus}
-      initial={{ opacity: 0, scale: 0.88 }}
+      initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.88 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ type: 'spring', stiffness: 310, damping: 28 }}
+      transition={prefersReducedMotion
+        ? { duration: 0 }
+        : { type: 'spring', stiffness: 310, damping: 28 }}
     >
       <header className="flex h-11 shrink-0 cursor-default select-none items-center justify-between border-b border-white/10 bg-white/[0.055] pl-3">
         <div
@@ -370,12 +383,15 @@ const DesktopWindow = ({
 };
 
 export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt, preview = false }: HabitatDesktopProps) => {
+  const theme = getPlanetTheme(planet.id)!;
+  const family = getHabitatFamily(theme.family);
+  const prefersReducedMotion = Boolean(useReducedMotion());
   const desktopRef = useRef<HTMLDivElement>(null);
   const terminalInputRef = useRef<HTMLInputElement>(null);
   const [windows, setWindows] = useState<DesktopWindowState[]>([]);
   const [startOpen, setStartOpen] = useState(false);
   const [booting, setBooting] = useState(() => (
-    bootStartedAt ? Date.now() - bootStartedAt < HAB_OS_BOOT_DURATION_MS : true
+    prefersReducedMotion ? false : bootStartedAt ? Date.now() - bootStartedAt < HAB_OS_BOOT_DURATION_MS : true
   ));
   const [terminalInput, setTerminalInput] = useState('');
   const [terminalLines, setTerminalLines] = useState<string[]>([
@@ -391,11 +407,12 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
   const nextZ = useRef(20);
 
   const wallpaperStyle = {
-    '--terminal-accent': planet.color,
+    ...getPlanetThemeCssVariables(theme),
+    '--terminal-accent': theme.palette.accent,
     background: `
-      radial-gradient(circle at 76% 26%, ${planet.color}45 0%, ${planet.color}12 20%, transparent 43%),
-      radial-gradient(ellipse at 50% 118%, ${planet.color}48 0%, ${planet.color}18 31%, transparent 58%),
-      linear-gradient(145deg, #02070b 0%, #071925 48%, #02070b 100%)
+      radial-gradient(circle at 76% 26%, ${theme.palette.secondary}45 0%, ${theme.palette.secondary}12 20%, transparent 43%),
+      radial-gradient(ellipse at 50% 118%, ${theme.palette.accent}48 0%, ${theme.palette.accent}18 31%, transparent 58%),
+      ${theme.wallpaper.gradient}
     `,
   } as CSSProperties;
 
@@ -426,13 +443,15 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
 
   useEffect(() => {
     const elapsed = bootStartedAt ? Date.now() - bootStartedAt : 0;
-    const remainingBootTime = Math.max(0, HAB_OS_BOOT_DURATION_MS - elapsed);
+    const remainingBootTime = prefersReducedMotion
+      ? 0
+      : Math.max(0, HAB_OS_BOOT_DURATION_MS - elapsed);
     setBooting(remainingBootTime > 0);
     const bootTimer = window.setTimeout(() => setBooting(false), remainingBootTime);
     return () => {
       window.clearTimeout(bootTimer);
     };
-  }, [bootStartedAt, planet.id]);
+  }, [bootStartedAt, planet.id, prefersReducedMotion]);
 
   const focusWindow = (id: string) => {
     nextZ.current += 1;
@@ -727,7 +746,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
           <aside className="hidden w-44 shrink-0 border-r border-white/10 bg-black/15 p-3 sm:block">
             <p className="mb-2 px-2 font-mono text-[10px] uppercase tracking-[0.15em] text-white/30">Quick access</p>
             <button type="button" className="flex w-full items-center gap-2 rounded bg-white/10 px-2.5 py-2 text-left text-xs text-white/80">
-              <HardDrive className="h-4 w-4" style={{ color: planet.color }} /> Mission drive
+              <HardDrive className="h-4 w-4" style={{ color: theme.palette.accent }} /> Mission drive
             </button>
             <button type="button" onClick={() => openApp('system')} className="mt-1 flex w-full items-center gap-2 rounded px-2.5 py-2 text-left text-xs text-white/45 hover:bg-white/5 hover:text-white/80">
               <Cpu className="h-4 w-4" /> This station
@@ -758,7 +777,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
                     onClick={() => openItem(item)}
                     className="group flex min-h-28 flex-col items-center justify-center rounded-md border border-transparent p-3 text-center hover:border-white/10 hover:bg-white/[0.06] focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60"
                   >
-                    <Icon className="mb-2 h-8 w-8 transition-transform group-hover:-translate-y-0.5" style={{ color: planet.color }} />
+                    <Icon className="mb-2 h-8 w-8 transition-transform group-hover:-translate-y-0.5" style={{ color: theme.palette.accent }} />
                     <span className="line-clamp-2 text-sm text-white/80">{item.title}</span>
                     <span className="mt-1 font-mono text-[10px] uppercase text-white/25">{getFileExtension(item.type)} file</span>
                   </button>
@@ -796,11 +815,15 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
     }
 
     if (entry.kind === 'system') {
+      const habPressure = getTelemetryReading(theme, 'hab-pressure');
+      const oxygenReserve = getTelemetryReading(theme, 'oxygen-reserve');
+      const commsLink = getTelemetryReading(theme, 'comms-link');
+
       return (
-        <div className="h-full overflow-auto bg-[radial-gradient(circle_at_top_right,var(--terminal-accent),transparent_46%)] p-5 sm:p-7" style={{ '--terminal-accent': `${planet.color}24` } as CSSProperties}>
+        <div className="h-full overflow-auto bg-[radial-gradient(circle_at_top_right,var(--terminal-accent),transparent_46%)] p-5 sm:p-7" style={{ '--terminal-accent': `${theme.palette.accent}24` } as CSSProperties}>
           <div className="mb-6 flex items-center gap-4">
             <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-black/20">
-              <Monitor className="h-8 w-8" style={{ color: planet.color }} />
+              <Monitor className="h-8 w-8" style={{ color: theme.palette.accent }} />
             </span>
             <div>
               <p className="font-heading text-xl tracking-[0.08em]">HAB/OS</p>
@@ -811,10 +834,15 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
             {[
               ['Station', `${planet.displayName} Habitat 01`],
               ['Mission', planet.description],
+              ['Habitat family', family.label],
+              ['Shell profile', family.shellProfile],
+              ['Panel finish', family.panelFinish],
               ['Archive', `${planet.content.length} local objects`],
-              ['Network', 'Deep-space relay online'],
+              ['Network', formatTelemetryReading(commsLink)],
+              ['Hab pressure', formatTelemetryReading(habPressure)],
+              ['O₂ reserve', formatTelemetryReading(oxygenReserve)],
               ['Security', 'Encrypted / read-only'],
-              ['Power', '98% · external supply'],
+              ['Viewport', `${theme.window.treatment} · ${theme.window.atmosphericEffect}`],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-white/10 bg-black/20 p-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/30">{label}</p>
@@ -833,7 +861,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
       <article className="h-full overflow-auto bg-[linear-gradient(145deg,#08151e,#040b10)] p-5 sm:p-8">
         <div className="mb-6 flex items-start gap-4 border-b border-white/10 pb-5">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
-            <ItemIcon className="h-6 w-6" style={{ color: planet.color }} />
+            <ItemIcon className="h-6 w-6" style={{ color: theme.palette.accent }} />
           </span>
           <div className="min-w-0">
             <h3 className="font-heading text-xl tracking-[0.06em] text-white/90">{item.title}</h3>
@@ -857,7 +885,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
     {
       title: 'Main Apps',
       apps: [
-        { label: 'Archive', icon: FolderOpen, app: 'archive', color: planet.color },
+        { label: 'Archive', icon: FolderOpen, app: 'archive', color: theme.palette.accent },
         { label: 'Terminal', icon: Terminal, app: 'terminal', color: '#67e8f9' },
         { label: 'System', icon: Cpu, app: 'system', color: '#a5b4fc' },
         { label: 'Giggle', icon: Search, app: 'giggle', color: '#67e8f9' },
@@ -886,14 +914,18 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
   return (
     <div
       ref={desktopRef}
-      className="terminal-desktop hab-desktop relative h-full w-full select-none overflow-hidden text-white"
+      className="planet-theme-scope terminal-desktop hab-desktop relative h-full w-full select-none overflow-hidden"
+      {...getPlanetThemeDataAttributes(theme)}
       style={wallpaperStyle}
       onPointerDown={() => setStartOpen(false)}
     >
-      <div aria-hidden="true" className="terminal-grid absolute inset-0 opacity-20" />
+      <div aria-hidden="true" className="terminal-grid terminal-theme-pattern absolute inset-0 opacity-20" />
       <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.035),transparent_35%,rgba(255,255,255,0.018)_62%,transparent)]" />
       <div aria-hidden="true" className="absolute bottom-[8%] right-[5%] font-heading text-[clamp(3.5rem,10vw,9rem)] font-semibold tracking-[-0.06em] text-white/[0.035]">
         {planet.displayName.toUpperCase()}
+      </div>
+      <div aria-hidden="true" className="terminal-family-mark absolute right-[5%] top-[5%] font-mono text-[10px] uppercase tracking-[0.24em] text-white/20">
+        {family.label} · {theme.lighting.temperatureKelvin}K
       </div>
       <div aria-hidden="true" className="absolute bottom-12 left-0 right-0 h-32 bg-gradient-to-t from-black/45 to-transparent" />
 
@@ -901,7 +933,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
         <section aria-label="Main desktop apps" className="w-[13.5rem] shrink-0 rounded-xl border border-white/[0.07] bg-[#02070b]/35 p-1.5">
           <p className="px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">Main Apps</p>
           <div className="grid grid-cols-2 gap-0.5">
-            <DesktopIcon label="Mission Archive" detail={`${planet.content.length} files`} icon={FolderOpen} color={planet.color} onOpen={() => openApp('archive')} testId="desktop-archive" />
+            <DesktopIcon label="Mission Archive" detail={`${planet.content.length} files`} icon={FolderOpen} color={theme.palette.accent} onOpen={() => openApp('archive')} testId="desktop-archive" />
             <DesktopIcon label="HAB Terminal" icon={Terminal} color="#67e8f9" onOpen={() => openApp('terminal')} testId="desktop-terminal" />
             <DesktopIcon label="This Station" icon={Monitor} color="#a5b4fc" onOpen={() => openApp('system')} testId="desktop-system" />
             <DesktopIcon label="Giggle" logo={<GiggleLogo compact />} color="#67e8f9" onOpen={() => openApp('giggle')} testId="desktop-giggle" />
@@ -914,7 +946,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
           <p className="px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">Mission Files</p>
           <div className="grid grid-cols-2 gap-0.5">
             {planet.content.map((item) => (
-              <DesktopIcon key={item.id} label={item.title} detail={`${getFileExtension(item.type)} file`} icon={getItemIcon(item.type)} color={planet.color} onOpen={() => openItem(item)} />
+              <DesktopIcon key={item.id} label={item.title} detail={`${getFileExtension(item.type)} file`} icon={getItemIcon(item.type)} color={theme.palette.accent} onOpen={() => openItem(item)} />
             ))}
           </div>
         </section>
@@ -947,7 +979,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
             key={entry.id}
             windowState={entry}
             icon={getWindowIcon(entry)}
-            accent={planet.color}
+            accent={theme.palette.accent}
             desktopRef={desktopRef}
             onFocus={() => focusWindow(entry.id)}
             onClose={() => closeWindow(entry.id)}
@@ -965,9 +997,10 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
             aria-label="HAB OS Start menu"
             className="absolute bottom-[3.55rem] left-2 z-[200] w-[min(22rem,calc(100%-1rem))] overflow-hidden rounded-xl border border-white/20 bg-[#07121a]/95 shadow-[0_24px_70px_rgba(0,0,0,0.7)] backdrop-blur-2xl sm:left-3"
             onPointerDown={(event) => event.stopPropagation()}
-            initial={{ opacity: 0, y: 18, scale: 0.96 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.97 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
           >
             <div className="border-b border-white/10 p-4">
               <div className="flex items-center gap-3">
@@ -1032,9 +1065,9 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
                 onClick={() => active ? minimizeWindow(entry.id) : focusWindow(entry.id)}
                 className={`relative flex h-9 max-w-40 items-center gap-2 rounded-md px-2.5 text-xs transition-colors ${active ? 'bg-white/15 text-white/90' : 'text-white/45 hover:bg-white/10 hover:text-white/75'}`}
               >
-                <Icon className="h-4 w-4 shrink-0" style={{ color: planet.color }} />
+                <Icon className="h-4 w-4 shrink-0" style={{ color: theme.palette.accent }} />
                 <span className="hidden truncate md:inline">{entry.title}</span>
-                {active && <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full" style={{ backgroundColor: planet.color }} />}
+                {active && <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full" style={{ backgroundColor: theme.palette.accent }} />}
               </button>
             );
           })}
@@ -1063,7 +1096,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
                 <motion.span
                   key={index}
                   className="rounded-sm"
-                  style={{ backgroundColor: planet.color }}
+                  style={{ backgroundColor: theme.palette.accent }}
                   animate={{ opacity: [0.32, 1, 0.32] }}
                   transition={{ duration: 1.1, repeat: Infinity, delay: index * 0.12 }}
                 />
@@ -1072,7 +1105,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
             <p className="font-heading text-lg tracking-[0.22em] text-white/90">HAB/OS</p>
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">Mounting {planetCode} mission archive</p>
             <div className="mt-6 h-0.5 w-44 overflow-hidden rounded-full bg-white/10">
-              <motion.div className="h-full" style={{ backgroundColor: planet.color }} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 1.35, ease: 'easeInOut' }} />
+              <motion.div className="h-full" style={{ backgroundColor: theme.palette.accent }} initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: prefersReducedMotion ? 0 : 1.35, ease: 'easeInOut' }} />
             </div>
           </motion.div>
         )}

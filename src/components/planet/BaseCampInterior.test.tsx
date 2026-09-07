@@ -15,6 +15,13 @@ describe('BaseCampInterior', () => {
       'srcset',
       '/optimized/base-camp-interior-v6-stool.webp',
     );
+    expect(screen.getByLabelText('Mars base camp interior')).toHaveAttribute(
+      'data-habitat-family',
+      'solar-industrial',
+    );
+    expect(screen.getByText(/prototype sketches surround a rugged workbench/i)).toBeInTheDocument();
+    expect(screen.getByText('101 kPa')).toBeInTheDocument();
+    expect(screen.getByText('Builder channel')).toBeInTheDocument();
   });
 
   it('calls onAccessComputer when the terminal is clicked', () => {

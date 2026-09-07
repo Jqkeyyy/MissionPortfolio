@@ -1,9 +1,10 @@
 import type { ProjectId } from './projects';
+import type { PlanetThemeId } from './planetThemes';
 
 export type PlanetSurface = 'cratered' | 'banded' | 'earthlike' | 'venusAtmo';
 
 export interface PlanetData {
-  id: string;
+  id: PlanetThemeId;
   name: string;
   displayName: string;
   color: string;

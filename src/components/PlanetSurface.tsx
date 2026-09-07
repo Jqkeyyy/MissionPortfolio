@@ -1,6 +1,12 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useGameState } from '@/hooks/useGameState';
 import { getPlanetById } from '@/data/planets';
+import {
+  formatTelemetryReading,
+  getHabitatFamily,
+  getPlanetTheme,
+  getTelemetryReading,
+} from '@/data/planetThemes';
 import { ChevronLeft, ChevronRight, Rocket } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { PlanetTerrain } from './planet/PlanetTerrain';
@@ -8,8 +14,13 @@ import { BaseCamp } from './planet/BaseCamp';
 import { LandingPad } from './planet/LandingPad';
 import { PlanetLandingShip } from './planet/PlanetLandingShip';
 import { BaseCampInterior } from './planet/BaseCampInterior';
+import {
+  getPlanetThemeCssVariables,
+  getPlanetThemeDataAttributes,
+} from './planet/theme/themeStyles';
 
 export const PlanetSurface = () => {
+  const prefersReducedMotion = useReducedMotion();
   const {
     announcement,
     announce,
@@ -45,6 +56,13 @@ export const PlanetSurface = () => {
   }, [isInsideBaseCamp]);
 
   if (!planet) return null;
+
+  const theme = getPlanetTheme(planet.id)!;
+  const family = getHabitatFamily(theme.family);
+  const surfaceTemperature = getTelemetryReading(theme, 'surface-temperature');
+  const atmosphere = getTelemetryReading(theme, 'atmosphere');
+  const oxygenReserve = getTelemetryReading(theme, 'oxygen-reserve');
+  const commsLink = getTelemetryReading(theme, 'comms-link');
 
   const handleEnterBaseCamp = () => {
     baseCampTriggerRef.current = document.activeElement as HTMLElement | null;
@@ -83,10 +101,14 @@ export const PlanetSurface = () => {
 
   return (
     <motion.div
-      className="fixed inset-0 overflow-hidden"
-      initial={{ opacity: 0 }}
+      className="planet-theme-scope fixed inset-0 overflow-hidden"
+      {...getPlanetThemeDataAttributes(theme)}
+      data-ambient-animation={theme.ambient.animation}
+      style={getPlanetThemeCssVariables(theme)}
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.35 }}
     >
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announcement}
@@ -103,21 +125,21 @@ export const PlanetSurface = () => {
       >
         {planet.displayName} planet surface
       </h1>
-      {/* Background gradient based on planet */}
+      {/* Theme-driven atmosphere; terrain remains a separate, deferred layer. */}
       <div
-        className="absolute inset-0"
+        className="planet-surface-sky absolute inset-0"
         style={{
-          background: `linear-gradient(180deg,
-            hsl(222 60% 4%) 0%,
-            ${planet.color}15 30%,
-            ${planet.color}25 50%,
-            ${planet.color}40 100%
-          )`,
+          background: `radial-gradient(circle at 72% 18%, ${theme.window.tint}38 0%, transparent 34%), linear-gradient(180deg, hsl(222 60% 4%) 0%, ${theme.palette.interior} 38%, ${theme.palette.panel} 100%)`,
         }}
       />
 
       {/* Stars in sky */}
       <div className="absolute inset-0 stars-bg opacity-40" />
+      <div
+        aria-hidden="true"
+        className="planet-surface-ambience absolute inset-0"
+        style={{ backgroundColor: theme.window.tint }}
+      />
 
       {/* Planet-specific terrain with curve */}
       <PlanetTerrain planet={planet} />
@@ -134,25 +156,25 @@ export const PlanetSurface = () => {
         <motion.button
           type="button"
           aria-label="Travel to previous planet"
-          className="hud-panel p-3 rounded-lg hover:bg-accent/20 transition-colors"
+          className="hud-panel planet-hud-panel p-3 rounded-lg transition-colors"
           onClick={goToPreviousPlanet}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, x: -20 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: prefersReducedMotion ? 0 : 0.6 }}
         >
           <ChevronLeft className="w-5 h-5" aria-hidden="true" />
         </motion.button>
 
         <motion.button
-          className="hud-panel px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-accent/20 transition-colors"
+          className="hud-panel planet-hud-panel px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
           onClick={returnToSpace}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: prefersReducedMotion ? 0 : 0.7 }}
         >
           <Rocket className="w-4 h-4" aria-hidden="true" />
           <span className="font-heading text-sm tracking-mission">Return to Space</span>
@@ -161,28 +183,33 @@ export const PlanetSurface = () => {
         <motion.button
           type="button"
           aria-label="Travel to next planet"
-          className="hud-panel p-3 rounded-lg hover:bg-accent/20 transition-colors"
+          className="hud-panel planet-hud-panel p-3 rounded-lg transition-colors"
           onClick={goToNextPlanet}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, x: 20 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: prefersReducedMotion ? 0 : 0.6 }}
         >
           <ChevronRight className="w-5 h-5" aria-hidden="true" />
         </motion.button>
       </div>
 
       {/* HUD corners */}
-      <div className="fixed top-4 left-4 text-xs font-mono text-muted-foreground z-30">
+      <div className="planet-surface-telemetry fixed top-4 left-4 z-30 font-mono text-xs">
         <p>LOCATION: {planet.displayName.toUpperCase()}</p>
-        <p>ATMOSPHERE: STABLE</p>
-        <p>SURFACE TEMP: {Math.floor(Math.random() * 200 - 100)}°C</p>
+        <p className="hidden sm:block">ATMOSPHERE: {String(atmosphere.value).toUpperCase()}</p>
+        <p>SURFACE TEMP: {formatTelemetryReading(surfaceTemperature)}</p>
       </div>
 
-      <div className="fixed top-4 right-4 text-xs font-mono text-muted-foreground text-right z-30">
-        <p>O₂ SUPPLY: NOMINAL</p>
-        <p>COMMS: ONLINE</p>
+      <div className="planet-surface-telemetry fixed top-4 right-4 z-30 text-right font-mono text-xs">
+        <p>O₂ RESERVE: {formatTelemetryReading(oxygenReserve)}</p>
+        <p className="hidden sm:block">COMMS: {String(commsLink.value).toUpperCase()}</p>
+      </div>
+
+      <div className="planet-identity-panel fixed left-1/2 top-4 z-30 hidden max-w-md -translate-x-1/2 text-center lg:block">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-65">{family.label} habitat</p>
+        <p className="mt-1 text-xs leading-5 opacity-85">{theme.identityCue}</p>
       </div>
       </div>
 

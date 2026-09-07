@@ -4,6 +4,7 @@ import {
   formatTelemetryReading,
   getHabitatFamily,
   getPlanetTheme,
+  getTelemetryReading,
   habitatFamilies,
   HABITAT_FAMILY_IDS,
   isPlanetThemeId,
@@ -181,5 +182,16 @@ describe('planet theme configuration', () => {
     });
     expect(resolveAmbientTheme(theme, false)).toEqual(theme.ambient);
     expect(resolveAmbientTheme(theme, true)).toEqual({ animation: 'none', intensity: 0 });
+  });
+
+  it('looks up deterministic telemetry by semantic id', () => {
+    const theme = planetThemes.earth;
+
+    expect(getTelemetryReading(theme, 'hab-pressure')).toMatchObject({
+      value: 101.3,
+      unit: 'kPa',
+    });
+    expect(formatTelemetryReading(getTelemetryReading(theme, 'hab-pressure'))).toBe('101.3 kPa');
+    expect(getTelemetryReading(theme, 'comms-link').value).toBe('County network');
   });
 });

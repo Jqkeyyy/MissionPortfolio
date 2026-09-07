@@ -68,6 +68,19 @@ describe('PlanetSurface accessibility', () => {
     expect(screen.getByRole('status')).toHaveTextContent(/arrived at earth/i);
   });
 
+  it('applies the destination theme and renders fixed environmental telemetry', () => {
+    render(<PlanetSurface />);
+
+    const themedSurface = screen.getByRole('heading', { name: /earth planet surface/i })
+      .closest('[data-planet-theme="earth"]');
+    expect(themedSurface).toHaveAttribute('data-habitat-family', 'terrestrial-research');
+    expect(themedSurface).toHaveAttribute('data-ambient-animation', 'cloud-drift');
+    expect(screen.getByText('SURFACE TEMP: 15°C')).toBeInTheDocument();
+    expect(screen.getByText('ATMOSPHERE: N₂ / O₂')).toBeInTheDocument();
+    expect(screen.getByText('O₂ RESERVE: 100%')).toBeInTheDocument();
+    expect(screen.getByText('COMMS: COUNTY NETWORK')).toBeInTheDocument();
+  });
+
   it('makes the covered surface inert and restores focus after exiting the base camp', async () => {
     render(<PlanetSurface />);
     const surfaceHeading = screen.getByRole('heading', { name: /earth planet surface/i });

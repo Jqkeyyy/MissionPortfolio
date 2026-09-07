@@ -305,6 +305,96 @@
   }
 }
 
+/* Planet identity tokens are inherited by the surface, habitat, and HAB/OS. */
+.planet-theme-scope {
+  color: var(--planet-text);
+}
+
+.planet-surface-ambience,
+.planet-terrain-ambient {
+  opacity: var(--planet-ambient-intensity);
+  mix-blend-mode: screen;
+}
+
+[data-ambient-animation='heat-shimmer'] .planet-surface-ambience,
+.planet-terrain[data-ambient-animation='heat-shimmer'] .planet-terrain-ambient {
+  background-image: repeating-linear-gradient(94deg, transparent 0 7%, color-mix(in srgb, var(--planet-window-tint) 40%, transparent) 9%, transparent 12% 20%);
+  background-size: 160% 100%;
+  animation: planet-heat-shimmer 5.5s ease-in-out infinite alternate;
+}
+
+[data-ambient-animation='dust-drift'] .planet-surface-ambience,
+.planet-terrain[data-ambient-animation='dust-drift'] .planet-terrain-ambient {
+  background-image: radial-gradient(ellipse at 15% 72%, color-mix(in srgb, var(--planet-window-tint) 40%, transparent), transparent 17%), radial-gradient(ellipse at 72% 62%, color-mix(in srgb, var(--planet-window-tint) 40%, transparent), transparent 20%);
+  animation: planet-theme-drift 11s ease-in-out infinite alternate;
+}
+
+[data-ambient-animation='cloud-drift'] .planet-surface-ambience,
+.planet-terrain[data-ambient-animation='cloud-drift'] .planet-terrain-ambient {
+  background-image: linear-gradient(102deg, transparent 10%, color-mix(in srgb, var(--planet-window-tint) 40%, transparent) 33%, transparent 52%, color-mix(in srgb, var(--planet-window-tint) 40%, transparent) 76%, transparent 92%);
+  background-size: 180% 100%;
+  animation: planet-cloud-drift 14s linear infinite;
+}
+
+[data-ambient-animation='aurora-pulse'] .planet-surface-ambience,
+.planet-terrain[data-ambient-animation='aurora-pulse'] .planet-terrain-ambient {
+  background-image: radial-gradient(ellipse at 55% -10%, color-mix(in srgb, var(--planet-window-tint) 40%, transparent), transparent 57%);
+  animation: planet-aurora-pulse 6s ease-in-out infinite alternate;
+}
+
+[data-ambient-animation='starfield-drift'] .planet-surface-ambience,
+.planet-terrain[data-ambient-animation='starfield-drift'] .planet-terrain-ambient {
+  background-image: radial-gradient(1px 1px at 20% 25%, white, transparent), radial-gradient(1px 1px at 65% 18%, white, transparent), radial-gradient(1px 1px at 82% 41%, white, transparent);
+  background-size: 170px 150px;
+  animation: planet-starfield-drift 18s linear infinite;
+}
+
+@keyframes planet-heat-shimmer {
+  from { transform: translate3d(-1%, 0, 0) skewX(-0.35deg); }
+  to { transform: translate3d(1%, -0.5%, 0) skewX(0.35deg); }
+}
+
+@keyframes planet-theme-drift {
+  from { transform: translate3d(-2%, 1%, 0); }
+  to { transform: translate3d(2%, -1%, 0); }
+}
+
+@keyframes planet-cloud-drift {
+  from { background-position: 0 0; }
+  to { background-position: 180% 0; }
+}
+
+@keyframes planet-aurora-pulse {
+  from { opacity: 0.08; transform: scaleX(0.96); }
+  to { opacity: var(--planet-ambient-intensity); transform: scaleX(1.04); }
+}
+
+@keyframes planet-starfield-drift {
+  from { background-position: 0 0; }
+  to { background-position: 170px 75px; }
+}
+
+.planet-surface-telemetry,
+.planet-identity-panel {
+  color: var(--planet-text);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.95);
+}
+
+.planet-identity-panel {
+  border-top: 1px solid color-mix(in srgb, var(--planet-accent) 62%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--planet-panel) 88%, transparent), transparent);
+  padding: 0.65rem 1rem;
+}
+
+.planet-hud-panel {
+  border-color: color-mix(in srgb, var(--planet-accent) 38%, transparent);
+  color: var(--planet-text);
+}
+
+.planet-hud-panel:hover {
+  background-color: color-mix(in srgb, var(--planet-accent) 18%, transparent);
+}
+
 .camp-room-stage {
   width: max(100vw, 177.87vh);
   height: max(56.22vw, 100vh);
@@ -316,6 +406,54 @@
   width: 43%;
   height: 28%;
   box-shadow: inset 0 0 40px rgb(2 8 12 / 0.58);
+}
+
+.camp-themed-interior {
+  background:
+    radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--planet-accent) 16%, transparent), transparent 43%),
+    var(--planet-interior);
+}
+
+.camp-window-treatment {
+  background: var(--planet-window-tint);
+  opacity: var(--planet-window-opacity);
+  mix-blend-mode: screen;
+}
+
+[data-window-treatment='radiation-shield'] .camp-window-treatment {
+  background-image: repeating-linear-gradient(90deg, rgb(0 0 0 / 0.58) 0 5%, transparent 5% 11%);
+  mix-blend-mode: multiply;
+}
+
+[data-window-treatment='clear-dome'] .camp-window-treatment {
+  background-image: radial-gradient(ellipse at 50% 15%, rgb(255 255 255 / 0.24), transparent 50%);
+}
+
+[data-window-treatment='storm-glass'] .camp-window-treatment {
+  background-image: repeating-linear-gradient(112deg, transparent 0 10%, rgb(255 255 255 / 0.16) 11%, transparent 12% 19%);
+}
+
+[data-window-treatment='deep-space-glass'] .camp-window-treatment {
+  background-image: radial-gradient(circle at 22% 31%, rgb(255 255 255 / 0.4) 0 1px, transparent 2px), radial-gradient(circle at 75% 22%, rgb(255 255 255 / 0.35) 0 1px, transparent 2px);
+  background-size: 90px 70px, 130px 110px;
+}
+
+.camp-shell-theme {
+  opacity: 0.18;
+  mix-blend-mode: screen;
+}
+
+[data-habitat-family='solar-industrial'] .camp-shell-theme {
+  background: repeating-linear-gradient(90deg, transparent 0 8%, var(--planet-accent) 8.2% 8.45%, transparent 8.7% 17%);
+  clip-path: polygon(0 0, 20% 0, 13% 100%, 0 100%, 0 0, 80% 0, 100% 0, 100% 100%, 87% 100%);
+}
+
+[data-habitat-family='terrestrial-research'] .camp-shell-theme {
+  background: radial-gradient(ellipse at 50% 42%, transparent 0 39%, var(--planet-secondary) 39.3% 39.7%, transparent 40% 100%);
+}
+
+[data-habitat-family='deep-space-station'] .camp-shell-theme {
+  background: linear-gradient(90deg, var(--planet-secondary), transparent 3% 97%, var(--planet-secondary)), repeating-linear-gradient(0deg, transparent 0 12%, var(--planet-accent) 12.2% 12.45%, transparent 12.7% 24%);
 }
 
 .camp-terminal-monitor {
@@ -393,6 +531,40 @@
   mask-image: linear-gradient(90deg, black, transparent 92%);
 }
 
+[data-wallpaper-pattern='solar-grid'] .terminal-theme-pattern {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--planet-accent) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--planet-accent) 18%, transparent) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+[data-wallpaper-pattern='topographic'] .terminal-theme-pattern {
+  background-image:
+    repeating-radial-gradient(ellipse at 65% 75%, transparent 0 28px, color-mix(in srgb, var(--planet-accent) 18%, transparent) 29px 30px, transparent 31px 48px);
+  background-size: 320px 220px;
+}
+
+[data-wallpaper-pattern='research-grid'] .terminal-theme-pattern {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--planet-secondary) 16%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--planet-secondary) 16%, transparent) 1px, transparent 1px),
+    radial-gradient(circle, var(--planet-accent) 0 1px, transparent 2px);
+  background-size: 32px 32px, 32px 32px, 64px 64px;
+}
+
+[data-wallpaper-pattern='orbit-lines'] .terminal-theme-pattern {
+  background-image:
+    repeating-radial-gradient(ellipse at 76% 35%, transparent 0 54px, color-mix(in srgb, var(--planet-accent) 20%, transparent) 55px 56px, transparent 57px 82px);
+  background-size: 520px 330px;
+}
+
+[data-wallpaper-pattern='signal-field'] .terminal-theme-pattern {
+  background-image:
+    repeating-linear-gradient(118deg, transparent 0 32px, color-mix(in srgb, var(--planet-secondary) 16%, transparent) 33px, transparent 34px 66px),
+    radial-gradient(circle at 75% 30%, color-mix(in srgb, var(--planet-accent) 28%, transparent), transparent 28%);
+  background-size: auto, 100% 100%;
+}
+
 .terminal-desktop {
   scrollbar-color: rgb(255 255 255 / 0.18) transparent;
   scrollbar-width: thin;
@@ -422,6 +594,17 @@
 @media (prefers-reduced-motion: reduce) {
   .camp-scanlines {
     display: none;
+  }
+
+  .planet-theme-scope *,
+  .planet-theme-scope *::before,
+  .planet-theme-scope *::after,
+  .planet-terrain,
+  .planet-terrain * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

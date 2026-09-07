@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, type CSSProperties } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Activity,
   Armchair,
@@ -10,7 +10,18 @@ import {
   Wind,
 } from 'lucide-react';
 import { PlanetData } from '@/data/planets';
+import {
+  formatTelemetryReading,
+  getHabitatFamily,
+  getPlanetTheme,
+  getTelemetryReading,
+  type TelemetryReadingId,
+} from '@/data/planetThemes';
 import { PlanetTerrain } from './PlanetTerrain';
+import {
+  getPlanetThemeCssVariables,
+  getPlanetThemeDataAttributes,
+} from './theme/themeStyles';
 
 const HabitatDesktop = lazy(() => import('./HabitatDesktop').then((module) => ({
   default: module.HabitatDesktop,
@@ -25,10 +36,10 @@ interface BaseCampInteriorProps {
   bootStartedAt?: number | null;
 }
 
-const telemetry = [
-  { label: 'Life support', value: 'Nominal', icon: Wind },
-  { label: 'Hab pressure', value: '101.3 kPa', icon: Gauge },
-  { label: 'Comms link', value: 'Locked', icon: Radio },
+const telemetryItems: readonly { id: TelemetryReadingId; icon: typeof Wind }[] = [
+  { id: 'oxygen-reserve', icon: Wind },
+  { id: 'hab-pressure', icon: Gauge },
+  { id: 'comms-link', icon: Radio },
 ];
 
 const roomParticles = [
@@ -73,6 +84,10 @@ export const BaseCampInterior = ({
   computerActive = false,
   bootStartedAt,
 }: BaseCampInteriorProps) => {
+  const prefersReducedMotion = Boolean(useReducedMotion());
+  const theme = getPlanetTheme(planet.id)!;
+  const family = getHabitatFamily(theme.family);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !computerActive) onExit();
@@ -83,36 +98,44 @@ export const BaseCampInterior = ({
   }, [computerActive, onExit]);
 
   const accentStyle = {
-    '--camp-accent': planet.color,
+    ...getPlanetThemeCssVariables(theme),
+    '--camp-accent': theme.palette.accent,
   } as CSSProperties;
+
+  const telemetry = telemetryItems.map(({ id, icon }) => {
+    const reading = getTelemetryReading(theme, id);
+    return { ...reading, formattedValue: formatTelemetryReading(reading), icon };
+  });
 
   return (
     <motion.section
       aria-label={`${planet.displayName} base camp interior`}
-      className={`fixed inset-0 z-40 isolate overflow-hidden bg-[#03070a] ${computerActive ? 'camp-computer-active' : ''}`}
+      className={`planet-theme-scope camp-themed-interior fixed inset-0 z-40 isolate overflow-hidden ${computerActive ? 'camp-computer-active' : ''}`}
+      {...getPlanetThemeDataAttributes(theme)}
       style={accentStyle}
-      initial={{ opacity: 0 }}
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.45 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.45 }}
     >
       <div
         className="camp-room-stage pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       >
         <motion.div
           className="absolute inset-0 origin-center"
-          initial={{ scale: 1.035 }}
+          initial={prefersReducedMotion ? false : { scale: 1.035 }}
           animate={{
             scale: computerActive ? COMPUTER_ZOOM_SCALE : 1,
             x: computerActive ? '4%' : '0%',
             y: computerActive ? '3%' : '0%',
           }}
-          transition={{ duration: computerActive ? 2.3 : 1.2, ease: [0.65, 0, 0.35, 1] }}
+          transition={{ duration: prefersReducedMotion ? 0 : computerActive ? 2.3 : 1.2, ease: [0.65, 0, 0.35, 1] }}
           style={{ transformOrigin: '49.55% 52.84%' }}
         >
           <div className="camp-window-view absolute overflow-hidden bg-[#040b12]">
             <div className="stars-bg absolute inset-0 opacity-35" />
             <PlanetTerrain planet={planet} fillBackground idSuffix="interior" />
+            <div className="camp-window-treatment absolute inset-0" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_32%,rgba(1,6,10,0.16))]" />
           </div>
 
@@ -130,11 +153,15 @@ export const BaseCampInterior = ({
             />
           </picture>
 
+          <div aria-hidden="true" className="camp-shell-theme absolute inset-0 z-[11]" />
+
           <motion.div
             className="camp-terminal-monitor pointer-events-auto absolute z-20 focus:outline-none"
-            initial={{ opacity: 0, scale: MONITOR_RENDER_SCALE * 0.9 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, scale: MONITOR_RENDER_SCALE * 0.9 }}
             animate={{ opacity: 1, scale: MONITOR_RENDER_SCALE }}
-            transition={{ delay: 0.55, type: 'spring', stiffness: 190, damping: 18 }}
+            transition={prefersReducedMotion
+              ? { duration: 0 }
+              : { delay: 0.55, type: 'spring', stiffness: 190, damping: 18 }}
             whileHover={computerActive ? undefined : { scale: MONITOR_RENDER_SCALE * 1.045 }}
             whileTap={computerActive ? undefined : { scale: MONITOR_RENDER_SCALE * 0.98 }}
           >
@@ -185,9 +212,9 @@ export const BaseCampInterior = ({
             aria-label="Sit on the stool to view the mission computer"
             onClick={onAccessComputer}
             className={`camp-terminal-seat group absolute z-20 focus:outline-none ${computerActive ? 'pointer-events-none' : 'pointer-events-auto'}`}
-            initial={{ opacity: 0, y: 12 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: computerActive ? 0 : 1, y: computerActive ? 28 : 0 }}
-            transition={{ delay: computerActive ? 0 : 0.72, duration: 0.45, ease: 'easeOut' }}
+            transition={{ delay: prefersReducedMotion || computerActive ? 0 : 0.72, duration: prefersReducedMotion ? 0 : 0.45, ease: 'easeOut' }}
             whileHover={{ scale: 1.045, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -195,8 +222,8 @@ export const BaseCampInterior = ({
               <motion.span
                 className="camp-glass-panel flex w-max items-center gap-2 border-amber-200/25 px-3 py-2 font-mono text-[clamp(0.55rem,0.72vw,0.78rem)] uppercase tracking-[0.15em] text-amber-50 shadow-[0_12px_32px_rgba(0,0,0,0.4),0_0_18px_rgba(245,158,11,0.08)]"
                 style={{ '--camp-accent': '#f59e0b' } as CSSProperties}
-                animate={{ y: [0, -2, 0], opacity: [0.78, 1, 0.78] }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                animate={prefersReducedMotion ? undefined : { y: [0, -2, 0], opacity: [0.78, 1, 0.78] }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
               >
                 <Armchair className="h-3.5 w-3.5 text-amber-300" />
                 SIT DOWN TO VIEW
@@ -214,7 +241,7 @@ export const BaseCampInterior = ({
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.08] mix-blend-color"
-        style={{ backgroundColor: planet.color }}
+        style={{ backgroundColor: theme.palette.accent }}
       />
       <div
         aria-hidden="true"
@@ -226,7 +253,7 @@ export const BaseCampInterior = ({
       />
       <div aria-hidden="true" className="camp-scanlines pointer-events-none absolute inset-0 opacity-[0.055]" />
 
-      {!computerActive && roomParticles.map((particle, index) => (
+      {!computerActive && !prefersReducedMotion && roomParticles.map((particle, index) => (
         <motion.span
           key={index}
           aria-hidden="true"
@@ -244,14 +271,16 @@ export const BaseCampInterior = ({
 
       <motion.header
         className="absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-3 sm:inset-x-6 sm:top-5"
-        initial={{ opacity: 0, y: -14 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: -14 }}
         animate={{ opacity: computerActive ? 0 : 1, y: computerActive ? -18 : 0 }}
-        transition={{ delay: 0.2, duration: 0.55 }}
+        transition={{ delay: prefersReducedMotion ? 0 : 0.2, duration: prefersReducedMotion ? 0 : 0.55 }}
       >
         <div className="camp-glass-panel min-w-0 px-4 py-3 sm:px-5">
           <div className="mb-1 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-white/55">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgb(52_211_153)]" />
-            BASE CAMP INTERIOR
+            <span>BASE CAMP INTERIOR</span>
+            <span aria-hidden="true">·</span>
+            <span>{family.label.toUpperCase()}</span>
           </div>
           <h1 className="truncate font-heading text-lg font-medium tracking-[0.12em] text-white sm:text-2xl">
             <span>{planet.displayName}</span> <span className="text-white/35">/</span> Habitat 01
@@ -270,21 +299,21 @@ export const BaseCampInterior = ({
       <motion.aside
         aria-label="Habitat telemetry"
         className="camp-glass-panel absolute right-6 top-1/2 z-20 hidden w-52 -translate-y-1/2 overflow-hidden lg:block"
-        initial={{ opacity: 0, x: 18 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, x: 18 }}
         animate={{ opacity: computerActive ? 0 : 1, x: computerActive ? 24 : 0 }}
-        transition={{ delay: 0.45, duration: 0.55 }}
+        transition={{ delay: prefersReducedMotion ? 0 : 0.45, duration: prefersReducedMotion ? 0 : 0.55 }}
       >
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
           <Activity className="h-4 w-4 text-[var(--camp-accent)]" />
           <span className="font-mono text-xs uppercase tracking-[0.18em] text-white/60">Live telemetry</span>
         </div>
         <div className="divide-y divide-white/10 px-4">
-          {telemetry.map(({ label, value, icon: Icon }) => (
-            <div key={label} className="flex items-center gap-3 py-3">
+          {telemetry.map(({ id, label, formattedValue, status, icon: Icon }) => (
+            <div key={id} className="flex items-center gap-3 py-3" data-telemetry-status={status}>
               <Icon className="h-4 w-4 text-white/35" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-white/45">{label}</p>
-                <p className="truncate font-mono text-sm text-white/85">{value}</p>
+                <p className="truncate font-mono text-sm text-white/85">{formattedValue}</p>
               </div>
             </div>
           ))}
@@ -294,8 +323,22 @@ export const BaseCampInterior = ({
             className="h-full bg-[var(--camp-accent)] shadow-[0_0_12px_var(--camp-accent)]"
             initial={{ width: '0%' }}
             animate={{ width: '82%' }}
-            transition={{ delay: 0.7, duration: 1.1 }}
+            transition={{ delay: prefersReducedMotion ? 0 : 0.7, duration: prefersReducedMotion ? 0 : 1.1 }}
           />
+        </div>
+      </motion.aside>
+
+      <motion.aside
+        aria-label={`${planet.displayName} habitat identity`}
+        className="camp-glass-panel absolute bottom-24 left-1/2 z-20 hidden w-[min(38rem,58vw)] -translate-x-1/2 px-5 py-3 xl:block"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: computerActive ? 0 : 1, y: computerActive ? 16 : 0 }}
+        transition={{ delay: prefersReducedMotion ? 0 : 0.55, duration: prefersReducedMotion ? 0 : 0.45 }}
+      >
+        <p className="text-sm leading-6 text-white/80">{theme.identityCue}</p>
+        <div className="mt-2 grid grid-cols-2 gap-4 font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">
+          <p><span className="text-[var(--camp-accent)]">Field kit:</span> {theme.props.join(' · ')}</p>
+          <p><span className="text-[var(--camp-accent)]">Mission marks:</span> {theme.decals.join(' · ')}</p>
         </div>
       </motion.aside>
 
@@ -304,9 +347,9 @@ export const BaseCampInterior = ({
         aria-label="Exit through the habitat airlock"
         onClick={onExit}
         className="group absolute left-[15%] top-[55%] z-20 hidden -translate-x-1/2 -translate-y-1/2 focus:outline-none sm:block"
-        initial={{ opacity: 0, x: -14 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, x: -14 }}
         animate={{ opacity: computerActive ? 0 : 1, x: computerActive ? -18 : 0 }}
-        transition={{ delay: 0.65, duration: 0.55 }}
+        transition={{ delay: prefersReducedMotion ? 0 : 0.65, duration: prefersReducedMotion ? 0 : 0.55 }}
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.97 }}
       >
@@ -326,10 +369,10 @@ export const BaseCampInterior = ({
             aria-label="Stand up from the mission computer"
             onClick={onLeaveComputer}
             className="camp-glass-panel flex min-h-12 items-center gap-2 border-amber-200/35 bg-[#160e05]/90 px-4 py-3 font-heading text-sm tracking-[0.12em] text-amber-50 shadow-[0_12px_32px_rgba(0,0,0,0.55),0_0_20px_rgba(245,158,11,0.12)] transition-colors hover:border-amber-200/65 hover:bg-amber-300/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
-            initial={{ opacity: 0, y: 14 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 14 }}
-            transition={{ delay: 0.55, duration: 0.35, ease: 'easeOut' }}
+            transition={{ delay: prefersReducedMotion ? 0 : 0.55, duration: prefersReducedMotion ? 0 : 0.35, ease: 'easeOut' }}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
@@ -341,12 +384,12 @@ export const BaseCampInterior = ({
 
       <motion.footer
         className="absolute inset-x-3 bottom-3 z-30 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-5"
-        initial={{ opacity: 0, y: 16 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: computerActive ? 0 : 1, y: computerActive ? 18 : 0 }}
-        transition={{ delay: 0.7, duration: 0.55 }}
+        transition={{ delay: prefersReducedMotion ? 0 : 0.7, duration: prefersReducedMotion ? 0 : 0.55 }}
       >
         <div className="camp-glass-panel hidden max-w-md px-4 py-3 md:block">
-          <p className="mb-1 font-mono text-xs uppercase tracking-[0.18em] text-white/40">Current mission</p>
+          <p className="mb-1 font-mono text-xs uppercase tracking-[0.18em] text-white/40">{family.label} · {planet.description}</p>
           <p className="text-sm leading-relaxed text-white/80">{planet.description}</p>
         </div>
 

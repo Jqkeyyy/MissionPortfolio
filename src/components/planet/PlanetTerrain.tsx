@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { PlanetData } from '@/data/planets';
+import { getPlanetTheme } from '@/data/planetThemes';
+import {
+  getPlanetThemeCssVariables,
+  resolveAmbientTheme,
+} from './theme/themeStyles';
 
 interface PlanetTerrainProps {
   planet: PlanetData;
@@ -250,6 +255,9 @@ const shouldUseDetailedTerrain = () => {
 
 export const PlanetTerrain = ({ planet, fillBackground = false, idSuffix = '' }: PlanetTerrainProps) => {
   const profile = terrainProfiles[planet.id] ?? fallbackProfile;
+  const theme = getPlanetTheme(planet.id)!;
+  const prefersReducedMotion = Boolean(useReducedMotion());
+  const ambient = resolveAmbientTheme(theme, prefersReducedMotion);
   const detailed = useMemo(shouldUseDetailedTerrain, []);
   const mainRidge = useMemo(() => makeRidge(profile.seed, 45, profile.relief, 5), [profile]);
   const horizon = useMemo(() => makeHorizon(profile.seed, 45, profile.relief, 5), [profile]);
@@ -259,10 +267,12 @@ export const PlanetTerrain = ({ planet, fillBackground = false, idSuffix = '' }:
 
   return (
     <motion.div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      initial={{ opacity: 0 }}
+      className="planet-terrain absolute inset-0 overflow-hidden pointer-events-none"
+      data-ambient-animation={ambient.animation}
+      style={getPlanetThemeCssVariables(theme)}
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 0.15, duration: 0.7 }}
+      transition={{ delay: prefersReducedMotion ? 0 : 0.15, duration: prefersReducedMotion ? 0 : 0.7 }}
       aria-hidden="true"
     >
       {fillBackground && (
@@ -273,6 +283,11 @@ export const PlanetTerrain = ({ planet, fillBackground = false, idSuffix = '' }:
           }}
         />
       )}
+
+      <div
+        className="planet-terrain-ambient absolute inset-0"
+        style={{ opacity: ambient.intensity }}
+      />
 
       <div
         className="absolute inset-x-0 bottom-[35%] h-[45%]"

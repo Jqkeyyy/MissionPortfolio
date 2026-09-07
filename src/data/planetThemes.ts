@@ -449,5 +449,20 @@ export const getPlanetTheme = (id: string): PlanetTheme | undefined =>
 
 export const getHabitatFamily = (id: HabitatFamilyId): HabitatFamily => habitatFamilies[id];
 
+export const getTelemetryReading = (
+  theme: PlanetTheme,
+  id: TelemetryReadingId,
+): PlanetTelemetryReading => {
+  const reading = theme.telemetry.find((candidate) => candidate.id === id);
+
+  if (!reading) {
+    throw new Error(`Missing ${id} telemetry for ${theme.id}`);
+  }
+
+  return reading;
+};
+
 export const formatTelemetryReading = (reading: PlanetTelemetryReading): string =>
-  `${reading.value}${reading.unit ?? ''}`;
+  reading.unit
+    ? `${reading.value}${reading.unit === '°C' || reading.unit === '%' ? '' : ' '}${reading.unit}`
+    : String(reading.value);
