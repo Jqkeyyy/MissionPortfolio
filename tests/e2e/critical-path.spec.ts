@@ -1,14 +1,22 @@
 import { expect, test } from '@playwright/test';
 
+const PRODUCTION_URL = 'https://mission-portfolio-amber.vercel.app/';
+
 test('Quick Portfolio is complete and returns to route selection', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'Choose your route' })).toBeVisible();
   await expect(page).toHaveTitle(/Mission Portfolio.*Jake Sass/i);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', PRODUCTION_URL);
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Jake Sass/i);
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', PRODUCTION_URL);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     'content',
-    '/brand/og-mission-portfolio.png',
+    `${PRODUCTION_URL}brand/og-mission-portfolio.png`,
+  );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    'content',
+    `${PRODUCTION_URL}brand/og-mission-portfolio.png`,
   );
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/site.webmanifest');
 
@@ -30,6 +38,23 @@ test('Quick Portfolio is complete and returns to route selection', async ({ page
 
   await page.getByRole('button', { name: /close quick portfolio/i }).click();
   await expect(page.getByRole('heading', { name: 'Choose your route' })).toBeVisible();
+});
+
+test('deployment serves discovery files and the SPA not-found route', async ({ page, request }) => {
+  const [robots, sitemap] = await Promise.all([
+    request.get('/robots.txt'),
+    request.get('/sitemap.xml'),
+  ]);
+
+  expect(robots.ok()).toBe(true);
+  expect(await robots.text()).toContain(`Sitemap: ${PRODUCTION_URL}sitemap.xml`);
+  expect(sitemap.ok()).toBe(true);
+  expect(await sitemap.text()).toContain(`<loc>${PRODUCTION_URL}</loc>`);
+
+  const response = await page.goto('/not-a-real-page');
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole('heading', { name: '404' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Return to Home' })).toHaveAttribute('href', '/');
 });
 
 test('exploration reaches a themed planet, base camp, and HAB desktop', async ({ page }) => {

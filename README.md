@@ -1,5 +1,7 @@
 # Mission Portfolio
 
+**Live site:** [mission-portfolio-amber.vercel.app](https://mission-portfolio-amber.vercel.app/)
+
 An interactive space-themed portfolio with two entry paths: visitors can launch a navigable Three.js / React Three Fiber solar system or open a fast, recruiter-friendly Quick Portfolio without loading WebGL. Each planet is a mission stop that lands on a 2D surface and HAB desktop covering a different part of the portfolio:
 
 | Body | Section |
