@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { PlanetThemeId } from '@/data/planetThemes';
 
 const PHYSICAL_EARTH_YEAR_SECONDS = 365.25 * 24 * 60 * 60;
 const PHYSICAL_EARTH_DAY_SECONDS = 24 * 60 * 60;
@@ -78,11 +79,13 @@ interface SimulationState {
   speedPresetId: SimulationSpeedPresetId;
   orbitElapsedSeconds: number;
   rotationElapsedSeconds: number;
+  tiltGuidePlanetId: PlanetThemeId | null;
   setPaused: (paused: boolean) => void;
   togglePaused: () => void;
   setSpeedPreset: (id: SimulationSpeedPresetId) => void;
   advance: (realDeltaSeconds: number) => void;
   resetSimulation: () => void;
+  toggleTiltGuide: (planetId: PlanetThemeId) => void;
 }
 
 const initialSimulationState = {
@@ -90,6 +93,7 @@ const initialSimulationState = {
   speedPresetId: DEFAULT_SIMULATION_SPEED_PRESET_ID,
   orbitElapsedSeconds: 0,
   rotationElapsedSeconds: 0,
+  tiltGuidePlanetId: null,
 };
 
 export const useSimulationState = create<SimulationState>((set, get) => ({
@@ -108,4 +112,7 @@ export const useSimulationState = create<SimulationState>((set, get) => ({
     });
   },
   resetSimulation: () => set(initialSimulationState),
+  toggleTiltGuide: (planetId) => set((state) => ({
+    tiltGuidePlanetId: state.tiltGuidePlanetId === planetId ? null : planetId,
+  })),
 }));

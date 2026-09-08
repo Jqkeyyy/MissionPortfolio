@@ -1,4 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { sanitizeError } from '@/observability/errorSanitizer';
+import { telemetryClient } from '@/observability/telemetryClient';
 
 interface ExplorationRecoveryBoundaryProps {
   children: ReactNode;
@@ -23,6 +25,11 @@ export class ExplorationRecoveryBoundary extends Component<
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Exploration rendering failed', error, info.componentStack);
+    telemetryClient.track({
+      type: 'client_error',
+      source: 'react-boundary',
+      ...sanitizeError(error),
+    });
   }
 
   componentDidUpdate(previousProps: ExplorationRecoveryBoundaryProps) {

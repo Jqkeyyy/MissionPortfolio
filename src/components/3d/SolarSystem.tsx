@@ -11,6 +11,7 @@ import { useGameState } from '@/hooks/useGameState';
 import { SolarSystemShip } from './SolarSystemShip';
 import * as THREE from 'three';
 import { SimulationClock } from './SimulationClock';
+import { SolarSystemDetails } from './SolarSystemDetails';
 
 const OPTIMIZED_SHUTTLE_URL = '/optimized/mission-shuttle.webp';
 
@@ -26,6 +27,8 @@ interface GraphicsProfile {
   starCount: number;
   antialias: boolean;
   powerPreference: WebGLPowerPreference;
+  asteroidCount: number;
+  decorativeMotion: boolean;
 }
 
 export const registerWebGLContextLoss = (
@@ -43,7 +46,7 @@ export const registerWebGLContextLoss = (
 
 export const getGraphicsProfile = (): GraphicsProfile => {
   if (typeof window === 'undefined') {
-    return { dpr: [1, 1.5], starCount: 6000, antialias: true, powerPreference: 'high-performance' };
+    return { dpr: [1, 1.5], starCount: 6000, antialias: true, powerPreference: 'high-performance', asteroidCount: 560, decorativeMotion: true };
   }
 
   const navigatorWithCapabilities = window.navigator as Navigator & {
@@ -59,8 +62,8 @@ export const getGraphicsProfile = (): GraphicsProfile => {
   const reducedCapability = reducedMotion || limitedCpu || limitedMemory || saveData;
 
   return reducedCapability
-    ? { dpr: [1, 1], starCount: 2200, antialias: false, powerPreference: 'low-power' }
-    : { dpr: [1, 1.5], starCount: 6000, antialias: true, powerPreference: 'high-performance' };
+    ? { dpr: [1, 1], starCount: 2200, antialias: false, powerPreference: 'low-power', asteroidCount: 160, decorativeMotion: false }
+    : { dpr: [1, 1.5], starCount: 6000, antialias: true, powerPreference: 'high-performance', asteroidCount: 560, decorativeMotion: true };
 };
 
 const CanvasUnavailable = ({
@@ -154,6 +157,12 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
         
         {/* Star background */}
         <StarField count={graphics.starCount} />
+
+        {/* Lightweight, illustrative context: belt, selected major moons, and comet. */}
+        <SolarSystemDetails
+          asteroidCount={graphics.asteroidCount}
+          decorativeMotion={graphics.decorativeMotion}
+        />
         
         {/* Sun at center - clickable for introduction */}
         <Sun onClick={() => handlePlanetClick('sun')} />

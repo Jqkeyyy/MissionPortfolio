@@ -5,6 +5,10 @@ production deployment is complete and verified.
 
 **Sequence:** Plan now -> deploy and verify production -> execute this plan.
 
+**Execution status:** Implemented and verified on 2026-09-07. The multi-agent foundations
+were merged, remaining integration was completed by the coordinator after the worker-agent
+quota was exhausted, and the final automated gates passed. See `docs/audits/post-enhancement-*.md`.
+
 **Deployment gate status:** Complete on 2026-09-07 at production implementation commit
 `9d929d5`. Wave 1 may begin after the documentation handoff is merged.
 
@@ -15,7 +19,8 @@ rings`), plus the deployment-specific metadata commit.
 
 This program adds:
 
-2. A planet science console and continuous pause / `0.5x` / `1x` / `4x` simulation controls.
+2. A planet science console and continuous simulation presets ranging from true real time
+   through Mission Speed to Super Fast, plus pause/resume.
 3. A 60–90 second guided recruiter tour.
 4. Persistent, browser-local exploration progress.
 5. Optional, user-activated mission sound.
@@ -111,7 +116,12 @@ They create new files only.
 **Design:**
 
 - Keep simulation state separate from navigation state.
-- Supported speeds are exactly `0.5`, `1`, and `4`; default is running at `1`.
+- Supported presets are Real Time, `100x`, `1,000x`, `5,000x`, Mission Speed, and Super
+  Fast. Mission Speed is the default.
+- Real Time through `5,000x` apply one physically uniform acceleration factor to both
+  orbital and rotation periods. Mission Speed intentionally uses the current dual readable
+  scale (one Earth year in 60 seconds and one Earth day in 12 seconds). Super Fast uses
+  four times the Mission Speed orbit and rotation rates.
 - Use one accumulated simulation clock shared by all R3F bodies. Never derive simulated
   time as `realElapsed * speed`, because changing speed would teleport planets.
 - Pausing freezes orbital position, axial rotation, and procedural planet motion while
@@ -227,9 +237,11 @@ These packets run one at a time because both modify the HUD and browser journey.
 - Advance the shared simulation clock once per frame before body updates.
 - Use simulated absolute time for orbits and scaled delta for spins.
 - Keep the Moon synchronized at every speed.
-- Add Pause/Resume and three accessible speed buttons to the HUD.
-- Change the displayed scales dynamically: at `1x`, one Earth year is 60 seconds and one
-  Earth day is 12 seconds; `0.5x` doubles those durations and `4x` quarters them.
+- Add Pause/Resume and accessible controls for Real Time, `100x`, `1,000x`, `5,000x`,
+  Mission Speed, and Super Fast.
+- Change the displayed orbit and spin scales dynamically and disclose that Mission Speed
+  uses separate readable orbit/spin acceleration. Super Fast quarters Mission Speed's
+  displayed durations.
 - Add a separate science-information control beside every desktop/mobile destination.
   Information controls must not be nested in travel buttons and must never start travel.
 - Use an accessible, focus-trapped science dialog that fits a 390 x 844 viewport.

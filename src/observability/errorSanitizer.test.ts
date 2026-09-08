@@ -17,8 +17,8 @@ describe('client error sanitization', () => {
   });
 
   it('truncates messages and stacks to fixed limits', () => {
-    const error = new Error('x'.repeat(1_000));
-    error.stack = 's'.repeat(5_000);
+    const error = new Error('failure detail '.repeat(100));
+    error.stack = 'stack frame\n'.repeat(500);
     const sanitized = sanitizeError(error);
     expect(sanitized.message.length).toBe(ERROR_MESSAGE_LIMIT);
     expect(sanitized.stack?.length).toBe(ERROR_STACK_LIMIT);

@@ -6,11 +6,31 @@ import { useEffect, useRef, useState } from 'react';
 import { HudCorners } from '@/components/HudCorners';
 import { getPlanetById } from '@/data/planets';
 import {
-  ORBITAL_EARTH_YEAR_SECONDS,
-  ROTATION_EARTH_DAY_SECONDS,
-} from '@/components/3d/orbitalSimulation';
+  getSimulationSpeedPreset,
+  useSimulationState,
+} from '@/hooks/useSimulationState';
+import { SimulationControls } from '@/components/SimulationControls';
+import { PlanetScienceConsole } from '@/components/PlanetScienceConsole';
+import { ExplorationProgress } from '@/components/progress';
+import { useExplorationProgress } from '@/hooks/useExplorationProgress';
+import { MissionSoundControl } from '@/components/MissionSoundControl';
 
-export const SpaceHUD = () => {
+const EARTH_YEAR_SECONDS = 365.25 * 24 * 60 * 60;
+const EARTH_DAY_SECONDS = 24 * 60 * 60;
+
+const formatVisualDuration = (seconds: number) => {
+  if (seconds >= EARTH_YEAR_SECONDS * 0.999) return '1 EARTH YEAR';
+  if (seconds >= EARTH_DAY_SECONDS) return `${(seconds / EARTH_DAY_SECONDS).toLocaleString('en-US', { maximumFractionDigits: 2 })}D`;
+  if (seconds >= 60 * 60) return `${(seconds / (60 * 60)).toLocaleString('en-US', { maximumFractionDigits: 1 })}H`;
+  if (seconds > 120) return `${(seconds / 60).toLocaleString('en-US', { maximumFractionDigits: 1 })}M`;
+  return `${seconds.toLocaleString('en-US', { maximumFractionDigits: 1 })}S`;
+};
+
+interface SpaceHUDProps {
+  onStartTour?: () => void;
+}
+
+export const SpaceHUD = ({ onStartTour }: SpaceHUDProps) => {
   const {
     announcement,
     currentView,
@@ -22,6 +42,12 @@ export const SpaceHUD = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredDestination, setHoveredDestination] = useState<string | null>(null);
   const reducedMotion = useReducedMotion();
+  const speedPresetId = useSimulationState((state) => state.speedPresetId);
+  const isPaused = useSimulationState((state) => state.isPaused);
+  const activePreset = getSimulationSpeedPreset(speedPresetId);
+  const progress = useExplorationProgress();
+  const orbitScale = formatVisualDuration(EARTH_YEAR_SECONDS / activePreset.orbitTimeFactor);
+  const spinScale = formatVisualDuration(EARTH_DAY_SECONDS / activePreset.rotationTimeFactor);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const interceptSkipRef = useRef<HTMLButtonElement>(null);
   const mobileMenuToggleRef = useRef<HTMLButtonElement>(null);
@@ -141,58 +167,75 @@ export const SpaceHUD = () => {
             <FileUser className="h-4 w-4" aria-hidden="true" />
             Quick Portfolio
           </button>
+          {onStartTour && (
+            <button
+              type="button"
+              onClick={onStartTour}
+              className="mb-3 flex min-h-11 w-full items-center justify-center rounded border border-orange-300/35 bg-orange-300/[0.06] px-3 font-heading text-xs tracking-wide text-orange-100 transition-colors hover:bg-orange-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
+            >
+              Take guided tour
+            </button>
+          )}
+          <MissionSoundControl className="mb-3 w-full" />
           <p className="text-xs tracking-mission text-muted-foreground text-center mb-3">
             DESTINATIONS
           </p>
 
           {/* Sun/Intro */}
-          <motion.button
-            className={`relative w-full px-3 py-2 rounded text-left text-sm transition-colors flex items-center gap-2 ${
-              selectedPlanet === 'sun'
-                ? 'bg-primary/20 text-primary'
-                : 'hover:bg-accent/20 text-muted-foreground hover:text-foreground'
-            }`}
-            onClick={() => travelToPlanet('sun')}
-            onMouseEnter={() => setHoveredDestination('sun')}
-            onMouseLeave={() => setHoveredDestination(null)}
-            onFocus={() => setHoveredDestination('sun')}
-            onBlur={() => setHoveredDestination(null)}
-            whileHover={{ x: -3 }}
-          >
-            <HudCorners active={hoveredDestination === 'sun'} size="sm" />
-            <div
-              className="w-3 h-3 rounded-full flex-shrink-0"
-              style={{ backgroundColor: '#FDB813' }}
-            />
-            <span className="font-heading tracking-wide text-xs">☀ Intro</span>
-          </motion.button>
+          <div className="flex items-center gap-1">
+            <motion.button
+              className={`relative flex min-h-11 flex-1 items-center gap-2 rounded px-3 py-2 text-left text-sm transition-colors ${
+                selectedPlanet === 'sun'
+                  ? 'bg-primary/20 text-primary'
+                  : 'hover:bg-accent/20 text-muted-foreground hover:text-foreground'
+              }`}
+              onClick={() => travelToPlanet('sun')}
+              onMouseEnter={() => setHoveredDestination('sun')}
+              onMouseLeave={() => setHoveredDestination(null)}
+              onFocus={() => setHoveredDestination('sun')}
+              onBlur={() => setHoveredDestination(null)}
+              whileHover={{ x: -3 }}
+            >
+              <HudCorners active={hoveredDestination === 'sun'} size="sm" />
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{ backgroundColor: '#FDB813' }}
+              />
+              <span className="font-heading tracking-wide text-xs">☀ Intro</span>
+              <span className="sr-only">{progress.hasVisited('sun') ? 'Visited' : 'Not visited'}</span>
+            </motion.button>
+            <PlanetScienceConsole planetId="sun" />
+          </div>
 
           <div className="h-px bg-border/30 my-2" />
 
           {planets.filter(p => p.id !== 'sun').map((planet) => (
-            <motion.button
-              key={planet.id}
-              className={`relative w-full px-3 py-2 rounded text-left text-sm transition-colors flex items-center gap-2 ${
-                selectedPlanet === planet.id
-                  ? 'bg-primary/20 text-primary'
-                  : 'hover:bg-accent/20 text-muted-foreground hover:text-foreground'
-              }`}
-              onClick={() => travelToPlanet(planet.id)}
-              onMouseEnter={() => setHoveredDestination(planet.id)}
-              onMouseLeave={() => setHoveredDestination(null)}
-              onFocus={() => setHoveredDestination(planet.id)}
-              onBlur={() => setHoveredDestination(null)}
-              whileHover={{ x: -3 }}
-            >
-              <HudCorners active={hoveredDestination === planet.id} size="sm" />
-              <div
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: planet.color }}
-              />
-              <span className="font-heading tracking-wide text-xs">
-                {planet.displayName}
-              </span>
-            </motion.button>
+            <div key={planet.id} className="flex items-center gap-1">
+              <motion.button
+                className={`relative flex min-h-11 flex-1 items-center gap-2 rounded px-3 py-2 text-left text-sm transition-colors ${
+                  selectedPlanet === planet.id
+                    ? 'bg-primary/20 text-primary'
+                    : 'hover:bg-accent/20 text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => travelToPlanet(planet.id)}
+                onMouseEnter={() => setHoveredDestination(planet.id)}
+                onMouseLeave={() => setHoveredDestination(null)}
+                onFocus={() => setHoveredDestination(planet.id)}
+                onBlur={() => setHoveredDestination(null)}
+                whileHover={{ x: -3 }}
+              >
+                <HudCorners active={hoveredDestination === planet.id} size="sm" />
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: planet.color }}
+                />
+                <span className="font-heading tracking-wide text-xs">
+                  {planet.displayName}
+                </span>
+                <span className="sr-only">{progress.hasVisited(planet.id) ? 'Visited' : 'Not visited'}</span>
+              </motion.button>
+              <PlanetScienceConsole planetId={planet.id} />
+            </div>
           ))}
         </nav>
       </motion.div>
@@ -204,6 +247,16 @@ export const SpaceHUD = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
+          {onStartTour && (
+            <button
+              type="button"
+              onClick={onStartTour}
+              className="hud-panel mb-2 flex min-h-12 w-full items-center justify-center rounded-lg border-orange-300/40 bg-orange-300/[0.06] px-4 font-heading text-sm tracking-mission text-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
+            >
+              Take guided tour
+            </button>
+          )}
+          <MissionSoundControl className="hud-panel mb-2 w-full" />
           <button
             type="button"
             data-testid="mobile-quick-portfolio"
@@ -243,33 +296,44 @@ export const SpaceHUD = () => {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
               >
+                <SimulationControls className="mb-3" />
+                <div className="mb-3 rounded border border-primary/20 bg-background/55 p-3">
+                  <ExplorationProgress showDestinationStatus={false} />
+                </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <button
-                    ref={firstMobileDestinationRef}
-                    className="px-3 py-2 rounded text-left text-sm flex items-center gap-2 hover:bg-accent/20"
-                    onClick={() => {
-                      travelToPlanet('sun');
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FDB813' }} />
-                    <span className="text-xs">☀ Intro</span>
-                  </button>
-                  {planets.filter(p => p.id !== 'sun').map((planet) => (
+                  <div className="flex items-center gap-1">
                     <button
-                      key={planet.id}
-                      className="px-3 py-2 rounded text-left text-sm flex items-center gap-2 hover:bg-accent/20"
+                      ref={firstMobileDestinationRef}
+                      className="flex min-h-11 flex-1 items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-accent/20"
                       onClick={() => {
-                        travelToPlanet(planet.id);
+                        travelToPlanet('sun');
                         setMobileMenuOpen(false);
                       }}
                     >
-                      <div
-                        className="w-3 h-3 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: planet.color }}
-                      />
-                      <span className="text-xs truncate">{planet.displayName}</span>
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FDB813' }} />
+                      <span className="text-xs">☀ Intro</span>
+                      <span className="sr-only">{progress.hasVisited('sun') ? 'Visited' : 'Not visited'}</span>
                     </button>
+                    <PlanetScienceConsole planetId="sun" />
+                  </div>
+                  {planets.filter(p => p.id !== 'sun').map((planet) => (
+                    <div key={planet.id} className="flex min-w-0 items-center gap-1">
+                      <button
+                        className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-accent/20"
+                        onClick={() => {
+                          travelToPlanet(planet.id);
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <div
+                          className="w-3 h-3 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: planet.color }}
+                        />
+                        <span className="truncate text-xs">{planet.displayName}</span>
+                        <span className="sr-only">{progress.hasVisited(planet.id) ? 'Visited' : 'Not visited'}</span>
+                      </button>
+                      <PlanetScienceConsole planetId={planet.id} />
+                    </div>
                   ))}
                 </div>
               </motion.nav>
@@ -277,6 +341,18 @@ export const SpaceHUD = () => {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      <motion.div
+        className="fixed bottom-24 left-4 z-10 hidden w-[min(280px,calc(100vw-2rem))] md:block"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.8 }}
+      >
+        <SimulationControls />
+        <div className="hud-panel mt-2 rounded-lg border border-primary/25 p-3">
+          <ExplorationProgress showDestinationStatus={false} />
+        </div>
+      </motion.div>
 
       {/* Desktop: Controls hint */}
       <motion.div
@@ -304,12 +380,13 @@ export const SpaceHUD = () => {
           <p>SOLAR_SYS: ACTIVE</p>
           <p>NAV_MODE: ORBIT</p>
           <p>ZOOM: SYSTEM VIEW</p>
-          <p title="Planetary years are proportional: one Earth year passes every 60 seconds.">
-            ORBIT_SCALE: 1Y / {ORBITAL_EARTH_YEAR_SECONDS}S
+          <p title={activePreset.description}>
+            ORBIT_SCALE: 1Y / {orbitScale}
           </p>
-          <p title="Planetary rotations are proportional: one Earth day passes every 12 seconds.">
-            SPIN_SCALE: 1D / {ROTATION_EARTH_DAY_SECONDS}S
+          <p title={activePreset.description}>
+            SPIN_SCALE: 1D / {spinScale}
           </p>
+          <p>TIME_STATE: {isPaused ? 'PAUSED' : activePreset.label.toUpperCase()}</p>
         </motion.div>
       </div>
 

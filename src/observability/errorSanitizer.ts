@@ -9,6 +9,7 @@ const redactSensitiveText = (value: string) => value
   .replace(/(?:[A-Z]:\\Users\\|\/Users\/|\/home\/)[^\s)\]}]+/gi, '[redacted-path]')
   .replace(/\b(?:Bearer\s+)?[A-Za-z0-9_-]{24,}\b/g, '[redacted-token]')
   .replace(/\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}\b/g, '[redacted-phone]')
+  // eslint-disable-next-line no-control-regex -- stripping transport-unsafe ASCII controls is intentional.
   .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
   .trim();
 

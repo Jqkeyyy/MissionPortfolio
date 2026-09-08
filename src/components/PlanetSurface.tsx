@@ -18,6 +18,8 @@ import {
   getPlanetThemeCssVariables,
   getPlanetThemeDataAttributes,
 } from './planet/theme/themeStyles';
+import { PlanetScienceConsole } from '@/components/PlanetScienceConsole';
+import { ExplorationProgress } from '@/components/progress';
 
 export const PlanetSurface = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -205,6 +207,18 @@ export const PlanetSurface = () => {
       <div className="planet-surface-telemetry fixed top-4 right-4 z-30 text-right font-mono text-xs">
         <p>O₂ RESERVE: {formatTelemetryReading(oxygenReserve)}</p>
         <p className="hidden sm:block">COMMS: {String(commsLink.value).toUpperCase()}</p>
+      </div>
+
+      <div className="fixed right-4 top-14 z-30">
+        <PlanetScienceConsole
+          planetId={planet.id}
+          triggerClassName="planet-hud-panel border border-primary/30 bg-background/65"
+          triggerLabel={`Open science data for ${planet.displayName}`}
+        />
+      </div>
+
+      <div className="hud-panel fixed left-4 top-20 z-30 w-52 rounded-lg border border-primary/25 p-3 text-foreground sm:top-16">
+        <ExplorationProgress showDestinationStatus={false} showClearAction={false} />
       </div>
 
       <div className="planet-identity-panel fixed left-1/2 top-4 z-30 hidden max-w-md -translate-x-1/2 text-center lg:block">

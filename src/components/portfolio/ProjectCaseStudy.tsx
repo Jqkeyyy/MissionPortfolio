@@ -66,6 +66,7 @@ export const ProjectCaseStudy = ({
             className="shrink-0 sm:max-w-[18rem] sm:justify-end"
             links={project.links}
             projectName={project.name}
+            projectId={project.id as import('@/data/projects').ProjectId}
           />
         )}
       </header>
@@ -114,6 +115,7 @@ export const ProjectCaseStudy = ({
           className="mt-5"
           links={project.links}
           projectName={project.name}
+          projectId={project.id as import('@/data/projects').ProjectId}
         />
       ) : (
         <div className="mt-7 grid gap-6 border-t border-white/10 pt-7 lg:grid-cols-2">

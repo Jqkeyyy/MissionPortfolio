@@ -1,6 +1,12 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { ExplorationRecoveryBoundary } from '@/components/ExplorationRecoveryBoundary';
+import { useRecruiterTour } from '@/hooks/useRecruiterTour';
+import { GuidedRecruiterTour } from '@/components/tour';
+import { ExplorationProgressTracker } from '@/components/progress';
+import { MissionAudioController } from '@/audio/MissionAudioController';
+import { telemetryClient } from '@/observability/telemetryClient';
+import { useExplorationProgress } from '@/hooks/useExplorationProgress';
 
 const SolarSystem = lazy(() => import('@/components/3d/SolarSystem').then((module) => ({ default: module.SolarSystem })));
 const TravelSequence = lazy(() => import('@/components/TravelSequence').then((module) => ({ default: module.TravelSequence })));
@@ -46,10 +52,12 @@ const PortfolioFallback = () => (
 const ExperiencePrompt = ({
   unavailable = false,
   onExplore,
+  onStartTour,
   onOpenQuickPortfolio,
 }: {
   unavailable?: boolean;
   onExplore: () => void;
+  onStartTour?: () => void;
   onOpenQuickPortfolio: () => void;
 }) => (
   <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#02070d] px-5 py-12 text-white">
@@ -70,13 +78,24 @@ const ExperiencePrompt = ({
       )}
       <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row">
         {!unavailable && (
-          <button
-            type="button"
-            onClick={onExplore}
-            className="inline-flex min-h-12 items-center justify-center rounded-md bg-orange-400 px-7 font-heading text-sm tracking-[0.12em] text-slate-950 transition-colors hover:bg-orange-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            Launch exploration
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={onExplore}
+              className="inline-flex min-h-12 items-center justify-center rounded-md bg-orange-400 px-7 font-heading text-sm tracking-[0.12em] text-slate-950 transition-colors hover:bg-orange-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              Launch exploration
+            </button>
+            {onStartTour && (
+              <button
+                type="button"
+                onClick={onStartTour}
+                className="inline-flex min-h-12 items-center justify-center rounded-md border border-orange-300/50 bg-orange-300/[0.06] px-7 font-heading text-sm tracking-[0.12em] text-orange-100 transition-colors hover:bg-orange-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
+              >
+                Take guided tour
+              </button>
+            )}
+          </>
         )}
         <button
           type="button"
@@ -93,24 +112,96 @@ const ExperiencePrompt = ({
 const Index = () => {
   const {
     currentView,
+    selectedPlanet,
     quickPortfolioOpen,
     openQuickPortfolio,
     closeQuickPortfolio,
     resetExploration,
+    travelToPlanet,
+    announce,
   } = useGameState();
   const [explorationMode, setExplorationMode] = useState<ExplorationMode>('prompt');
+  const progress = useExplorationProgress();
+  const previousView = useRef(currentView);
+  const previousPlanet = useRef(selectedPlanet);
+  const previousPortfolioOpen = useRef(quickPortfolioOpen);
+  const completionReported = useRef(progress.isComplete);
 
   const launchExploration = () => {
-    setExplorationMode(supportsWebGL() ? 'active' : 'unavailable');
+    telemetryClient.track({ type: 'route_choice', route: 'immersive' });
+    if (supportsWebGL()) {
+      telemetryClient.track({ type: 'immersive_launch' });
+      setExplorationMode('active');
+    } else {
+      telemetryClient.track({ type: 'webgl_unavailable', reason: 'unsupported' });
+      setExplorationMode('unavailable');
+    }
   };
+
+  const openQuickPortfolioRoute = () => {
+    telemetryClient.track({ type: 'route_choice', route: 'quick-portfolio' });
+    openQuickPortfolio();
+  };
+
+  const tour = useRecruiterTour({
+    currentView,
+    currentPlanetId: selectedPlanet,
+    onTravelTo: travelToPlanet,
+    onAnnounce: announce,
+    onStart: () => telemetryClient.track({ type: 'tour_start' }),
+    onComplete: () => telemetryClient.track({ type: 'tour_complete' }),
+    onExit: (reason) => {
+      if (reason === 'exit') telemetryClient.track({ type: 'tour_skip' });
+    },
+  });
+
+  const startTour = () => {
+    if (!supportsWebGL()) {
+      telemetryClient.track({ type: 'webgl_unavailable', reason: 'unsupported' });
+      setExplorationMode('unavailable');
+      return;
+    }
+    telemetryClient.track({ type: 'route_choice', route: 'immersive' });
+    telemetryClient.track({ type: 'immersive_launch' });
+    setExplorationMode('active');
+    tour.start();
+  };
+
+  useEffect(() => {
+    if (selectedPlanet && selectedPlanet !== previousPlanet.current) {
+      telemetryClient.track({ type: 'destination_selected', destination: selectedPlanet });
+    }
+    if (
+      currentView === 'planet'
+      && (previousView.current !== 'planet' || previousPlanet.current !== selectedPlanet)
+      && selectedPlanet
+    ) {
+      telemetryClient.track({ type: 'destination_arrived', destination: selectedPlanet });
+    }
+    if (quickPortfolioOpen && !previousPortfolioOpen.current) {
+      telemetryClient.track({ type: 'quick_portfolio_open' });
+    }
+    previousView.current = currentView;
+    previousPlanet.current = selectedPlanet;
+    previousPortfolioOpen.current = quickPortfolioOpen;
+  }, [currentView, quickPortfolioOpen, selectedPlanet]);
+
+  useEffect(() => {
+    if (progress.isComplete && !completionReported.current) {
+      telemetryClient.track({ type: 'exploration_complete' });
+    }
+    completionReported.current = progress.isComplete;
+  }, [progress.isComplete]);
 
   const spaceViewActive = explorationMode === 'active'
     && (currentView === 'space' || currentView === 'intercepting');
 
   return (
     <div className="w-screen h-screen overflow-hidden bg-background">
+      <ExplorationProgressTracker />
+      <MissionAudioController />
       {explorationMode === 'prompt' && currentView === 'space' && (
-        <ExperiencePrompt onExplore={launchExploration} onOpenQuickPortfolio={openQuickPortfolio} />
+        <ExperiencePrompt onExplore={launchExploration} onStartTour={startTour} onOpenQuickPortfolio={openQuickPortfolioRoute} />
       )}
 
       {explorationMode === 'unavailable' && currentView === 'space' && (
@@ -128,8 +219,14 @@ const Index = () => {
         {/* Space view with 3D solar system */}
         {spaceViewActive && (
           <Suspense fallback={<StageFallback label="Initializing solar system..." />}>
-            <SolarSystem onUnavailable={() => setExplorationMode('unavailable')} onOpenQuickPortfolio={openQuickPortfolio} />
-            <SpaceHUD />
+            <SolarSystem
+              onUnavailable={() => {
+                telemetryClient.track({ type: 'webgl_unavailable', reason: 'context-lost' });
+                setExplorationMode('unavailable');
+              }}
+              onOpenQuickPortfolio={openQuickPortfolio}
+            />
+            <SpaceHUD onStartTour={tour.start} />
           </Suspense>
         )}
 
@@ -148,6 +245,12 @@ const Index = () => {
           </Suspense>
         )}
       </ExplorationRecoveryBoundary>
+
+      <GuidedRecruiterTour
+        controller={tour}
+        onOpenQuickPortfolio={openQuickPortfolio}
+        onExploreFreely={tour.exit}
+      />
 
       {quickPortfolioOpen && (
         <Suspense fallback={<PortfolioFallback />}>

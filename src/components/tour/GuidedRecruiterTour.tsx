@@ -50,7 +50,7 @@ export const GuidedRecruiterTour = ({
   return (
     <aside
       aria-label="Guided recruiter tour"
-      className="fixed bottom-4 left-1/2 z-40 w-[min(94vw,28rem)] -translate-x-1/2 rounded-lg border border-cyan-400/40 bg-slate-950/95 p-4 text-slate-100 shadow-2xl backdrop-blur transition-opacity motion-reduce:transition-none sm:bottom-6"
+      className="fixed left-1/2 top-4 z-40 w-[min(94vw,28rem)] -translate-x-1/2 rounded-lg border border-cyan-400/40 bg-slate-950/95 p-4 text-slate-100 shadow-2xl backdrop-blur transition-opacity motion-reduce:transition-none sm:bottom-6 sm:top-auto"
       data-testid="guided-recruiter-tour"
     >
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">{stepLabel}</p>

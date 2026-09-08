@@ -194,6 +194,9 @@ export const QuickPortfolio = ({ onClose }: QuickPortfolioProps) => {
             Contact
           </h2>
           <ContactActions actions={directContactActions} className="mt-6 max-w-2xl" />
+          <p className="mt-6 max-w-2xl text-xs leading-5 text-white/45">
+            Privacy: exploration progress and sound preferences stay in this browser. Optional aggregate telemetry is disabled by default, honors browser privacy signals, and never includes identifiers, contact details, or free-form input.
+          </p>
         </section>
       </main>
     </section>

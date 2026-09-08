@@ -1,10 +1,13 @@
 import { ExternalLink, Github, Rocket } from 'lucide-react';
 import type { ProjectLink } from '@/types/portfolio';
 import { cn } from '@/lib/utils';
+import type { ProjectId } from '@/data/projects';
+import { telemetryClient } from '@/observability/telemetryClient';
 
 interface ProjectLinksProps {
   links: readonly ProjectLink[];
   projectName: string;
+  projectId?: ProjectId;
   compact?: boolean;
   className?: string;
 }
@@ -21,6 +24,7 @@ const isSafeProjectLink = (link: ProjectLink) => {
 export const ProjectLinks = ({
   links,
   projectName,
+  projectId,
   compact = false,
   className,
 }: ProjectLinksProps) => {
@@ -43,6 +47,9 @@ export const ProjectLinks = ({
             target={link.external ? '_blank' : undefined}
             rel={link.external ? 'noopener noreferrer' : undefined}
             aria-label={`${link.label} for ${projectName}${link.external ? ' (opens in a new tab)' : ''}`}
+            onClick={() => {
+              if (projectId) telemetryClient.track({ type: 'project_action', project: projectId, action: link.kind });
+            }}
             className={cn(
               'group inline-flex min-h-11 items-center justify-center gap-2 rounded-md border font-mono uppercase tracking-[0.12em] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               link.kind === 'live'

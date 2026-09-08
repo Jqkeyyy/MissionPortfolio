@@ -66,7 +66,7 @@ test('exploration reaches a themed planet, base camp, and HAB desktop', async ({
   await expect(destinationNav).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText('Immersive exploration is unavailable on this device.')).not.toBeVisible();
 
-  await destinationNav.getByRole('button', { name: 'Earth' }).click();
+  await destinationNav.getByRole('button', { name: /^Earth (Visited|Not visited)$/ }).click();
   await expect(page.getByRole('heading', { name: 'Earth planet surface' })).toBeAttached({ timeout: 10_000 });
   await expect(page.locator('[data-planet-theme="earth"]')).toHaveAttribute(
     'data-habitat-family',
@@ -81,6 +81,28 @@ test('exploration reaches a themed planet, base camp, and HAB desktop', async ({
   );
   await page.getByRole('button', { name: 'Sit down at the mission computer' }).click();
   await expect(page.getByTestId('desktop-archive')).toBeVisible({ timeout: 10_000 });
+});
+
+test('simulation controls and science console work without starting travel', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Launch exploration' }).click();
+
+  const destinationNav = page.getByRole('navigation', { name: 'Solar system destinations' });
+  await expect(destinationNav).toBeVisible({ timeout: 15_000 });
+
+  await page.getByRole('button', { name: 'Real Time', exact: true }).click();
+  await expect(page.getByText('ORBIT_SCALE: 1Y / 1 EARTH YEAR')).toBeVisible();
+  await page.getByRole('button', { name: '100x', exact: true }).click();
+  await expect(page.getByText('TIME_STATE: 100X')).toBeVisible();
+  await page.getByRole('button', { name: 'Super Fast', exact: true }).click();
+  await expect(page.getByText('ORBIT_SCALE: 1Y / 15S')).toBeVisible();
+  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await expect(page.getByText('TIME_STATE: PAUSED')).toBeVisible();
+
+  await destinationNav.getByRole('button', { name: 'Open science data for Saturn' }).click();
+  await expect(page.getByRole('dialog')).toContainText('Ring system');
+  await expect(page.getByRole('heading', { name: 'Saturn' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /planet surface/i })).not.toBeAttached();
 });
 
 test('route selection and Quick Portfolio fit a phone viewport', async ({ page }) => {

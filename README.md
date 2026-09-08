@@ -23,14 +23,29 @@ Navigation flows through an opt-in route prompt, 3D **space** and **intercept** 
 
 The immersive map uses approximate NASA planetary periods and axial tilts with elliptical,
 inclined orbits. The Moon follows Earth, and Jupiter, Saturn, Uranus, and Neptune each have
-their corresponding ring systems. Motion is accelerated with two clearly displayed visual
-scales: one Earth year passes in 60 seconds for orbits, while one Earth day passes in 12
-seconds for axial rotation. Keeping those scales separate makes both the inner and outer
-planets readable without turning the fast-spinning giants into a blur.
+their corresponding ring systems. Motion can run at Real Time, 100x, 1,000x, 5,000x,
+Mission Speed, or Super Fast, and can be paused without changing position. The physical
+presets accelerate orbit and rotation uniformly. Mission Speed uses two clearly disclosed
+readable scales: one Earth year passes in 60 seconds for orbits, while one Earth day passes
+in 12 seconds for axial rotation. Super Fast quarters those displayed durations.
 
 Planet sizes, interplanetary distances, ring widths, and deterministic starting positions
 remain artistically compressed for navigation; this is a proportional educational model,
 not a live ephemeris.
+
+The map also includes an illustrative deterministic asteroid belt, selected major moons,
+a comet, and an optional axial-tilt guide. These context objects are compressed visual aids,
+not a live ephemeris.
+
+## Privacy and optional telemetry
+
+Exploration progress and the sound preference stay in this browser. Sound is muted by
+default and no audio context is created until the visitor enables it. Aggregate telemetry
+is disabled unless `VITE_TELEMETRY_ENDPOINT` is configured. When configured, the client
+honors Global Privacy Control and Do Not Track, sends only a strict event allowlist without
+cookies or identifiers, redacts client errors, and never sends page URLs, free-form input,
+camera motion, or contact details. Any configured collector must discard or truncate IP
+addresses and publish a short retention/deletion policy.
 
 ## Tech stack
 

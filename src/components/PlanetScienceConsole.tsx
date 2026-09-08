@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { useSimulationState } from '@/hooks/useSimulationState';
 
 export interface PlanetScienceConsoleProps {
   planetId: PlanetThemeId;
@@ -38,6 +39,8 @@ export const PlanetScienceConsole = ({
 }: PlanetScienceConsoleProps) => {
   const planet = getPlanetById(planetId);
   const science = getPlanetScience(planetId);
+  const tiltGuidePlanetId = useSimulationState((state) => state.tiltGuidePlanetId);
+  const toggleTiltGuide = useSimulationState((state) => state.toggleTiltGuide);
   if (!planet || !science) return null;
 
   const orbitCenter = planet.orbitParentId
@@ -97,6 +100,15 @@ export const PlanetScienceConsole = ({
             </p>
           )}
         </div>
+
+        <button
+          type="button"
+          aria-pressed={tiltGuidePlanetId === planet.id}
+          onClick={() => toggleTiltGuide(planet.id)}
+          className="inline-flex min-h-11 items-center justify-center rounded border border-primary/35 bg-primary/10 px-4 font-heading text-xs tracking-wide text-primary hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          {tiltGuidePlanetId === planet.id ? 'Hide axial-tilt guide' : 'Show axial-tilt guide'}
+        </button>
 
         <p className="text-xs text-muted-foreground">
           Source:{' '}

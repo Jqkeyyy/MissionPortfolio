@@ -18,8 +18,8 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest production implementation commit: `9d929d5` (`Harden Vercel production deployment`)
-- `main` and `origin/main` were synchronized through `9d929d5` before the final deployment audit.
+- Latest deployed implementation commit before post-deployment enhancements: `9d929d5` (`Harden Vercel production deployment`)
+- Post-deployment items 2–7 are implemented and awaiting the final enhancement commit/deploy.
 - Public production URL: `https://mission-portfolio-amber.vercel.app/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
@@ -77,13 +77,13 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 
 ## Latest verification and performance evidence
 
-`npm run check` and `npm run test:e2e` passed on merged `main` after Wave 7:
+`npm run check` and `npm run test:e2e` passed on merged `main` after the post-deployment enhancements:
 
 - ESLint: passed
 - TypeScript: passed
-- Vitest: **31 files / 137 tests passed**
+- Vitest: **52 files / 228 tests passed**
 - Production build: passed
-- Playwright Chromium: **3 critical-path tests passed**
+- Playwright Chromium: **5 critical-path tests passed**
 - Production dependency audit: **0 vulnerabilities**
 
 Measured production changes:
@@ -98,7 +98,7 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-The original Waves 1–7 and the temporary-domain deployment gate are complete. Production metadata, security headers, sitemap discovery, SPA fallback, social-crawler access, Lighthouse, Quick Portfolio, mobile layout, and the live WebGL journey were verified. See `docs/audits/production-deployment.md`. The next work is Wave 1 of `docs/superpowers/plans/2026-09-07-post-deployment-enhancements.md`: the science/simulation, guided-tour, and exploration-progress foundations can begin in parallel.
+The original Waves 1–7, temporary-domain deployment gate, and post-deployment items 2–7 are complete in the working tree. The new release adds science and time controls, recruiter tour, local progress, opt-in sound, solar-system context details, and privacy-safe optional observability. See `docs/audits/post-enhancement-*.md`. The next work is to commit, push, deploy, and verify this enhanced release on the public Vercel alias.
 
 ## Known remaining risks and follow-ups
 

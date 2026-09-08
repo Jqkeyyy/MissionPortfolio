@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { contactActions, type ContactAction } from '@/data/contact';
 import { cn } from '@/lib/utils';
+import { telemetryClient } from '@/observability/telemetryClient';
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -61,6 +62,11 @@ export const ContactActions = ({
             target={opensNewWindow ? '_blank' : undefined}
             rel={opensNewWindow ? 'noopener noreferrer' : undefined}
             download={action.download}
+            onClick={() => {
+              if (action.kind === 'email' || action.kind === 'github' || action.kind === 'linkedin' || action.kind === 'website') {
+                telemetryClient.track({ type: 'contact_action', channel: action.kind });
+              }
+            }}
           >
             <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span className="min-w-0 flex-1 truncate">{action.label}</span>

@@ -17,6 +17,7 @@ vi.mock('./Sun', () => ({ Sun: () => null }));
 vi.mock('./PlanetMesh', () => ({ PlanetMesh: () => null }));
 vi.mock('./OrbitRing', () => ({ OrbitRing: () => null }));
 vi.mock('./SolarSystemShip', () => ({ SolarSystemShip: () => null }));
+vi.mock('./SolarSystemDetails', () => ({ SolarSystemDetails: () => null }));
 
 describe('SolarSystem capability handling', () => {
   afterEach(() => {
@@ -57,6 +58,8 @@ describe('SolarSystem capability handling', () => {
       starCount: 2200,
       antialias: false,
       powerPreference: 'low-power',
+      asteroidCount: 160,
+      decorativeMotion: false,
     });
   });
 

@@ -4,7 +4,7 @@ import type { TelemetryClient } from './telemetryClient';
 
 describe('global error monitoring', () => {
   it('reports sanitized errors and rejected promises', () => {
-    const track = vi.fn(() => true);
+    const track = vi.fn((_event: unknown) => true);
     const client: TelemetryClient = { track, isEnabled: () => true };
     const cleanup = installGlobalErrorMonitoring(client);
 
