@@ -31,6 +31,10 @@ export interface ProjectImage {
   height: number;
 }
 
+export interface ProjectMedia extends ProjectImage {
+  caption: string;
+}
+
 export interface ProjectCaseStudy {
   problem: string;
   approach: readonly string[];

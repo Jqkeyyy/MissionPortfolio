@@ -19,6 +19,15 @@ An interactive space-themed portfolio with two entry paths: visitors can launch 
 
 Navigation flows through an opt-in route prompt, 3D **space** and **intercept** views, an animated **travel** sequence, and a 2D **planet surface** with an explorable base camp. Quick Portfolio provides the same professional content, project case studies, résumé, and contact actions through an accessible printable overlay. Heavy 3D, planet, and HAB modules are loaded only when requested.
 
+Every major destination is shareable:
+
+- `/portfolio` opens the recruiter-first portfolio as a standalone page.
+- `/projects/:projectId` opens a media-rich engineering case study with a system map.
+- `/explore/:planetId` opens a specific immersive destination when WebGL is available.
+- `Ctrl/Cmd+K` opens the global command palette for projects, planets, contact actions, resume access, and graphics settings.
+
+Project and planet pages are prerendered after the Vite build with route-specific canonical URLs, social metadata, structured data, and sitemap entries. Visitors can select Low, Balanced, High, or Auto graphics; Auto responds to device signals and sustained frame rate.
+
 ## Astronomical simulation
 
 The immersive map uses approximate NASA planetary periods and axial tilts with elliptical,
@@ -46,6 +55,10 @@ honors Global Privacy Control and Do Not Track, sends only a strict event allowl
 cookies or identifiers, redacts client errors, and never sends page URLs, free-form input,
 camera motion, or contact details. Any configured collector must discard or truncate IP
 addresses and publish a short retention/deletion policy.
+
+The repository includes an optional same-origin collector at `/api/telemetry`. It stores only daily aggregate counters in an Upstash-compatible Redis REST store. Configure `TELEMETRY_REDIS_REST_URL`, `TELEMETRY_REDIS_REST_TOKEN`, and a strong `TELEMETRY_DASHBOARD_TOKEN`, then set `VITE_TELEMETRY_ENDPOINT=/api/telemetry`. The protected `/mission-analytics` page reads those counters and is excluded from the generated sitemap with `noindex,nofollow` metadata.
+
+Set `VITE_SITE_URL` after connecting a custom HTTPS domain. Canonical URLs, social metadata, structured data, `robots.txt`, and the generated sitemap derive from that value during production builds.
 
 ## Tech stack
 
@@ -76,8 +89,15 @@ npm run typecheck    # TypeScript validation
 npm test             # run tests once
 npm run test:watch  # tests in watch mode
 npm run check        # lint, typecheck, test, and production build
-npm run test:e2e     # production critical-path checks in Chromium
+npm run test:e2e     # Chromium, Firefox, and WebKit browser gates
+npm run test:lighthouse # performance, accessibility, best-practice, and SEO budgets
+npm run content:check   # project evidence, media, links, and stale-content validation
+npm run content:check:network # optional live-link reachability pass
+npm run media:capture   # refresh deployed-project WebP evidence
+npm run test:visual:update # intentionally refresh reviewed visual baselines
 ```
+
+Chromium additionally covers the WebGL journey, axe accessibility scans, and stable visual snapshots.
 
 ## Project structure
 

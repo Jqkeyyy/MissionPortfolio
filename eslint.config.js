@@ -6,6 +6,12 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
+    files: ["api/**/*.ts", "scripts/**/*.{js,mjs,ts}"],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
     ignores: [
       "dist/**",
       "coverage/**",

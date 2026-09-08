@@ -15,6 +15,7 @@ interface GameState {
   
   // Actions
   selectPlanet: (planetId: string) => void;
+  arriveAtPlanet: (planetId: string) => void;
   travelToPlanet: (planetId: string) => void;
   returnToSpace: () => void;
   skipTravel: () => void;
@@ -75,6 +76,19 @@ export const useGameState = create<GameState>((set, get) => ({
 
   selectPlanet: (planetId) => {
     set({ selectedPlanet: planetId });
+  },
+
+  arriveAtPlanet: (planetId) => {
+    cancelPendingTransitions();
+    set({
+      currentView: 'planet',
+      selectedPlanet: planetId,
+      previousPlanet: get().selectedPlanet,
+      isTransitioning: false,
+      travelDirection: null,
+      activeSign: null,
+      announcement: `Opened ${planetName(planetId)} from a shared mission link. Planet surface ready.`,
+    });
   },
 
   travelToPlanet: (planetId) => {

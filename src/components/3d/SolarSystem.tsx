@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- graphics profiling is colocated with its sole Canvas consumer and exported for focused verification. */
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { StarField } from './StarField';
 import { Sun } from './Sun';
@@ -12,6 +12,7 @@ import { SolarSystemShip } from './SolarSystemShip';
 import * as THREE from 'three';
 import { SimulationClock } from './SimulationClock';
 import { SolarSystemDetails } from './SolarSystemDetails';
+import { useGraphicsSettings, type GraphicsPreference, type GraphicsTier } from '@/hooks/useGraphicsSettings';
 
 const OPTIMIZED_SHUTTLE_URL = '/optimized/mission-shuttle.webp';
 
@@ -22,7 +23,7 @@ THREE.DefaultLoadingManager.setURLModifier((url) => (
   url.endsWith('/mission-shuttle.png') ? OPTIMIZED_SHUTTLE_URL : url
 ));
 
-interface GraphicsProfile {
+export interface GraphicsProfile {
   dpr: [number, number];
   starCount: number;
   antialias: boolean;
@@ -30,6 +31,42 @@ interface GraphicsProfile {
   asteroidCount: number;
   decorativeMotion: boolean;
 }
+
+const GRAPHICS_PROFILES: Record<GraphicsTier, GraphicsProfile> = {
+  low: { dpr: [1, 1], starCount: 1600, antialias: false, powerPreference: 'low-power', asteroidCount: 100, decorativeMotion: false },
+  balanced: { dpr: [1, 1.25], starCount: 3500, antialias: true, powerPreference: 'default', asteroidCount: 280, decorativeMotion: true },
+  high: { dpr: [1, 1.5], starCount: 6000, antialias: true, powerPreference: 'high-performance', asteroidCount: 560, decorativeMotion: true },
+};
+
+export const nextAdaptiveTier = (tier: GraphicsTier, framesPerSecond: number): GraphicsTier => {
+  if (framesPerSecond < 42) return tier === 'high' ? 'balanced' : 'low';
+  if (framesPerSecond > 57) return tier === 'low' ? 'balanced' : 'high';
+  return tier;
+};
+
+export const resolveGraphicsProfile = (
+  preference: GraphicsPreference,
+  automaticTier: GraphicsTier,
+): GraphicsProfile => GRAPHICS_PROFILES[preference === 'auto' ? automaticTier : preference];
+
+const FrameRateMonitor = ({ enabled, onSample }: { enabled: boolean; onSample: (fps: number) => void }) => {
+  const sampleStartedAt = useRef(0);
+  const frames = useRef(0);
+
+  useFrame(({ clock }) => {
+    if (!enabled) return;
+    const elapsed = clock.elapsedTime;
+    if (sampleStartedAt.current === 0) sampleStartedAt.current = elapsed;
+    frames.current += 1;
+    const duration = elapsed - sampleStartedAt.current;
+    if (duration < 4) return;
+    onSample(frames.current / duration);
+    frames.current = 0;
+    sampleStartedAt.current = elapsed;
+  });
+
+  return null;
+};
 
 export const registerWebGLContextLoss = (
   canvas: HTMLCanvasElement,
@@ -97,7 +134,14 @@ interface SolarSystemProps {
 
 export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystemProps) => {
   const { currentView, travelToPlanet } = useGameState();
-  const graphics = useMemo(getGraphicsProfile, []);
+  const preference = useGraphicsSettings((state) => state.preference);
+  const deviceProfile = useMemo(getGraphicsProfile, []);
+  const initialTier: GraphicsTier = deviceProfile.powerPreference === 'low-power' ? 'low' : 'high';
+  const [automaticTier, setAutomaticTier] = useState<GraphicsTier>(initialTier);
+  const reducedMotion = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+  const selectedGraphics = resolveGraphicsProfile(preference, automaticTier);
+  const graphics = reducedMotion ? { ...selectedGraphics, decorativeMotion: false } : selectedGraphics;
   const planetPositions = useRef(new Map<string, THREE.Vector3>([
     ['sun', new THREE.Vector3(0, 15, 0)],
   ]));
@@ -114,6 +158,12 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
     if (currentView !== 'space') return;
     travelToPlanet(planetId);
   };
+
+  const handleFrameRateSample = useCallback((framesPerSecond: number) => {
+    setAutomaticTier((current) => (
+      deviceProfile.powerPreference === 'low-power' ? 'low' : nextAdaptiveTier(current, framesPerSecond)
+    ));
+  }, [deviceProfile.powerPreference]);
 
   const updatePlanetPosition = useCallback((planetId: string, position: THREE.Vector3) => {
     const storedPosition = planetPositions.current.get(planetId);
@@ -142,6 +192,7 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
           />
         )}
       >
+        <FrameRateMonitor enabled={preference === 'auto'} onSample={handleFrameRateSample} />
         <SimulationClock />
         <PerspectiveCamera makeDefault position={[0, 30, 80]} fov={60} />
         <OrbitControls

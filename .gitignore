@@ -12,7 +12,9 @@ dist
 dist-ssr
 playwright-report
 test-results
+.lighthouseci
 *.local
+tmp/lighthouse-*.json
 
 # Editor directories and files
 .vscode/*

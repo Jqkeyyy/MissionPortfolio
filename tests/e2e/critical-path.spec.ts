@@ -57,7 +57,8 @@ test('deployment serves discovery files and the SPA not-found route', async ({ p
   await expect(page.getByRole('link', { name: 'Return to Home' })).toHaveAttribute('href', '/');
 });
 
-test('exploration reaches a themed planet, base camp, and HAB desktop', async ({ page }) => {
+test('exploration reaches a themed planet, base camp, and HAB desktop', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'The immersive WebGL journey is covered in Chromium; recruiter paths run in every browser.');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await page.getByRole('button', { name: 'Launch exploration' }).click();
@@ -83,7 +84,8 @@ test('exploration reaches a themed planet, base camp, and HAB desktop', async ({
   await expect(page.getByTestId('desktop-archive')).toBeVisible({ timeout: 10_000 });
 });
 
-test('simulation controls and science console work without starting travel', async ({ page }) => {
+test('simulation controls and science console work without starting travel', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'The immersive WebGL journey is covered in Chromium; recruiter paths run in every browser.');
   await page.goto('/');
   await page.getByRole('button', { name: 'Launch exploration' }).click();
 

@@ -1,10 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
-import { getGraphicsProfile, registerWebGLContextLoss, SolarSystem } from './SolarSystem';
+import { getGraphicsProfile, nextAdaptiveTier, registerWebGLContextLoss, resolveGraphicsProfile, SolarSystem } from './SolarSystem';
 
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ fallback }: { fallback: React.ReactNode }) => fallback,
+  useFrame: () => undefined,
 }));
 
 vi.mock('@react-three/drei', () => ({
@@ -61,6 +62,14 @@ describe('SolarSystem capability handling', () => {
       asteroidCount: 160,
       decorativeMotion: false,
     });
+  });
+
+  it('respects manual graphics profiles and adapts automatic tiers', () => {
+    expect(resolveGraphicsProfile('low', 'high')).toMatchObject({ dpr: [1, 1], antialias: false, asteroidCount: 100 });
+    expect(resolveGraphicsProfile('high', 'low')).toMatchObject({ dpr: [1, 1.5], antialias: true, asteroidCount: 560 });
+    expect(nextAdaptiveTier('high', 30)).toBe('balanced');
+    expect(nextAdaptiveTier('balanced', 30)).toBe('low');
+    expect(nextAdaptiveTier('low', 60)).toBe('balanced');
   });
 
   it('rewrites only the Three.js shuttle texture to the optimized candidate', () => {

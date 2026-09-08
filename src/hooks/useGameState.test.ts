@@ -118,4 +118,16 @@ describe('useGameState accessible travel controls', () => {
       travelDirection: null,
     });
   });
+
+  it('hydrates a shared planet route without scheduling travel timers', () => {
+    act(() => useGameState.getState().arriveAtPlanet('venus'));
+    expect(useGameState.getState()).toMatchObject({
+      currentView: 'planet',
+      selectedPlanet: 'venus',
+      isTransitioning: false,
+      travelDirection: null,
+    });
+    expect(useGameState.getState().announcement).toMatch(/shared mission link/i);
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });

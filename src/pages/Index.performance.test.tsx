@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useGameState } from '@/hooks/useGameState';
 import Index from './Index';
+import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@/components/3d/SolarSystem', () => ({
   SolarSystem: () => <div data-testid="solar-system">Solar system</div>,
@@ -36,6 +37,8 @@ const webGLContext = {
   getExtension: vi.fn(() => null),
 } as unknown as WebGLRenderingContext;
 
+const renderIndex = () => render(<MemoryRouter><Index /></MemoryRouter>);
+
 describe('performance entry path', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -56,7 +59,7 @@ describe('performance entry path', () => {
         throw new Error('WebGL should not be requested');
       });
 
-    render(<Index />);
+    renderIndex();
     fireEvent.click(screen.getByRole('button', { name: 'View Quick Portfolio' }));
 
     expect(await screen.findByRole('dialog', { name: 'Quick Portfolio' })).toBeInTheDocument();
@@ -68,7 +71,7 @@ describe('performance entry path', () => {
     const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
       .mockImplementation(() => webGLContext as unknown as GPUCanvasContext);
 
-    render(<Index />);
+    renderIndex();
     expect(screen.queryByTestId('solar-system')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Launch exploration' }));
@@ -81,7 +84,7 @@ describe('performance entry path', () => {
   it('keeps the complete portfolio reachable when WebGL is unavailable', async () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
 
-    render(<Index />);
+    renderIndex();
     fireEvent.click(screen.getByRole('button', { name: 'Launch exploration' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('Immersive exploration is unavailable');

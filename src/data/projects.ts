@@ -163,13 +163,19 @@ const projectCatalog = [
     id: 'mission-portfolio',
     name: 'Mission Portfolio',
     oneLineSummary: 'An interactive portfolio that turns professional content into a navigable solar-system and habitat experience.',
-    status: 'in-development',
+    status: 'live',
     technologies: ['React', 'TypeScript', 'Three.js', 'React Three Fiber', 'Zustand', 'Tailwind CSS', 'Vitest'],
     links: [
       {
         kind: 'repository',
         label: 'View repository',
         href: 'https://github.com/Jqkeyyy/MissionPortfolio',
+        external: true,
+      },
+      {
+        kind: 'live',
+        label: 'Open live project',
+        href: 'https://mission-portfolio-amber.vercel.app',
         external: true,
       },
     ],
@@ -201,8 +207,8 @@ const projectCatalog = [
         'Reduced-motion-aware animation and component-level tests',
       ],
       limitations: [
-        'The repository does not currently publish a verified live-project URL.',
-        'Performance, non-WebGL access, and full keyboard support are active roadmap items.',
+        'The immersive Three.js route remains intentionally heavier than the recruiter-first entry path.',
+        'A manual screen-reader journey remains a useful complement to the automated accessibility suite.',
       ],
     },
   },

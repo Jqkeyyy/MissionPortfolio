@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { ExplorationRecoveryBoundary } from '@/components/ExplorationRecoveryBoundary';
 import { useRecruiterTour } from '@/hooks/useRecruiterTour';
@@ -7,6 +7,10 @@ import { ExplorationProgressTracker } from '@/components/progress';
 import { MissionAudioController } from '@/audio/MissionAudioController';
 import { telemetryClient } from '@/observability/telemetryClient';
 import { useExplorationProgress } from '@/hooks/useExplorationProgress';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { getPlanetById } from '@/data/planets';
+import { useDocumentMetadata } from '@/hooks/useDocumentMetadata';
+import { SITE_URL } from '@/config/site';
 
 const SolarSystem = lazy(() => import('@/components/3d/SolarSystem').then((module) => ({ default: module.SolarSystem })));
 const TravelSequence = lazy(() => import('@/components/TravelSequence').then((module) => ({ default: module.TravelSequence })));
@@ -117,15 +121,76 @@ const Index = () => {
     openQuickPortfolio,
     closeQuickPortfolio,
     resetExploration,
+    arriveAtPlanet,
     travelToPlanet,
     announce,
   } = useGameState();
-  const [explorationMode, setExplorationMode] = useState<ExplorationMode>('prompt');
+  const { planetId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [explorationMode, setExplorationMode] = useState<ExplorationMode>(planetId ? 'active' : 'prompt');
   const progress = useExplorationProgress();
   const previousView = useRef(currentView);
   const previousPlanet = useRef(selectedPlanet);
   const previousPortfolioOpen = useRef(quickPortfolioOpen);
   const completionReported = useRef(progress.isComplete);
+  const previousLocationPath = useRef(location.pathname);
+  const initialRouteHydration = useRef(true);
+  const linkedPlanet = planetId ? getPlanetById(planetId) : undefined;
+  const destinationStructuredData = useMemo(() => linkedPlanet ? ({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: `${linkedPlanet.displayName} Mission — Jake Sass`,
+    description: `The ${linkedPlanet.description} destination in Jake Sass's Mission Portfolio.`,
+    url: `${SITE_URL}/explore/${linkedPlanet.id}`,
+  }) : undefined, [linkedPlanet]);
+
+  useDocumentMetadata({
+    title: linkedPlanet ? `${linkedPlanet.displayName} Mission — Jake Sass` : 'Mission Portfolio — Jake Sass',
+    description: linkedPlanet
+      ? `Explore ${linkedPlanet.displayName}, the ${linkedPlanet.description.toLowerCase()} destination in Jake Sass's Mission Portfolio.`
+      : "Explore Jake Sass's interactive portfolio: a navigable solar system featuring full-stack projects, data and machine-learning work, experience, and contact details.",
+    path: linkedPlanet ? `/explore/${linkedPlanet.id}` : '/',
+    structuredData: destinationStructuredData,
+  });
+
+  useEffect(() => {
+    if (!planetId) {
+      resetExploration();
+      return;
+    }
+    if (!getPlanetById(planetId)) return;
+    if (!supportsWebGL()) {
+      setExplorationMode('unavailable');
+      return;
+    }
+    setExplorationMode('active');
+    arriveAtPlanet(planetId);
+  }, [arriveAtPlanet, planetId, resetExploration]);
+
+  useEffect(() => {
+    if (initialRouteHydration.current) {
+      initialRouteHydration.current = false;
+      return;
+    }
+    const cameBackToMissionMap = location.pathname === '/'
+      && previousLocationPath.current.startsWith('/explore/');
+    if (cameBackToMissionMap && currentView !== 'space') {
+      resetExploration();
+      previousLocationPath.current = location.pathname;
+      return;
+    }
+    if (currentView === 'planet' && selectedPlanet) {
+      const destinationPath = `/explore/${selectedPlanet}`;
+      if (location.pathname !== destinationPath) navigate(destinationPath);
+      previousLocationPath.current = location.pathname;
+      return;
+    }
+    if (currentView === 'space' && location.pathname.startsWith('/explore/')) {
+      navigate('/', { replace: true });
+    }
+    previousLocationPath.current = location.pathname;
+  }, [currentView, location.pathname, navigate, resetExploration, selectedPlanet]);
 
   const launchExploration = () => {
     telemetryClient.track({ type: 'route_choice', route: 'immersive' });

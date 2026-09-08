@@ -5,13 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-routes.mjs",
     "build:dev": "vite build --mode development",
-    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "check": "npm run lint && npm run typecheck && npm run content:check && npm test && npm run build",
+    "content:check": "node scripts/validate-content.mjs",
+    "content:check:network": "node scripts/validate-content.mjs --network",
+    "media:capture": "node scripts/capture-project-media.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:lighthouse": "npm run build && npx --yes @lhci/cli@0.15.1 autorun",
+    "test:visual:update": "playwright test tests/e2e/visual-regression.spec.ts --project=chromium --update-snapshots",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
@@ -71,6 +76,7 @@
     "zustand": "^4.5.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.32.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/typography": "^0.5.16",

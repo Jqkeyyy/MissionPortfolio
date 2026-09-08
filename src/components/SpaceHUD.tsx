@@ -14,6 +14,7 @@ import { PlanetScienceConsole } from '@/components/PlanetScienceConsole';
 import { ExplorationProgress } from '@/components/progress';
 import { useExplorationProgress } from '@/hooks/useExplorationProgress';
 import { MissionSoundControl } from '@/components/MissionSoundControl';
+import { GraphicsQualityControl } from '@/components/GraphicsQualityControl';
 
 const EARTH_YEAR_SECONDS = 365.25 * 24 * 60 * 60;
 const EARTH_DAY_SECONDS = 24 * 60 * 60;
@@ -177,6 +178,7 @@ export const SpaceHUD = ({ onStartTour }: SpaceHUDProps) => {
             </button>
           )}
           <MissionSoundControl className="mb-3 w-full" />
+          <GraphicsQualityControl className="mb-3 w-full" />
           <p className="text-xs tracking-mission text-muted-foreground text-center mb-3">
             DESTINATIONS
           </p>
@@ -257,6 +259,7 @@ export const SpaceHUD = ({ onStartTour }: SpaceHUDProps) => {
             </button>
           )}
           <MissionSoundControl className="hud-panel mb-2 w-full" />
+          <GraphicsQualityControl className="hud-panel mb-2 w-full" />
           <button
             type="button"
             data-testid="mobile-quick-portfolio"

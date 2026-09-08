@@ -47,6 +47,22 @@
   ],
   "rewrites": [
     {
+      "source": "/portfolio",
+      "destination": "/portfolio/index.html"
+    },
+    {
+      "source": "/projects/:projectId",
+      "destination": "/projects/:projectId/index.html"
+    },
+    {
+      "source": "/explore/:planetId",
+      "destination": "/explore/:planetId/index.html"
+    },
+    {
+      "source": "/mission-analytics",
+      "destination": "/mission-analytics/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

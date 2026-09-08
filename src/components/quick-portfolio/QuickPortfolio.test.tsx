@@ -79,7 +79,7 @@ describe('QuickPortfolio', () => {
     const print = vi.spyOn(window, 'print').mockImplementation(() => {});
     render(<QuickPortfolio onClose={() => {}} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Print' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Print Quick Portfolio' }));
 
     expect(print).toHaveBeenCalledTimes(1);
     print.mockRestore();

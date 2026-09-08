@@ -57,6 +57,14 @@ State transitions flow: `space` → `intercepting` → `traveling` → `planet` 
 4. **Planet Surface** (`components/PlanetSurface.tsx`): 2D landing page, base camp, and HAB entry
 5. **Quick Portfolio** (`components/quick-portfolio/`): Full-screen semantic overview using shared project/contact data
 
+**Shareable routes:**
+- `/portfolio` — standalone recruiter view
+- `/projects/:projectId` — prerendered media-rich case study
+- `/explore/:planetId` — direct planet destination with Back/Forward synchronization
+- `/mission-analytics` — protected, noindex aggregate dashboard
+
+The lightweight command launcher stays in the initial shell, while the `cmdk` implementation loads only on first use. Production builds run `scripts/prerender-routes.mjs`; keep the nested-route rewrites in `vercel.json` synchronized with it.
+
 These layers use `React.lazy` and stable `Suspense` fallbacks. Do not replace the semantic boundaries with arbitrary manual chunks. The initial route intentionally avoids requesting WebGL code or raster artwork until the visitor launches exploration.
 
 **Key component organization:**
@@ -119,11 +127,11 @@ These layers use `React.lazy` and stable `Suspense` fallbacks. Do not replace th
 
 Tests located in `src/test/` using Vitest + jsdom. Setup file: `src/test/setup.ts`
 
-Run `npm run check` before every handoff. The current Wave 5 baseline is 29 passing test files / 129 tests, followed by a successful production build.
+Run `npm run check` before every handoff. Browser-facing changes must also pass `npm run test:e2e`; route or bundle changes must pass `npm run test:lighthouse`. Use `npm run content:check` for every project-content change and update visual baselines only after review.
 
 ## Development Notes
 
 - The historical Lovable origin is documented in README, but Lovable metadata, tooling, and the unused placeholder asset have been removed
 - Vite dev server runs on port 8080 with HMR overlay disabled
 - Font loading: Space Grotesk (headings), Inter (body) from @fontsource packages
-- The production domain is not yet documented, so canonical and `og:url` metadata remain intentionally unset
+- The temporary production alias is the fallback. Set `VITE_SITE_URL` when a custom domain is known; canonical, social, structured-data, robots, and sitemap URLs derive from it.

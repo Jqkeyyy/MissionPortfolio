@@ -8,6 +8,7 @@ import { projects } from '@/data/projects';
 
 interface QuickPortfolioProps {
   onClose: () => void;
+  standalone?: boolean;
 }
 
 const FOCUSABLE_SELECTOR = [
@@ -25,7 +26,7 @@ const portfolioSections = [
   { id: 'earth', heading: 'Experience' },
 ] as const;
 
-export const QuickPortfolio = ({ onClose }: QuickPortfolioProps) => {
+export const QuickPortfolio = ({ onClose, standalone = false }: QuickPortfolioProps) => {
   const dialogRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
@@ -49,7 +50,7 @@ export const QuickPortfolio = ({ onClose }: QuickPortfolioProps) => {
         return;
       }
 
-      if (event.key !== 'Tab' || !dialogRef.current) return;
+      if (standalone || event.key !== 'Tab' || !dialogRef.current) return;
       const focusable = Array.from(
         dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
       ).filter((element) => !element.hasAttribute('disabled'));
@@ -79,13 +80,13 @@ export const QuickPortfolio = ({ onClose }: QuickPortfolioProps) => {
       document.removeEventListener('keydown', handleKeyDown);
       previouslyFocusedRef.current?.focus();
     };
-  }, [onClose]);
+  }, [onClose, standalone]);
 
   return (
     <section
       ref={dialogRef}
-      role="dialog"
-      aria-modal="true"
+      role={standalone ? undefined : 'dialog'}
+      aria-modal={standalone ? undefined : 'true'}
       aria-labelledby="quick-portfolio-title"
       className="quick-portfolio-overlay fixed inset-0 z-[1000] overflow-y-auto bg-[#02070d] text-white"
     >
@@ -99,6 +100,7 @@ export const QuickPortfolio = ({ onClose }: QuickPortfolioProps) => {
             <button
               type="button"
               onClick={() => window.print()}
+              aria-label="Print Quick Portfolio"
               className="inline-flex min-h-11 items-center gap-2 rounded-md border border-white/15 px-3 text-xs text-white/75 hover:border-cyan-200/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200"
             >
               <Printer className="h-4 w-4" aria-hidden="true" />
@@ -107,11 +109,11 @@ export const QuickPortfolio = ({ onClose }: QuickPortfolioProps) => {
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close Quick Portfolio and return to exploration"
+              aria-label={standalone ? 'Return to Mission Portfolio home' : 'Close Quick Portfolio and return to exploration'}
               className="inline-flex min-h-11 items-center gap-2 rounded-md border border-white/15 px-3 text-xs text-white/75 hover:border-orange-200/50 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
             >
               <X className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Close</span>
+              <span className="hidden sm:inline">{standalone ? 'Home' : 'Close'}</span>
             </button>
           </div>
         </div>

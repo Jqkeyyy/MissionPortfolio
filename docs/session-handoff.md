@@ -1,10 +1,10 @@
 # Mission Portfolio Session Handoff
 
-**Updated:** 2026-09-07
+**Updated:** 2026-09-08
 
 ## Read this first
 
-The portfolio-improvement roadmap is complete. Waves 1 through 7 have been implemented, merged, and verified on `main`. See `docs/audits/release-quality.md` for the final release evidence.
+The original portfolio-improvement roadmap and post-release enhancements are complete. A shareable-project experience is now implemented and verified in the working tree; see `docs/audits/shareable-project-experience.md`.
 
 Do not modify, delete, stage, or move the user's four untracked local files:
 
@@ -18,8 +18,8 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest deployed implementation commit before post-deployment enhancements: `9d929d5` (`Harden Vercel production deployment`)
-- Post-deployment items 2–7 are implemented and awaiting the final enhancement commit/deploy.
+- Latest deployed commit: `1025737` (`Keep destination sidebar within viewport`)
+- Shareable routes, project evidence, prerendering, cross-browser quality gates, aggregate telemetry, adaptive graphics, the command palette, and content validation are implemented and verified locally; the release awaits push/deploy.
 - Public production URL: `https://mission-portfolio-amber.vercel.app/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
@@ -81,9 +81,11 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 
 - ESLint: passed
 - TypeScript: passed
-- Vitest: **52 files / 228 tests passed**
+- Vitest: **52 files / 230 tests passed**
 - Production build: passed
-- Playwright Chromium: **5 critical-path tests passed**
+- Playwright: **20 passed / 10 intentionally skipped** across Chromium, Firefox, and WebKit
+- Axe and visual regression gates: passed
+- Lighthouse CI route budgets: passed
 - Production dependency audit: **0 vulnerabilities**
 
 Measured production changes:
@@ -98,7 +100,7 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-The original Waves 1–7, temporary-domain deployment gate, and post-deployment items 2–7 are complete in the working tree. The new release adds science and time controls, recruiter tour, local progress, opt-in sound, solar-system context details, and privacy-safe optional observability. See `docs/audits/post-enhancement-*.md`. The next work is to commit, push, deploy, and verify this enhanced release on the public Vercel alias.
+The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, and shareable-project implementation are complete. The next release adds direct routes, richer project proof, prerendered metadata, cross-browser/axe/visual/Lighthouse gates, adaptive graphics, a global command palette, and an optional aggregate collector. The next work is to push, deploy, and verify this release on the public Vercel alias.
 
 ## Known remaining risks and follow-ups
 

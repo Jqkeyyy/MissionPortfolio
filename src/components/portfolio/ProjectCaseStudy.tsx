@@ -1,4 +1,5 @@
-import { AlertTriangle, CheckCircle2, Gauge, Layers3, Target } from 'lucide-react';
+import { AlertTriangle, BookOpen, CheckCircle2, Gauge, Layers3, Target } from 'lucide-react';
+import { telemetryClient } from '@/observability/telemetryClient';
 import { PROJECT_STATUS_LABELS, type PortfolioProject, type ProjectStatus } from '@/types/portfolio';
 import { cn } from '@/lib/utils';
 import { ProjectLinks } from './ProjectLinks';
@@ -110,13 +111,22 @@ export const ProjectCaseStudy = ({
       </div>
 
       {compact ? (
-        <ProjectLinks
-          compact
-          className="mt-5"
-          links={project.links}
-          projectName={project.name}
-          projectId={project.id as import('@/data/projects').ProjectId}
-        />
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <a
+            href={`/projects/${project.id}`}
+            onClick={() => telemetryClient.track({ type: 'project_action', project: project.id as import('@/data/projects').ProjectId, action: 'case-study' })}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-orange-300/45 bg-orange-300/[0.08] px-3 py-2 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-orange-100 transition-colors hover:bg-orange-300/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
+          >
+            <BookOpen aria-hidden="true" className="h-4 w-4" />
+            Full case study
+          </a>
+          <ProjectLinks
+            compact
+            links={project.links}
+            projectName={project.name}
+            projectId={project.id as import('@/data/projects').ProjectId}
+          />
+        </div>
       ) : (
         <div className="mt-7 grid gap-6 border-t border-white/10 pt-7 lg:grid-cols-2">
           <section>

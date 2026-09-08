@@ -1,8 +1,18 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
+import { getPlanetById } from "./data/planets";
+import { MissionCommandPaletteLauncher } from "./components/MissionCommandPaletteLauncher";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ProjectPage = lazy(() => import("./pages/ProjectPage"));
+const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
+const TelemetryDashboardPage = lazy(() => import("./pages/TelemetryDashboardPage"));
+
+const ExploreRoute = () => {
+  const { planetId = '' } = useParams();
+  return getPlanetById(planetId) ? <Index /> : <NotFound />;
+};
 
 const RouteFallback = () => (
   <main
@@ -25,10 +35,15 @@ const App = () => (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/projects/:projectId" element={<ProjectPage />} />
+        <Route path="/explore/:planetId" element={<ExploreRoute />} />
+        <Route path="/mission-analytics" element={<TelemetryDashboardPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
+    <MissionCommandPaletteLauncher />
   </BrowserRouter>
 );
 
