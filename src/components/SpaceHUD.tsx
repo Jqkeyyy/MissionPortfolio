@@ -149,9 +149,9 @@ export const SpaceHUD = ({ onStartTour }: SpaceHUDProps) => {
 
       {/* Desktop: Planet quick-select sidebar */}
       <motion.div
-        className="fixed right-4 top-1/2 -translate-y-1/2 z-10 hidden md:block"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
+        className="fixed right-4 top-1/2 z-10 hidden md:block"
+        initial={{ opacity: 0, x: 20, y: '-50%' }}
+        animate={{ opacity: 1, x: 0, y: '-50%' }}
         transition={{ delay: 0.7 }}
       >
         <nav
