@@ -1,0 +1,13 @@
+.worktrees/
+.agents/
+.codex/
+.claude/
+node_modules/
+dist/
+playwright-report/
+test-results/
+docs/
+tests/
+JacobSassResume.pdf
+Screenshot *.png
+*.log
