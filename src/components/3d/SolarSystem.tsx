@@ -10,6 +10,7 @@ import { planets } from '@/data/planets';
 import { useGameState } from '@/hooks/useGameState';
 import { SolarSystemShip } from './SolarSystemShip';
 import * as THREE from 'three';
+import { SimulationClock } from './SimulationClock';
 
 const OPTIMIZED_SHUTTLE_URL = '/optimized/mission-shuttle.webp';
 
@@ -138,6 +139,7 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
           />
         )}
       >
+        <SimulationClock />
         <PerspectiveCamera makeDefault position={[0, 30, 80]} fov={60} />
         <OrbitControls
           enablePan={false}

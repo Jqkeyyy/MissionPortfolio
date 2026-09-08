@@ -2,8 +2,7 @@ import * as THREE from 'three';
 import { getPlanetById, type PlanetData } from '@/data/planets';
 
 export const EARTH_YEAR_DAYS = 365.25;
-export const ORBITAL_EARTH_YEAR_SECONDS = 60;
-export const ROTATION_EARTH_DAY_SECONDS = 12;
+export const EARTH_DAY_SECONDS = 24 * 60 * 60;
 export const SOLAR_SYSTEM_CENTER_Y = 15;
 
 const TAU = Math.PI * 2;
@@ -20,12 +19,12 @@ export const getInitialOrbitAngle = (planetId: string) => {
 export const getOrbitDurationSeconds = (planet: PlanetData) => (
   planet.orbitalPeriodDays <= 0
     ? Number.POSITIVE_INFINITY
-    : (planet.orbitalPeriodDays / EARTH_YEAR_DAYS) * ORBITAL_EARTH_YEAR_SECONDS
+    : planet.orbitalPeriodDays * EARTH_DAY_SECONDS
 );
 
 export const getRotationDurationSeconds = (planet: PlanetData) => {
   if (planet.id === 'moon') return getOrbitDurationSeconds(planet);
-  return (Math.abs(planet.rotationPeriodHours) / 24) * ROTATION_EARTH_DAY_SECONDS;
+  return Math.abs(planet.rotationPeriodHours) * 60 * 60;
 };
 
 export const getVisualAxialTilt = (axialTiltDeg: number) => (
@@ -120,4 +119,15 @@ export const getAxialRotationStep = (planet: PlanetData, deltaSeconds: number) =
 
   const direction = planet.rotationPeriodHours < 0 ? -1 : 1;
   return direction * (deltaSeconds / duration) * TAU;
+};
+
+export const getAxialRotationAngle = (
+  planet: PlanetData,
+  rotationElapsedSeconds: number,
+  orbitElapsedSeconds: number,
+) => {
+  const elapsedSeconds = planet.id === 'moon'
+    ? orbitElapsedSeconds
+    : rotationElapsedSeconds;
+  return getAxialRotationStep(planet, elapsedSeconds);
 };

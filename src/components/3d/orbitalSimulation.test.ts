@@ -3,11 +3,12 @@ import * as THREE from 'three';
 import { getPlanetById } from '@/data/planets';
 import {
   getAxialRotationStep,
+  getAxialRotationAngle,
   getOrbitDurationSeconds,
   getOrbitPathPoints,
   getRotationDurationSeconds,
   getVisualAxialTilt,
-  ORBITAL_EARTH_YEAR_SECONDS,
+  EARTH_DAY_SECONDS,
   writeBodyPosition,
 } from './orbitalSimulation';
 
@@ -18,9 +19,9 @@ const requiredPlanet = (id: string) => {
 };
 
 describe('orbital simulation', () => {
-  it('maps one Earth year to the documented visual time scale', () => {
+  it('uses physical seconds for every orbital period', () => {
     expect(getOrbitDurationSeconds(requiredPlanet('earth'))).toBeCloseTo(
-      ORBITAL_EARTH_YEAR_SECONDS,
+      365.25 * EARTH_DAY_SECONDS,
       5,
     );
     expect(getOrbitDurationSeconds(requiredPlanet('mercury'))).toBeLessThan(
@@ -39,6 +40,13 @@ describe('orbital simulation', () => {
     );
     expect(getAxialRotationStep(jupiter, 1)).toBeGreaterThan(0);
     expect(getAxialRotationStep(venus, 1)).toBeLessThan(0);
+  });
+
+  it('derives the Moon spin from orbital time instead of the separate rotation clock', () => {
+    const moon = requiredPlanet('moon');
+    const quarterOrbit = getOrbitDurationSeconds(moon) / 4;
+    expect(getAxialRotationAngle(moon, 0, quarterOrbit)).toBeCloseTo(Math.PI / 2, 6);
+    expect(getAxialRotationAngle(moon, 999_999, quarterOrbit)).toBeCloseTo(Math.PI / 2, 6);
   });
 
   it('renders retrograde obliquities as the same axis line with reversed spin', () => {

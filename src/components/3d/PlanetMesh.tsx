@@ -11,10 +11,11 @@ import { PlanetSurfaceMaterial, SURFACE_TYPES } from './shaders/PlanetSurfaceMat
 import { AtmosphereMaterial } from './shaders/AtmosphereMaterial';
 import { RingBandMaterial } from './shaders/RingBandMaterial';
 import {
-  getAxialRotationStep,
+  getAxialRotationAngle,
   getVisualAxialTilt,
   writeBodyPosition,
 } from './orbitalSimulation';
+import { MISSION_ROTATION_TIME_FACTOR, useSimulationState } from '@/hooks/useSimulationState';
 
 // Each shader module also calls extend() itself as a module-level side effect, but
 // tsconfig.app.json sets neither verbatimModuleSyntax nor preserveValueImports, so
@@ -85,17 +86,23 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
 
   const { hovered, locking, setHovered, trigger } = usePlanetLockOn(() => onClick?.());
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
+    const { orbitElapsedSeconds, rotationElapsedSeconds } = useSimulationState.getState();
+
     if (groupRef.current && planet.orbitRadius > 0) {
-      writeBodyPosition(planet, state.clock.elapsedTime, groupRef.current.position);
+      writeBodyPosition(planet, orbitElapsedSeconds, groupRef.current.position);
     }
 
     if (planetRef.current) {
-      planetRef.current.rotation.y += getAxialRotationStep(planet, delta);
+      planetRef.current.rotation.y = getAxialRotationAngle(
+        planet,
+        rotationElapsedSeconds,
+        orbitElapsedSeconds,
+      );
     }
 
     if (materialRef.current) {
-      materialRef.current.uTime = state.clock.elapsedTime;
+      materialRef.current.uTime = rotationElapsedSeconds / MISSION_ROTATION_TIME_FACTOR;
     }
 
     if (materialRef.current && groupRef.current) {

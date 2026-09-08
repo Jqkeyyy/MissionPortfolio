@@ -4,6 +4,7 @@ import { Line } from '@react-three/drei';
 import * as THREE from 'three';
 import type { PlanetData } from '@/data/planets';
 import { getOrbitPathPoints, writeOrbitCenterPosition } from './orbitalSimulation';
+import { useSimulationState } from '@/hooks/useSimulationState';
 
 interface OrbitRingProps {
   planet: PlanetData;
@@ -18,9 +19,13 @@ export const OrbitRing = ({ planet, color = '#3d5a80' }: OrbitRingProps) => {
     [planet],
   );
 
-  useFrame((state) => {
+  useFrame(() => {
     if (planet.orbitParentId && groupRef.current) {
-      writeOrbitCenterPosition(planet, state.clock.elapsedTime, groupRef.current.position);
+      writeOrbitCenterPosition(
+        planet,
+        useSimulationState.getState().orbitElapsedSeconds,
+        groupRef.current.position,
+      );
     }
   });
 

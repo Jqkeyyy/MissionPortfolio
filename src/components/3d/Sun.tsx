@@ -5,7 +5,8 @@ import * as THREE from 'three';
 import { usePlanetLockOn } from '@/hooks/usePlanetLockOn';
 import { getPlanetById } from '@/data/planets';
 import { PlanetReticle } from './PlanetReticle';
-import { getAxialRotationStep, getVisualAxialTilt } from './orbitalSimulation';
+import { getAxialRotationAngle, getVisualAxialTilt } from './orbitalSimulation';
+import { useSimulationState } from '@/hooks/useSimulationState';
 
 interface SunProps {
   onClick?: () => void;
@@ -21,9 +22,14 @@ export const Sun = ({ onClick }: SunProps) => {
 
   const { hovered, locking, setHovered, trigger } = usePlanetLockOn(() => onClick?.());
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (sunRef.current) {
-      sunRef.current.rotation.y += getAxialRotationStep(sun, delta);
+      const simulation = useSimulationState.getState();
+      sunRef.current.rotation.y = getAxialRotationAngle(
+        sun,
+        simulation.rotationElapsedSeconds,
+        simulation.orbitElapsedSeconds,
+      );
     }
     if (glowRef.current) {
       const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
