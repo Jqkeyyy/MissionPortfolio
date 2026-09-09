@@ -9,7 +9,7 @@ interface BaseCampProps {
 
 export const BaseCamp = ({ planet, onClick }: BaseCampProps) => {
   return (
-    <div className="absolute bottom-[18%] left-1/2 z-10 -translate-x-1/2 md:left-[46%]">
+    <div className="absolute bottom-[18%] left-1/2 z-10 -translate-x-1/2 md:left-[70%]">
       <motion.button
         type="button"
         data-tutorial-action="enter-base-camp"
