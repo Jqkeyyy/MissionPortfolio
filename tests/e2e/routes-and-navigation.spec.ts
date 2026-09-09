@@ -26,7 +26,7 @@ test('command palette navigates without initializing WebGL', async ({ page }) =>
   await expect(page.getByRole('heading', { level: 1, name: 'QuizClone' })).toBeVisible();
 });
 
-test('a shared planet URL opens the destination and back returns to the mission map', async ({ page, browserName }) => {
+test('returning from a shared planet URL resumes the mission map', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'Direct WebGL destination hydration is exercised in Chromium.');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
@@ -35,6 +35,8 @@ test('a shared planet URL opens the destination and back returns to the mission 
   await page.getByRole('combobox', { name: 'Search mission navigation' }).fill('planet Mars');
   await page.getByRole('option', { name: /Mars/ }).click();
   await expect(page.getByRole('heading', { name: 'Mars planet surface' })).toBeAttached({ timeout: 15_000 });
-  await page.goBack();
+  await page.getByRole('button', { name: 'Return to Space' }).click();
   await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('navigation', { name: 'Solar system destinations' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: 'Choose your route' })).not.toBeAttached();
 });

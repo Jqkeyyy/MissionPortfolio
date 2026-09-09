@@ -4,7 +4,7 @@
 
 ## Read this first
 
-The original portfolio-improvement roadmap and post-release enhancements are complete. The shareable-project experience is pushed, and the timer-driven recruiter tour has been replaced locally by an action-driven tutorial.
+The original portfolio-improvement roadmap and post-release enhancements are complete. The shareable-project experience and action-driven tutorial are pushed.
 
 Do not modify, delete, stage, or move the user's four untracked local files:
 
@@ -18,9 +18,8 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest deployed commit: `1025737` (`Keep destination sidebar within viewport`)
-- Latest pushed commit: `29aed7c` (`Build shareable project experience`)
-- The hands-on tutorial implementation is verified locally and awaits push/deploy.
+- Latest pushed commit: `7b290c9` (`Center tutorial pointers and move navigation`)
+- The return-to-space orientation and route-resume fixes are verified locally and await commit/push.
 - Public production URL: `https://mission-portfolio-amber.vercel.app/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
@@ -82,7 +81,7 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 
 - ESLint: passed
 - TypeScript: passed
-- Vitest: **51 files / 225 tests passed**
+- Vitest: **51 files / 227 tests passed**
 - Production build: passed
 - Playwright: **21 passed / 12 intentionally skipped** across Chromium, Firefox, and WebKit
 - Axe and visual regression gates: passed
@@ -101,7 +100,7 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, and shareable-project implementation are complete. The current local release replaces the passive recruiter tour with an eight-step tutorial that requires real clicks through the Sun, habitat, HAB OS, and two mission files. The next work is to push, deploy, and verify this tutorial release.
+The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, shareable-project implementation, and hands-on tutorial are complete. The current local work fixes the return-to-space shuttle orientation and resumes the solar-system map after leaving a planet.
 
 ## Known remaining risks and follow-ups
 

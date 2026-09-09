@@ -1,8 +1,11 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useGameState } from '@/hooks/useGameState';
 
-const shipImage = (
-  <div className="relative">
+const shipImage = (returningToSpace: boolean) => (
+  <div
+    className={`relative ${returningToSpace ? '-scale-x-100' : ''}`}
+    data-ship-orientation={returningToSpace ? 'left' : 'right'}
+  >
     <span className="ship-engine-glow absolute left-[1%] top-[42%] h-[18%] w-[28%] -translate-x-1/2 rounded-full" />
     <img
       src="/mission-shuttle.png"
@@ -31,7 +34,7 @@ export const ShipFlightLayer = () => {
       <motion.div
         className="absolute left-0 top-0 w-[clamp(185px,25vw,340px)]"
         initial={returningToSpace
-          ? { x: '110vw', y: '18vh', opacity: 0, scale: 0.35, rotate: 170 }
+          ? { x: '110vw', y: '18vh', opacity: 0, scale: 0.35, rotate: -10 }
           : { x: '-28vw', y: '72vh', opacity: 0, scale: 0.45, rotate: -11 }}
         animate={reducedMotion
           ? { x: '42vw', y: '42vh', opacity: [0, 0.72, 0], scale: 0.72 }
@@ -41,7 +44,7 @@ export const ShipFlightLayer = () => {
                 y: ['18vh', '34vh', '48vh', '72vh'],
                 opacity: [0, 1, 1, 0],
                 scale: [0.35, 1.02, 0.88, 0.42],
-                rotate: [170, 176, 181, 188],
+                rotate: [-10, -4, 2, 8],
               }
             : {
                 x: ['-28vw', '18vw', '48vw', '70vw'],
@@ -55,7 +58,7 @@ export const ShipFlightLayer = () => {
           ease: [0.3, 0.05, 0.18, 1],
         }}
       >
-        {shipImage}
+        {shipImage(returningToSpace)}
       </motion.div>
     </div>
   );

@@ -20,6 +20,7 @@ const ShipFlightLayer = lazy(() => import('@/components/ShipFlightLayer').then((
 const QuickPortfolio = lazy(() => import('@/components/quick-portfolio').then((module) => ({ default: module.QuickPortfolio })));
 
 type ExplorationMode = 'prompt' | 'active' | 'unavailable';
+type ExplorationNavigationState = { resumeExploration?: boolean };
 
 const supportsWebGL = () => {
   if (typeof document === 'undefined') return false;
@@ -127,7 +128,10 @@ const Index = () => {
   const { planetId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [explorationMode, setExplorationMode] = useState<ExplorationMode>(planetId ? 'active' : 'prompt');
+  const navigationState = location.state as ExplorationNavigationState | null;
+  const [explorationMode, setExplorationMode] = useState<ExplorationMode>(
+    planetId || navigationState?.resumeExploration ? 'active' : 'prompt',
+  );
   const progress = useExplorationProgress();
   const previousView = useRef(currentView);
   const previousPlanet = useRef(selectedPlanet);
@@ -199,7 +203,7 @@ const Index = () => {
       return;
     }
     if (currentView === 'space' && location.pathname.startsWith('/explore/')) {
-      navigate('/', { replace: true });
+      navigate('/', { replace: true, state: { resumeExploration: true } satisfies ExplorationNavigationState });
     }
     previousLocationPath.current = location.pathname;
   }, [currentView, location.pathname, navigate, resetExploration, selectedPlanet, tutorial.status]);

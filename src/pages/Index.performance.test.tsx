@@ -1,8 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useGameState } from '@/hooks/useGameState';
 import Index from './Index';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 vi.mock('@/components/3d/SolarSystem', () => ({
   SolarSystem: () => <div data-testid="solar-system">Solar system</div>,
@@ -38,6 +38,15 @@ const webGLContext = {
 } as unknown as WebGLRenderingContext;
 
 const renderIndex = () => render(<MemoryRouter><Index /></MemoryRouter>);
+
+const renderPlanetIndex = (planetId: string) => render(
+  <MemoryRouter initialEntries={[`/explore/${planetId}`]}>
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/explore/:planetId" element={<Index />} />
+    </Routes>
+  </MemoryRouter>,
+);
 
 describe('performance entry path', () => {
   beforeEach(() => {
@@ -106,5 +115,19 @@ describe('performance entry path', () => {
     await waitFor(() => {
       expect(screen.getByRole('dialog', { name: 'Quick Portfolio' })).toBeInTheDocument();
     });
+  });
+
+  it('returns from a planet to the solar-system map instead of the route chooser', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockImplementation(() => webGLContext as unknown as GPUCanvasContext);
+    renderPlanetIndex('mars');
+
+    expect(await screen.findByText('Planet surface')).toBeInTheDocument();
+
+    act(() => useGameState.getState().returnToSpace());
+    act(() => useGameState.getState().skipTravel());
+
+    expect(await screen.findByTestId('solar-system')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Choose your route' })).not.toBeInTheDocument();
   });
 });
