@@ -68,7 +68,7 @@ export const PlanetSurface = () => {
 
   const handleEnterBaseCamp = () => {
     baseCampTriggerRef.current = document.activeElement as HTMLElement | null;
-    setComputerBootStartedAt(Date.now());
+    setComputerBootStartedAt(null);
     setIsInsideBaseCamp(true);
     announce(`Entered the ${planet.displayName} base camp.`);
   };
@@ -82,8 +82,9 @@ export const PlanetSurface = () => {
   };
 
   const handleAccessComputer = () => {
+    setComputerBootStartedAt((startedAt) => startedAt ?? Date.now());
     setShowComputerScreen(true);
-    announce('Mission computer active. HAB OS ready.');
+    announce('Mission computer active. HAB OS is starting.');
     requestAnimationFrame(() => {
       document.querySelector<HTMLButtonElement>(
         '[aria-label="Stand up from the mission computer"]',

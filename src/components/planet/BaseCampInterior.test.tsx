@@ -53,9 +53,23 @@ describe('BaseCampInterior', () => {
     expect(onExit).not.toHaveBeenCalled();
   });
 
-  it('shows the computer booting in the room before it is ready', () => {
-    render(<BaseCampInterior planet={planet} onExit={() => {}} onAccessComputer={() => {}} bootStartedAt={Date.now()} />);
+  it('keeps the monitor asleep until the operator sits down', () => {
+    const { rerender } = render(
+      <BaseCampInterior planet={planet} onExit={() => {}} onAccessComputer={() => {}} />,
+    );
+    expect(screen.queryByText('HAB/OS')).not.toBeInTheDocument();
+
+    rerender(
+      <BaseCampInterior
+        planet={planet}
+        onExit={() => {}}
+        onAccessComputer={() => {}}
+        computerActive
+        bootStartedAt={Date.now()}
+      />,
+    );
     expect(screen.getByText('HAB/OS')).toBeInTheDocument();
+    expect(screen.getByText(/waking mars mission station/i)).toBeInTheDocument();
   });
 
   it('lazily loads an interactive desktop inside the physical monitor when seated', async () => {

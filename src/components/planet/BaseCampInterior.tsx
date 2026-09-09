@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Activity,
@@ -23,9 +23,11 @@ import {
   getPlanetThemeDataAttributes,
 } from './theme/themeStyles';
 
-const HabitatDesktop = lazy(() => import('./HabitatDesktop').then((module) => ({
+const loadHabitatDesktop = () => import('./HabitatDesktop').then((module) => ({
   default: module.HabitatDesktop,
-})));
+}));
+
+const HabitatDesktop = lazy(loadHabitatDesktop);
 
 interface BaseCampInteriorProps {
   planet: PlanetData;
@@ -54,25 +56,40 @@ const roomParticles = [
 const COMPUTER_ZOOM_SCALE = 7.9;
 const MONITOR_RENDER_SCALE = 1 / COMPUTER_ZOOM_SCALE;
 
-const DesktopLoading = ({ planetName }: { planetName: string }) => (
-  <div className="flex h-full w-full items-center justify-center bg-[#061017] text-center text-cyan-100" aria-busy="true">
-    <div role="status" aria-live="polite">
-      <p className="font-heading text-[52px] tracking-[0.16em]">HAB/OS</p>
-      <p className="mt-5 font-mono text-[20px] uppercase tracking-[0.22em] text-cyan-100/55">
-        Loading {planetName} mission archive...
+const DesktopBootScreen = ({ planetName }: { planetName: string }) => (
+  <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[#020609] text-center text-cyan-100" aria-busy="true">
+    <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_44%,rgba(34,211,238,0.12),transparent_34%)]" />
+    <div role="status" aria-live="polite" className="relative">
+      <div className="mx-auto mb-8 grid h-20 w-20 grid-cols-2 gap-2">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <motion.span
+            key={index}
+            className="rounded-sm bg-cyan-300"
+            animate={{ opacity: [0.28, 1, 0.28] }}
+            transition={{ duration: 1.1, repeat: Infinity, delay: index * 0.12 }}
+          />
+        ))}
+      </div>
+      <p className="font-heading text-[52px] tracking-[0.18em]">HAB/OS</p>
+      <p className="mt-5 font-mono text-[18px] uppercase tracking-[0.22em] text-cyan-100/45">
+        Waking {planetName} mission station
       </p>
+      <div className="mx-auto mt-8 h-1 w-72 overflow-hidden rounded-full bg-white/10">
+        <motion.div
+          className="h-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,0.65)]"
+          initial={{ width: '0%' }}
+          animate={{ width: '100%' }}
+          transition={{ duration: 2.15, ease: 'easeInOut' }}
+        />
+      </div>
     </div>
   </div>
 );
 
-const DesktopPreview = ({ planetName }: { planetName: string }) => (
-  <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_50%_30%,rgba(34,211,238,0.14),transparent_42%),#061017] text-center text-cyan-100">
-    <div>
-      <p className="font-heading text-[58px] tracking-[0.16em]">HAB/OS</p>
-      <p className="mt-4 font-mono text-[18px] uppercase tracking-[0.25em] text-cyan-100/45">
-        {planetName} station standby
-      </p>
-    </div>
+const DesktopSleeping = () => (
+  <div className="relative h-full w-full overflow-hidden bg-[#010304]">
+    <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(118deg,transparent_20%,rgba(255,255,255,0.025)_43%,transparent_62%)]" />
+    <span aria-hidden="true" className="absolute bottom-5 right-6 h-2 w-2 rounded-full bg-amber-300/70 shadow-[0_0_12px_rgba(252,211,77,0.55)]" />
   </div>
 );
 
@@ -85,8 +102,26 @@ export const BaseCampInterior = ({
   bootStartedAt,
 }: BaseCampInteriorProps) => {
   const prefersReducedMotion = Boolean(useReducedMotion());
+  const [desktopMounted, setDesktopMounted] = useState(false);
   const theme = getPlanetTheme(planet.id)!;
   const family = getHabitatFamily(theme.family);
+
+  useEffect(() => {
+    if (!computerActive) {
+      setDesktopMounted(false);
+      return;
+    }
+
+    // Reduced-motion visitors do not have a camera move to use as a loading veil.
+    if (prefersReducedMotion) setDesktopMounted(true);
+  }, [computerActive, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!computerActive) return;
+    // Fetch and parse the large desktop chunk while the lightweight wake screen is
+    // being composited. Its React tree is deliberately held back until zoom ends.
+    void loadHabitatDesktop();
+  }, [computerActive]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -130,7 +165,14 @@ export const BaseCampInterior = ({
             y: computerActive ? '3%' : '0%',
           }}
           transition={{ duration: prefersReducedMotion ? 0 : computerActive ? 2.3 : 1.2, ease: [0.65, 0, 0.35, 1] }}
-          style={{ transformOrigin: '49.55% 52.84%' }}
+          style={{
+            transformOrigin: '49.55% 52.84%',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+          }}
+          onAnimationComplete={() => {
+            if (computerActive) setDesktopMounted(true);
+          }}
         >
           <div className="camp-window-view absolute overflow-hidden bg-[#040b12]">
             <div className="stars-bg absolute inset-0 opacity-35" />
@@ -178,8 +220,8 @@ export const BaseCampInterior = ({
                   <foreignObject x="0" y="0" width="1600" height="900">
                     <div className="h-[900px] w-[1600px] overflow-hidden">
                       <div className={`${computerActive ? 'pointer-events-auto' : 'pointer-events-none'} h-full w-full select-none`} aria-hidden={!computerActive}>
-                        {computerActive ? (
-                          <Suspense fallback={<DesktopLoading planetName={planet.displayName} />}>
+                        {computerActive ? desktopMounted ? (
+                          <Suspense fallback={<DesktopBootScreen planetName={planet.displayName} />}>
                             <HabitatDesktop
                               planet={planet}
                               onStandUp={onLeaveComputer}
@@ -187,8 +229,8 @@ export const BaseCampInterior = ({
                             />
                           </Suspense>
                         ) : (
-                          <DesktopPreview planetName={planet.displayName} />
-                        )}
+                          <DesktopBootScreen planetName={planet.displayName} />
+                        ) : <DesktopSleeping />}
                       </div>
                     </div>
                   </foreignObject>

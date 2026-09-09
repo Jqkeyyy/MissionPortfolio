@@ -30,14 +30,19 @@ vi.mock('./planet/BaseCampInterior', () => ({
     onAccessComputer,
     onLeaveComputer,
     computerActive,
+    bootStartedAt,
   }: {
     planet: { displayName: string };
     onExit: () => void;
     onAccessComputer: () => void;
     onLeaveComputer: () => void;
     computerActive: boolean;
+    bootStartedAt?: number | null;
   }) => (
-    <section aria-label={`${planet.displayName} base camp interior`}>
+    <section
+      aria-label={`${planet.displayName} base camp interior`}
+      data-computer-boot-started={bootStartedAt ? 'true' : 'false'}
+    >
       {computerActive ? (
         <button type="button" aria-label="Stand up from the mission computer" onClick={onLeaveComputer} />
       ) : (
@@ -102,12 +107,15 @@ describe('PlanetSurface accessibility', () => {
   it('moves focus to the visible computer controls as seated state changes', async () => {
     render(<PlanetSurface />);
     fireEvent.click(screen.getByRole('button', { name: /enter the base camp on earth/i }));
+    const interior = screen.getByRole('region', { name: /earth base camp interior/i });
+    expect(interior).toHaveAttribute('data-computer-boot-started', 'false');
     const sitButton = await screen.findByRole('button', { name: /sit down at the mission computer/i });
     fireEvent.click(sitButton);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /stand up from the mission computer/i })).toHaveFocus();
     });
+    expect(interior).toHaveAttribute('data-computer-boot-started', 'true');
     fireEvent.click(screen.getByRole('button', { name: /stand up from the mission computer/i }));
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /sit down at the mission computer/i })).toHaveFocus();
