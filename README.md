@@ -17,7 +17,7 @@ An interactive space-themed portfolio with two entry paths: visitors can launch 
 | Uranus | Experiments & Tools |
 | Neptune | Contact / Hire Me |
 
-Navigation flows through an opt-in route prompt, 3D **space** and **intercept** views, an animated **travel** sequence, and a 2D **planet surface** with an explorable base camp. Quick Portfolio provides the same professional content, project case studies, résumé, and contact actions through an accessible printable overlay. Heavy 3D, planet, and HAB modules are loaded only when requested.
+Navigation flows through an opt-in route prompt, 3D **space** and **intercept** views, an animated **travel** sequence, and a 2D **planet surface** with an explorable base camp. A hands-on tutorial uses arrows and live highlights to teach the real interaction path through the Sun, base camp, computer, archive, and mission files. Quick Portfolio provides the same professional content, project case studies, résumé, and contact actions through an accessible printable overlay. Heavy 3D, planet, and HAB modules are loaded only when requested.
 
 Every major destination is shareable:
 
@@ -105,11 +105,13 @@ Chromium additionally covers the WebGL journey, axe accessibility scans, and sta
 - `src/components/planet/` — planet surface scenes (terrain, base camp, interactive signs)
 - `src/components/quick-portfolio/` — accessible recruiter overview and print path
 - `src/components/portfolio/` — reusable project and contact presentation components
+- `src/components/tutorial/` — action-driven tutorial overlay and target pointers
 - `src/components/ui/` — shadcn/ui design system components
 - `src/data/planets.ts` — all planet metadata and portfolio content
 - `src/data/projects.ts` / `src/data/contact.ts` — shared project and contact records
 - `src/data/planetThemes.ts` — shared visual, habitat, and telemetry identity for every destination
 - `src/hooks/useGameState.ts` — global view/navigation state (Zustand)
+- `src/hooks/useInteractiveTutorial.ts` — tutorial steps and real-action progression
 
 See `CLAUDE.md` for the architecture and conventions. See `docs/session-handoff.md` for current progress, verification, known risks, and the exact next packet.
 

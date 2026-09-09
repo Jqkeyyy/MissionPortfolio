@@ -81,6 +81,18 @@ describe('performance entry path', () => {
     expect(screen.getByRole('navigation', { name: 'Space navigation' })).toBeInTheDocument();
   });
 
+  it('starts the hands-on tutorial without automatically selecting a destination', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockImplementation(() => webGLContext as unknown as GPUCanvasContext);
+
+    renderIndex();
+    fireEvent.click(screen.getByRole('button', { name: 'Start tutorial' }));
+
+    expect(await screen.findByTestId('solar-system')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Start with the Sun' })).toBeInTheDocument();
+    expect(useGameState.getState().selectedPlanet).toBeNull();
+  });
+
   it('keeps the complete portfolio reachable when WebGL is unavailable', async () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
 

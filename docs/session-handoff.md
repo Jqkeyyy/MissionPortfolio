@@ -4,7 +4,7 @@
 
 ## Read this first
 
-The original portfolio-improvement roadmap and post-release enhancements are complete. A shareable-project experience is now implemented and verified in the working tree; see `docs/audits/shareable-project-experience.md`.
+The original portfolio-improvement roadmap and post-release enhancements are complete. The shareable-project experience is pushed, and the timer-driven recruiter tour has been replaced locally by an action-driven tutorial.
 
 Do not modify, delete, stage, or move the user's four untracked local files:
 
@@ -19,7 +19,8 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 
 - Integration branch: `main`
 - Latest deployed commit: `1025737` (`Keep destination sidebar within viewport`)
-- Shareable routes, project evidence, prerendering, cross-browser quality gates, aggregate telemetry, adaptive graphics, the command palette, and content validation are implemented and verified locally; the release awaits push/deploy.
+- Latest pushed commit: `29aed7c` (`Build shareable project experience`)
+- The hands-on tutorial implementation is verified locally and awaits push/deploy.
 - Public production URL: `https://mission-portfolio-amber.vercel.app/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
@@ -77,13 +78,13 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 
 ## Latest verification and performance evidence
 
-`npm run check` and `npm run test:e2e` passed on merged `main` after the post-deployment enhancements:
+`npm run check` and `npm run test:e2e` passed after the hands-on tutorial implementation:
 
 - ESLint: passed
 - TypeScript: passed
-- Vitest: **52 files / 230 tests passed**
+- Vitest: **51 files / 224 tests passed**
 - Production build: passed
-- Playwright: **20 passed / 10 intentionally skipped** across Chromium, Firefox, and WebKit
+- Playwright: **21 passed / 12 intentionally skipped** across Chromium, Firefox, and WebKit
 - Axe and visual regression gates: passed
 - Lighthouse CI route budgets: passed
 - Production dependency audit: **0 vulnerabilities**
@@ -100,7 +101,7 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, and shareable-project implementation are complete. The next release adds direct routes, richer project proof, prerendered metadata, cross-browser/axe/visual/Lighthouse gates, adaptive graphics, a global command palette, and an optional aggregate collector. The next work is to push, deploy, and verify this release on the public Vercel alias.
+The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, and shareable-project implementation are complete. The current local release replaces the passive recruiter tour with an eight-step tutorial that requires real clicks through the Sun, habitat, HAB OS, and two mission files. The next work is to push, deploy, and verify this tutorial release.
 
 ## Known remaining risks and follow-ups
 

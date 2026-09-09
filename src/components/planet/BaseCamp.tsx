@@ -11,6 +11,7 @@ export const BaseCamp = ({ planet, onClick }: BaseCampProps) => {
   return (
     <motion.button
       type="button"
+      data-tutorial-action="enter-base-camp"
       aria-label={`Enter the base camp on ${planet.displayName}`}
       className="group absolute bottom-[18%] left-1/2 z-10 -translate-x-1/2 focus:outline-none"
       initial={{ opacity: 0, scale: 0.94, y: 24 }}
@@ -60,6 +61,7 @@ export const BaseCamp = ({ planet, onClick }: BaseCampProps) => {
         />
 
         <motion.div
+          data-tutorial-target="base-camp"
           className="absolute -bottom-1 left-1/2 -translate-x-1/2"
           animate={{ y: [0, -3, 0] }}
           transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}

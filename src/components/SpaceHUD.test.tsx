@@ -107,4 +107,14 @@ describe('SpaceHUD', () => {
     fireEvent.click(screen.getByTestId('mobile-quick-portfolio'));
     expect(useGameState.getState().quickPortfolioOpen).toBe(true);
   });
+
+  it('offers the interactive tutorial from desktop and mobile HUD controls', () => {
+    const onStartTutorial = vi.fn();
+    render(<SpaceHUD onStartTutorial={onStartTutorial} />);
+
+    const tutorialButtons = screen.getAllByRole('button', { name: 'Start tutorial' });
+    expect(tutorialButtons).toHaveLength(2);
+    fireEvent.click(tutorialButtons[0]);
+    expect(onStartTutorial).toHaveBeenCalledTimes(1);
+  });
 });

@@ -90,6 +90,8 @@ interface DesktopIconProps {
   color?: string;
   onOpen: () => void;
   testId?: string;
+  tutorialTarget?: string;
+  tutorialAction?: string;
 }
 
 interface StartMenuApp {
@@ -194,10 +196,12 @@ const FunDesktopShortcut = ({ app, onOpen }: { app: FunAppDefinition; onOpen: ()
   );
 };
 
-const DesktopIcon = ({ label, detail, icon: Icon, logo, color, onOpen, testId }: DesktopIconProps) => (
+const DesktopIcon = ({ label, detail, icon: Icon, logo, color, onOpen, testId, tutorialTarget, tutorialAction }: DesktopIconProps) => (
   <button
     type="button"
     data-testid={testId}
+    data-tutorial-target={tutorialTarget}
+    data-tutorial-action={tutorialAction}
     aria-label={`Open ${label}`}
     onClick={onOpen}
     className="group flex w-[5.7rem] flex-col items-center gap-1.5 rounded-md p-2 text-center outline-none transition-[background-color,transform] hover:bg-white/10 active:scale-[0.96] focus-visible:bg-white/10 focus-visible:ring-1 focus-visible:ring-white/60 sm:w-[6.4rem]"
@@ -366,6 +370,8 @@ const DesktopWindow = ({
           </button>
           <button
             type="button"
+            data-tutorial-target={windowState.item ? 'close-mission-file' : undefined}
+            data-tutorial-action={windowState.item ? 'close-mission-file' : undefined}
             aria-label={`Close ${windowState.title}`}
             onClick={(event) => {
               event.stopPropagation();
@@ -774,6 +780,8 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
                   <button
                     key={item.id}
                     type="button"
+                    data-tutorial-target={`file-${item.id}`}
+                    data-tutorial-action={`open-file-${item.id}`}
                     onClick={() => openItem(item)}
                     className="group flex min-h-28 flex-col items-center justify-center rounded-md border border-transparent p-3 text-center hover:border-white/10 hover:bg-white/[0.06] focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60"
                   >
@@ -933,7 +941,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
         <section aria-label="Main desktop apps" className="w-[13.5rem] shrink-0 rounded-xl border border-white/[0.07] bg-[#02070b]/35 p-1.5">
           <p className="px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">Main Apps</p>
           <div className="grid grid-cols-2 gap-0.5">
-            <DesktopIcon label="Mission Archive" detail={`${planet.content.length} files`} icon={FolderOpen} color={theme.palette.accent} onOpen={() => openApp('archive')} testId="desktop-archive" />
+            <DesktopIcon label="Mission Archive" detail={`${planet.content.length} files`} icon={FolderOpen} color={theme.palette.accent} onOpen={() => openApp('archive')} testId="desktop-archive" tutorialTarget="mission-archive" tutorialAction="open-archive" />
             <DesktopIcon label="HAB Terminal" icon={Terminal} color="#67e8f9" onOpen={() => openApp('terminal')} testId="desktop-terminal" />
             <DesktopIcon label="This Station" icon={Monitor} color="#a5b4fc" onOpen={() => openApp('system')} testId="desktop-system" />
             <DesktopIcon label="Giggle" logo={<GiggleLogo compact />} color="#67e8f9" onOpen={() => openApp('giggle')} testId="desktop-giggle" />
@@ -946,7 +954,7 @@ export const HabitatDesktop = ({ planet, onStandUp, onSelectItem, bootStartedAt,
           <p className="px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">Mission Files</p>
           <div className="grid grid-cols-2 gap-0.5">
             {planet.content.map((item) => (
-              <DesktopIcon key={item.id} label={item.title} detail={`${getFileExtension(item.type)} file`} icon={getItemIcon(item.type)} color={theme.palette.accent} onOpen={() => openItem(item)} />
+              <DesktopIcon key={item.id} label={item.title} detail={`${getFileExtension(item.type)} file`} icon={getItemIcon(item.type)} color={theme.palette.accent} onOpen={() => openItem(item)} tutorialAction={`open-file-${item.id}`} />
             ))}
           </div>
         </section>

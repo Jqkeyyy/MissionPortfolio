@@ -56,6 +56,7 @@ State transitions flow: `space` → `intercepting` → `traveling` → `planet` 
 3. **Travel Sequence** (`components/TravelSequence.tsx`): Accessible, skippable transition between views
 4. **Planet Surface** (`components/PlanetSurface.tsx`): 2D landing page, base camp, and HAB entry
 5. **Quick Portfolio** (`components/quick-portfolio/`): Full-screen semantic overview using shared project/contact data
+6. **Interactive Tutorial** (`components/tutorial/`, `hooks/useInteractiveTutorial.ts`): Non-blocking arrows and highlights that advance from actual Sun, base-camp, computer, archive, and file actions
 
 **Shareable routes:**
 - `/portfolio` — standalone recruiter view
@@ -72,6 +73,7 @@ These layers use `React.lazy` and stable `Suspense` fallbacks. Do not replace th
 - `components/planet/` - Planet surface components (terrain, base camp, interactive signs)
 - `components/portfolio/` - Shared project case-study and contact actions
 - `components/quick-portfolio/` - Recruiter path, focus trap, print layout, and exploration return
+- `components/tutorial/` - Action-driven tutorial overlay and target pointers
 - `components/ui/` - shadcn/ui design system components (DO NOT modify unless necessary)
 
 ### Data Layer

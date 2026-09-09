@@ -28,10 +28,10 @@ const formatVisualDuration = (seconds: number) => {
 };
 
 interface SpaceHUDProps {
-  onStartTour?: () => void;
+  onStartTutorial?: () => void;
 }
 
-export const SpaceHUD = ({ onStartTour }: SpaceHUDProps) => {
+export const SpaceHUD = ({ onStartTutorial }: SpaceHUDProps) => {
   const {
     announcement,
     currentView,
@@ -168,13 +168,13 @@ export const SpaceHUD = ({ onStartTour }: SpaceHUDProps) => {
             <FileUser className="h-4 w-4" aria-hidden="true" />
             Quick Portfolio
           </button>
-          {onStartTour && (
+          {onStartTutorial && (
             <button
               type="button"
-              onClick={onStartTour}
+              onClick={onStartTutorial}
               className="mb-3 flex min-h-11 w-full items-center justify-center rounded border border-orange-300/35 bg-orange-300/[0.06] px-3 font-heading text-xs tracking-wide text-orange-100 transition-colors hover:bg-orange-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
             >
-              Take guided tour
+              Start tutorial
             </button>
           )}
           <MissionSoundControl className="mb-3 w-full" />
@@ -249,13 +249,13 @@ export const SpaceHUD = ({ onStartTour }: SpaceHUDProps) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          {onStartTour && (
+          {onStartTutorial && (
             <button
               type="button"
-              onClick={onStartTour}
+              onClick={onStartTutorial}
               className="hud-panel mb-2 flex min-h-12 w-full items-center justify-center rounded-lg border-orange-300/40 bg-orange-300/[0.06] px-4 font-heading text-sm tracking-mission text-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
             >
-              Take guided tour
+              Start tutorial
             </button>
           )}
           <MissionSoundControl className="hud-panel mb-2 w-full" />

@@ -36,6 +36,7 @@ describe('BaseCampInterior', () => {
     render(<BaseCampInterior planet={planet} onExit={() => {}} onAccessComputer={onAccessComputer} />);
     fireEvent.click(screen.getByText('SIT DOWN TO VIEW').closest('button')!);
     expect(onAccessComputer).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('SIT DOWN TO VIEW').closest('button')).toHaveAttribute('data-tutorial-target', 'sit-computer');
   });
 
   it('calls onExit when the bottom exit button is clicked', () => {

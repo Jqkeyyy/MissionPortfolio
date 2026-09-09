@@ -200,6 +200,7 @@ export const BaseCampInterior = ({
             {!computerActive && (
               <button
                 type="button"
+                data-tutorial-action="sit-computer"
                 aria-label="Sit down at the mission computer"
                 onClick={onAccessComputer}
                 className="absolute inset-0 z-20 rounded-[0.55rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200"
@@ -209,6 +210,8 @@ export const BaseCampInterior = ({
 
           <motion.button
             type="button"
+            data-tutorial-target="sit-computer"
+            data-tutorial-action="sit-computer"
             aria-label="Sit on the stool to view the mission computer"
             onClick={onAccessComputer}
             className={`camp-terminal-seat group absolute z-20 focus:outline-none ${computerActive ? 'pointer-events-none' : 'pointer-events-auto'}`}
@@ -270,7 +273,7 @@ export const BaseCampInterior = ({
       ))}
 
       <motion.header
-        className="absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-3 sm:inset-x-6 sm:top-5"
+        className={`absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-3 sm:inset-x-6 sm:top-5 ${computerActive ? 'pointer-events-none' : ''}`}
         initial={prefersReducedMotion ? false : { opacity: 0, y: -14 }}
         animate={{ opacity: computerActive ? 0 : 1, y: computerActive ? -18 : 0 }}
         transition={{ delay: prefersReducedMotion ? 0 : 0.2, duration: prefersReducedMotion ? 0 : 0.55 }}
@@ -298,7 +301,7 @@ export const BaseCampInterior = ({
 
       <motion.aside
         aria-label="Habitat telemetry"
-        className="camp-glass-panel absolute right-6 top-1/2 z-20 hidden w-52 -translate-y-1/2 overflow-hidden lg:block"
+        className="camp-glass-panel pointer-events-none absolute right-6 top-1/2 z-20 hidden w-52 -translate-y-1/2 overflow-hidden lg:block"
         initial={prefersReducedMotion ? false : { opacity: 0, x: 18 }}
         animate={{ opacity: computerActive ? 0 : 1, x: computerActive ? 24 : 0 }}
         transition={{ delay: prefersReducedMotion ? 0 : 0.45, duration: prefersReducedMotion ? 0 : 0.55 }}
@@ -330,7 +333,7 @@ export const BaseCampInterior = ({
 
       <motion.aside
         aria-label={`${planet.displayName} habitat identity`}
-        className="camp-glass-panel absolute bottom-24 left-1/2 z-20 hidden w-[min(38rem,58vw)] -translate-x-1/2 px-5 py-3 xl:block"
+        className="camp-glass-panel pointer-events-none absolute bottom-24 left-1/2 z-20 hidden w-[min(38rem,58vw)] -translate-x-1/2 px-5 py-3 xl:block"
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: computerActive ? 0 : 1, y: computerActive ? 16 : 0 }}
         transition={{ delay: prefersReducedMotion ? 0 : 0.55, duration: prefersReducedMotion ? 0 : 0.45 }}
@@ -346,7 +349,7 @@ export const BaseCampInterior = ({
         type="button"
         aria-label="Exit through the habitat airlock"
         onClick={onExit}
-        className="group absolute left-[15%] top-[55%] z-20 hidden -translate-x-1/2 -translate-y-1/2 focus:outline-none sm:block"
+        className={`group absolute left-[15%] top-[55%] z-20 hidden -translate-x-1/2 -translate-y-1/2 focus:outline-none sm:block ${computerActive ? 'pointer-events-none' : ''}`}
         initial={prefersReducedMotion ? false : { opacity: 0, x: -14 }}
         animate={{ opacity: computerActive ? 0 : 1, x: computerActive ? -18 : 0 }}
         transition={{ delay: prefersReducedMotion ? 0 : 0.65, duration: prefersReducedMotion ? 0 : 0.55 }}
@@ -383,7 +386,7 @@ export const BaseCampInterior = ({
       )}
 
       <motion.footer
-        className="absolute inset-x-3 bottom-3 z-30 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-5"
+        className={`absolute inset-x-3 bottom-3 z-30 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-5 ${computerActive ? 'pointer-events-none' : ''}`}
         initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: computerActive ? 0 : 1, y: computerActive ? 18 : 0 }}
         transition={{ delay: prefersReducedMotion ? 0 : 0.7, duration: prefersReducedMotion ? 0 : 0.55 }}

@@ -95,12 +95,14 @@ export const Sun = ({ onClick }: SunProps) => {
 
       {/* Reticle with lock-on animation */}
       <Html position={[0, 4, 0]} center style={{ pointerEvents: 'none' }}>
-        <PlanetReticle
-          name="The Sun"
-          description="Identity / Introduction"
-          hovered={hovered}
-          locking={locking}
-        />
+        <div data-tutorial-target="sun">
+          <PlanetReticle
+            name="The Sun"
+            description="Identity / Introduction"
+            hovered={hovered}
+            locking={locking}
+          />
+        </div>
       </Html>
     </group>
   );

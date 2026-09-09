@@ -1,8 +1,8 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { ExplorationRecoveryBoundary } from '@/components/ExplorationRecoveryBoundary';
-import { useRecruiterTour } from '@/hooks/useRecruiterTour';
-import { GuidedRecruiterTour } from '@/components/tour';
+import { useInteractiveTutorial } from '@/hooks/useInteractiveTutorial';
+import { InteractiveTutorial } from '@/components/tutorial';
 import { ExplorationProgressTracker } from '@/components/progress';
 import { MissionAudioController } from '@/audio/MissionAudioController';
 import { telemetryClient } from '@/observability/telemetryClient';
@@ -56,12 +56,12 @@ const PortfolioFallback = () => (
 const ExperiencePrompt = ({
   unavailable = false,
   onExplore,
-  onStartTour,
+  onStartTutorial,
   onOpenQuickPortfolio,
 }: {
   unavailable?: boolean;
   onExplore: () => void;
-  onStartTour?: () => void;
+  onStartTutorial?: () => void;
   onOpenQuickPortfolio: () => void;
 }) => (
   <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#02070d] px-5 py-12 text-white">
@@ -90,13 +90,13 @@ const ExperiencePrompt = ({
             >
               Launch exploration
             </button>
-            {onStartTour && (
+            {onStartTutorial && (
               <button
                 type="button"
-                onClick={onStartTour}
+                onClick={onStartTutorial}
                 className="inline-flex min-h-12 items-center justify-center rounded-md border border-orange-300/50 bg-orange-300/[0.06] px-7 font-heading text-sm tracking-[0.12em] text-orange-100 transition-colors hover:bg-orange-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
               >
-                Take guided tour
+                Start tutorial
               </button>
             )}
           </>
@@ -122,7 +122,6 @@ const Index = () => {
     closeQuickPortfolio,
     resetExploration,
     arriveAtPlanet,
-    travelToPlanet,
     announce,
   } = useGameState();
   const { planetId } = useParams();
@@ -154,6 +153,15 @@ const Index = () => {
     structuredData: destinationStructuredData,
   });
 
+  const tutorial = useInteractiveTutorial({
+    currentView,
+    currentPlanetId: selectedPlanet,
+    onAnnounce: announce,
+    onStart: () => telemetryClient.track({ type: 'tour_start' }),
+    onComplete: () => telemetryClient.track({ type: 'tour_complete' }),
+    onExit: () => telemetryClient.track({ type: 'tour_skip' }),
+  });
+
   useEffect(() => {
     if (!planetId) {
       resetExploration();
@@ -173,6 +181,10 @@ const Index = () => {
       initialRouteHydration.current = false;
       return;
     }
+    if (tutorial.status !== 'idle') {
+      previousLocationPath.current = location.pathname;
+      return;
+    }
     const cameBackToMissionMap = location.pathname === '/'
       && previousLocationPath.current.startsWith('/explore/');
     if (cameBackToMissionMap && currentView !== 'space') {
@@ -190,7 +202,7 @@ const Index = () => {
       navigate('/', { replace: true });
     }
     previousLocationPath.current = location.pathname;
-  }, [currentView, location.pathname, navigate, resetExploration, selectedPlanet]);
+  }, [currentView, location.pathname, navigate, resetExploration, selectedPlanet, tutorial.status]);
 
   const launchExploration = () => {
     telemetryClient.track({ type: 'route_choice', route: 'immersive' });
@@ -208,19 +220,7 @@ const Index = () => {
     openQuickPortfolio();
   };
 
-  const tour = useRecruiterTour({
-    currentView,
-    currentPlanetId: selectedPlanet,
-    onTravelTo: travelToPlanet,
-    onAnnounce: announce,
-    onStart: () => telemetryClient.track({ type: 'tour_start' }),
-    onComplete: () => telemetryClient.track({ type: 'tour_complete' }),
-    onExit: (reason) => {
-      if (reason === 'exit') telemetryClient.track({ type: 'tour_skip' });
-    },
-  });
-
-  const startTour = () => {
+  const startTutorial = () => {
     if (!supportsWebGL()) {
       telemetryClient.track({ type: 'webgl_unavailable', reason: 'unsupported' });
       setExplorationMode('unavailable');
@@ -229,7 +229,7 @@ const Index = () => {
     telemetryClient.track({ type: 'route_choice', route: 'immersive' });
     telemetryClient.track({ type: 'immersive_launch' });
     setExplorationMode('active');
-    tour.start();
+    tutorial.start();
   };
 
   useEffect(() => {
@@ -266,7 +266,7 @@ const Index = () => {
       <ExplorationProgressTracker />
       <MissionAudioController />
       {explorationMode === 'prompt' && currentView === 'space' && (
-        <ExperiencePrompt onExplore={launchExploration} onStartTour={startTour} onOpenQuickPortfolio={openQuickPortfolioRoute} />
+        <ExperiencePrompt onExplore={launchExploration} onStartTutorial={startTutorial} onOpenQuickPortfolio={openQuickPortfolioRoute} />
       )}
 
       {explorationMode === 'unavailable' && currentView === 'space' && (
@@ -291,7 +291,7 @@ const Index = () => {
               }}
               onOpenQuickPortfolio={openQuickPortfolio}
             />
-            <SpaceHUD onStartTour={tour.start} />
+            <SpaceHUD onStartTutorial={tutorial.start} />
           </Suspense>
         )}
 
@@ -311,11 +311,7 @@ const Index = () => {
         )}
       </ExplorationRecoveryBoundary>
 
-      <GuidedRecruiterTour
-        controller={tour}
-        onOpenQuickPortfolio={openQuickPortfolio}
-        onExploreFreely={tour.exit}
-      />
+      <InteractiveTutorial controller={tutorial} />
 
       {quickPortfolioOpen && (
         <Suspense fallback={<PortfolioFallback />}>

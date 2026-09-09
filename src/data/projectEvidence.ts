@@ -56,7 +56,7 @@ export const projectEvidence = {
     architectureSummary: 'Typed portfolio data feeds a fast recruiter path and an opt-in immersive experience through shared navigation state.',
     architecture: [
       { label: 'Route + content layer', detail: 'Shareable pages, typed projects, contact actions, and metadata', role: 'interface' },
-      { label: 'Zustand mission state', detail: 'Cancelable travel, dialogs, progress, sound, and tour coordination', role: 'service' },
+      { label: 'Zustand mission state', detail: 'Cancelable travel, dialogs, progress, sound, and tutorial coordination', role: 'service' },
       { label: 'Lazy experience layers', detail: 'Three.js map, travel, surfaces, HAB desktop, and recruiter view', role: 'data' },
       { label: 'Quality + observability', detail: 'Vitest, Playwright, recovery boundaries, and private aggregate events', role: 'external' },
     ],

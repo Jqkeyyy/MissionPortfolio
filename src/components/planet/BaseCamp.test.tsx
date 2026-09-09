@@ -12,6 +12,7 @@ describe('BaseCamp', () => {
     expect(screen.getByText(planet.description)).toBeInTheDocument();
     expect(screen.getByText('Enter Base Camp')).toBeInTheDocument();
     expect(screen.getByRole('button')).toHaveAccessibleName(`Enter the base camp on ${planet.displayName}`);
+    expect(document.querySelector('[data-tutorial-target="base-camp"]')?.closest('button')).toBe(screen.getByRole('button'));
     expect(document.querySelector('img')).toHaveAttribute('src', '/base-camp-exterior.png');
   });
 
