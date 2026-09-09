@@ -7,6 +7,7 @@ import type { PlanetSurface } from '@/data/planets';
 import { useGameState } from '@/hooks/useGameState';
 import { usePlanetLockOn } from '@/hooks/usePlanetLockOn';
 import { PlanetReticle } from './PlanetReticle';
+import { PlanetTargetBox } from './PlanetTargetBox';
 import { PlanetSurfaceMaterial, SURFACE_TYPES } from './shaders/PlanetSurfaceMaterial';
 import { AtmosphereMaterial } from './shaders/AtmosphereMaterial';
 import { RingBandMaterial } from './shaders/RingBandMaterial';
@@ -83,6 +84,9 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
     colorA: new THREE.Color(planet.rings.colorA),
     colorB: new THREE.Color(planet.rings.colorB),
   } : null, [planet.rings]);
+  const targetRadius = planet.rings
+    ? planet.size * planet.rings.outerRadiusMultiplier
+    : planet.size * 1.15;
 
   const { hovered, locking, setHovered, trigger } = usePlanetLockOn(() => onClick?.());
 
@@ -183,7 +187,13 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
         </Sphere>
       </group>
 
-      <Html position={[0, planet.size + 1.8, 0]} center style={{ pointerEvents: 'none' }}>
+      <PlanetTargetBox
+        radius={targetRadius}
+        active={hovered || locking}
+        locking={locking}
+      />
+
+      <Html position={[0, targetRadius + 1.2, 0]} center style={{ pointerEvents: 'none' }}>
         <PlanetReticle
           name={planet.displayName}
           description={planet.description}

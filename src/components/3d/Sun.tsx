@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { usePlanetLockOn } from '@/hooks/usePlanetLockOn';
 import { getPlanetById } from '@/data/planets';
 import { PlanetReticle } from './PlanetReticle';
+import { PlanetTargetBox } from './PlanetTargetBox';
 import { getAxialRotationAngle, getVisualAxialTilt } from './orbitalSimulation';
 import { useSimulationState } from '@/hooks/useSimulationState';
 
@@ -93,8 +94,10 @@ export const Sun = ({ onClick }: SunProps) => {
         decay={2}
       />
 
-      {/* Reticle with lock-on animation */}
-      <Html position={[0, 4, 0]} center style={{ pointerEvents: 'none' }}>
+      <PlanetTargetBox radius={4} active={hovered || locking} locking={locking} />
+
+      {/* Floating target label with lock-on status */}
+      <Html position={[0, 5.2, 0]} center style={{ pointerEvents: 'none' }}>
         <div data-tutorial-target="sun">
           <PlanetReticle
             name="The Sun"

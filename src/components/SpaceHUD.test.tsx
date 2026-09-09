@@ -27,6 +27,15 @@ describe('SpaceHUD', () => {
     expect(screen.getByText('Neptune')).toBeInTheDocument();
   });
 
+  it('anchors both space title lines to the horizontal center', () => {
+    render(<SpaceHUD />);
+
+    const titleOverlay = screen.getByTestId('space-title-overlay');
+    expect(titleOverlay).toHaveClass('left-1/2', '-translate-x-1/2', 'text-center');
+    expect(titleOverlay).toContainElement(screen.getByRole('heading', { name: 'Mission Portfolio' }));
+    expect(titleOverlay).toContainElement(screen.getByText(/Jake Sass/));
+  });
+
   it('calls travelToPlanet with the planet id when a destination is clicked', () => {
     render(<SpaceHUD />);
     fireEvent.click(screen.getByText('Earth'));

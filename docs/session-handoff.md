@@ -18,8 +18,8 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest pushed commit: `7b290c9` (`Center tutorial pointers and move navigation`)
-- The return-to-space orientation and route-resume fixes are verified locally and await commit/push.
+- Latest pushed commit: `54eae67` (`Fix return-to-space transition`)
+- The space-view title, base-camp doorway alignment, and 3D planet targeting-box fixes are verified locally and await commit/push.
 - Public production URL: `https://mission-portfolio-amber.vercel.app/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
@@ -81,7 +81,7 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 
 - ESLint: passed
 - TypeScript: passed
-- Vitest: **51 files / 227 tests passed**
+- Vitest: **52 files / 229 tests passed**
 - Production build: passed
 - Playwright: **21 passed / 12 intentionally skipped** across Chromium, Firefox, and WebKit
 - Axe and visual regression gates: passed
@@ -100,7 +100,7 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, shareable-project implementation, and hands-on tutorial are complete. The current local work fixes the return-to-space shuttle orientation and resumes the solar-system map after leaving a planet.
+The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, shareable-project implementation, hands-on tutorial, and return-to-space fixes are complete. The current local work centers the space-view title, aligns both base-camp prompts with the exterior doorway, and replaces the flat planet hover square with a perspective-aware 3D targeting box plus floating label.
 
 ## Known remaining risks and follow-ups
 

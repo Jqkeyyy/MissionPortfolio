@@ -67,8 +67,29 @@ test('exploration reaches a themed planet, base camp, and HAB desktop', async ({
   await expect(destinationNav).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText('Immersive exploration is unavailable on this device.')).not.toBeVisible();
 
+  const titleOffset = await page.getByTestId('space-title-overlay').evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    return Math.abs(bounds.left + bounds.width / 2 - window.innerWidth / 2);
+  });
+  expect(titleOffset).toBeLessThanOrEqual(1);
+
   await destinationNav.getByRole('button', { name: /^Earth (Visited|Not visited)$/ }).click();
   await expect(page.getByRole('heading', { name: 'Earth planet surface' })).toBeAttached({ timeout: 10_000 });
+
+  const baseCampAlignment = await page.evaluate(() => {
+    const center = (testId: string) => {
+      const bounds = document.querySelector<HTMLElement>(`[data-testid="${testId}"]`)!.getBoundingClientRect();
+      return bounds.left + bounds.width / 2;
+    };
+    const doorCenter = center('base-camp-door-anchor');
+    return {
+      enterPrompt: Math.abs(center('base-camp-enter-prompt') - doorCenter),
+      status: Math.abs(center('base-camp-status') - doorCenter),
+    };
+  });
+  expect(baseCampAlignment.enterPrompt).toBeLessThanOrEqual(1);
+  expect(baseCampAlignment.status).toBeLessThanOrEqual(1);
+
   await expect(page.locator('[data-planet-theme="earth"]')).toHaveAttribute(
     'data-habitat-family',
     'terrestrial-research',

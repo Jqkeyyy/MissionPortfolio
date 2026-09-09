@@ -130,23 +130,27 @@ export const SpaceHUD = ({ onStartTutorial }: SpaceHUDProps) => {
         {announcement}
       </p>
       {/* Title overlay */}
-      <motion.div
-        className="fixed top-6 md:top-8 left-1/2 -translate-x-1/2 text-center z-10 px-4"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+      <div
+        className="fixed left-1/2 top-6 z-10 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 px-4 text-center md:top-8"
+        data-testid="space-title-overlay"
       >
-        <h1
-          ref={headingRef}
-          tabIndex={-1}
-          className="font-heading text-2xl md:text-5xl tracking-mission text-primary text-glow focus:outline-none"
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
         >
-          Mission Portfolio
-        </h1>
-        <p className="text-muted-foreground mt-1 md:mt-2 tracking-wide text-sm md:text-base">
-          Jake Sass — Select a Planet to Explore
-        </p>
-      </motion.div>
+          <h1
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-heading text-2xl tracking-mission text-primary text-glow focus:outline-none md:text-5xl"
+          >
+            Mission Portfolio
+          </h1>
+          <p className="mt-1 text-sm tracking-wide text-muted-foreground md:mt-2 md:text-base">
+            Jake Sass — Select a Planet to Explore
+          </p>
+        </motion.div>
+      </div>
 
       {/* Desktop: Planet quick-select sidebar */}
       <motion.div

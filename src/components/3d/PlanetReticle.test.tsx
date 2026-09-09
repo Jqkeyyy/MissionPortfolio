@@ -20,8 +20,9 @@ describe('PlanetReticle', () => {
     expect(screen.getByTestId('planet-reticle').className).toContain('opacity-0');
   });
 
-  it('renders the shared HudCorners targeting brackets', () => {
+  it('uses a floating label without a flat screen-space targeting square', () => {
     render(<PlanetReticle name="Earth" description="Experience" hovered locking={false} />);
-    expect(screen.getByTestId('hud-corners')).toBeInTheDocument();
+    expect(screen.getByTestId('planet-hover-label')).toBeInTheDocument();
+    expect(screen.queryByTestId('hud-corners')).not.toBeInTheDocument();
   });
 });
