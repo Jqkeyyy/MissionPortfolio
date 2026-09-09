@@ -16,7 +16,7 @@ describe('BaseCamp', () => {
     expect(document.querySelector('img')).toHaveAttribute('src', '/base-camp-exterior.png');
 
     const button = screen.getByRole('button');
-    expect(button.parentElement).toHaveClass('left-1/2', '-translate-x-1/2');
+    expect(button.parentElement).toHaveClass('left-1/2', 'md:left-[46%]', '-translate-x-1/2');
     expect(screen.getByTestId('base-camp-enter-prompt')).toHaveClass('left-[54%]', '-translate-x-1/2');
     expect(screen.getByTestId('base-camp-status')).toHaveClass('left-[54%]', '-translate-x-1/2');
   });

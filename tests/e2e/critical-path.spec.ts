@@ -90,6 +90,11 @@ test('exploration reaches a themed planet, base camp, and HAB desktop', async ({
   expect(baseCampAlignment.enterPrompt).toBeLessThanOrEqual(1);
   expect(baseCampAlignment.status).toBeLessThanOrEqual(1);
 
+  const baseCampVisual = await page.getByTestId('base-camp-visual').boundingBox();
+  expect(baseCampVisual).not.toBeNull();
+  expect(Math.abs(baseCampVisual!.x + baseCampVisual!.width / 2 - page.viewportSize()!.width * 0.46))
+    .toBeLessThanOrEqual(1);
+
   await expect(page.locator('[data-planet-theme="earth"]')).toHaveAttribute(
     'data-habitat-family',
     'terrestrial-research',

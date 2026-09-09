@@ -18,8 +18,8 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 ## Current repository state
 
 - Integration branch: `main`
-- Latest pushed commit: `54eae67` (`Fix return-to-space transition`)
-- The space-view title, base-camp doorway alignment, and 3D planet targeting-box fixes are verified locally and await commit/push.
+- Latest pushed commit: `777ef78` (`Align mission overlays and add 3D targeting`)
+- The desktop base-camp group is being shifted left while preserving its verified doorway alignment; this follow-up awaits commit/push.
 - Public production URL: `https://mission-portfolio-amber.vercel.app/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
@@ -100,7 +100,7 @@ Wave 7 preserved the Wave 5 request budget: no new raster assets were added, and
 
 ## Roadmap status
 
-The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, shareable-project implementation, hands-on tutorial, and return-to-space fixes are complete. The current local work centers the space-view title, aligns both base-camp prompts with the exterior doorway, and replaces the flat planet hover square with a perspective-aware 3D targeting box plus floating label.
+The original Waves 1–7, temporary-domain deployment gate, post-deployment enhancements, shareable-project implementation, hands-on tutorial, return-to-space fixes, centered space title, doorway-aligned prompts, and perspective-aware planet targeting box are complete. The current local follow-up shifts the complete desktop base-camp group left to improve its composition with the landing pad while keeping the mobile camp centered.
 
 ## Known remaining risks and follow-ups
 
