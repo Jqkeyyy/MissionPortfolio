@@ -82,7 +82,7 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 
 - ESLint: passed
 - TypeScript: passed
-- Vitest: **51 files / 224 tests passed**
+- Vitest: **51 files / 225 tests passed**
 - Production build: passed
 - Playwright: **21 passed / 12 intentionally skipped** across Chromium, Firefox, and WebKit
 - Axe and visual regression gates: passed

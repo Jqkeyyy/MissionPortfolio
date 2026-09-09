@@ -4,13 +4,9 @@ import {
   interactiveTutorialSteps,
   type InteractiveTutorialController,
 } from '@/hooks/useInteractiveTutorial';
+import { getTutorialGeometry, type TutorialTargetRect } from './tutorialGeometry';
 
-interface TargetRect {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
+type TargetRect = TutorialTargetRect;
 
 interface InteractiveTutorialProps {
   controller: InteractiveTutorialController;
@@ -75,37 +71,33 @@ export const InteractiveTutorial = ({ controller }: InteractiveTutorialProps) =>
     );
   }
 
-  const targetStyle = targetRect ? ({
-    left: Math.max(6, targetRect.left - 6),
-    top: Math.max(6, targetRect.top - 6),
-    width: Math.min(window.innerWidth - 12, targetRect.width + 12),
-    height: Math.min(window.innerHeight - 12, targetRect.height + 12),
-  } satisfies CSSProperties) : undefined;
-  const arrowBelow = Boolean(targetRect && targetRect.top < 120);
-  const arrowStyle = targetRect ? ({
-    left: Math.min(window.innerWidth - 28, Math.max(28, targetRect.left + targetRect.width / 2)),
-    top: arrowBelow
-      ? Math.min(window.innerHeight - 54, targetRect.top + targetRect.height + 12)
-      : Math.max(54, targetRect.top - 12),
-  } satisfies CSSProperties) : undefined;
+  const geometry = targetRect
+    ? getTutorialGeometry(targetRect, window.innerWidth, window.innerHeight)
+    : null;
+  const targetStyle = geometry?.highlight satisfies CSSProperties | undefined;
+  const arrowStyle = geometry ? ({ left: geometry.arrow.left, top: geometry.arrow.top } satisfies CSSProperties) : undefined;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[1100]" data-testid="interactive-tutorial">
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{controller.announcement}</p>
 
-      {targetRect && (
+      {geometry && (
         <>
           <div
             aria-hidden="true"
+            data-testid="tutorial-highlight"
             className="fixed rounded-xl border-2 border-orange-300 shadow-[0_0_0_4px_rgba(251,146,60,0.2),0_0_34px_rgba(251,146,60,0.7)] motion-safe:animate-pulse"
             style={targetStyle}
           />
           <div
             aria-hidden="true"
-            className="fixed -translate-x-1/2 -translate-y-1/2 text-orange-300 drop-shadow-[0_0_10px_rgba(251,146,60,0.95)] motion-safe:animate-bounce"
+            data-testid="tutorial-arrow"
+            className="fixed -translate-x-1/2 -translate-y-1/2 text-orange-300 drop-shadow-[0_0_10px_rgba(251,146,60,0.95)]"
             style={arrowStyle}
           >
-            {arrowBelow ? <ArrowUp className="h-10 w-10 stroke-[3]" /> : <ArrowDown className="h-10 w-10 stroke-[3]" />}
+            <span className="block motion-safe:animate-bounce">
+              {geometry.arrow.below ? <ArrowUp className="h-10 w-10 stroke-[3]" /> : <ArrowDown className="h-10 w-10 stroke-[3]" />}
+            </span>
           </div>
         </>
       )}

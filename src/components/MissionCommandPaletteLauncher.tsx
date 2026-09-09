@@ -35,7 +35,7 @@ export const MissionCommandPaletteLauncher = () => {
         setOpenOnLoad(true);
         setLoaded(true);
       }}
-      className="fixed bottom-4 right-4 z-[1100] hidden min-h-11 items-center gap-2 rounded-md border border-cyan-200/25 bg-[#06111a]/95 px-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-cyan-100 shadow-xl backdrop-blur hover:border-cyan-200/55 hover:bg-cyan-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 sm:inline-flex"
+      className="fixed bottom-4 left-4 z-[1100] hidden min-h-11 items-center gap-2 rounded-md border border-cyan-200/25 bg-[#06111a]/95 px-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-cyan-100 shadow-xl backdrop-blur hover:border-cyan-200/55 hover:bg-cyan-200/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 sm:inline-flex"
       aria-label="Open mission command palette"
     >
       <RadioTower aria-hidden="true" className="h-4 w-4" />

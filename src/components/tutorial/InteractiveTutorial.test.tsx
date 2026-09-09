@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { InteractiveTutorial } from './InteractiveTutorial';
+import { getTutorialGeometry } from './tutorialGeometry';
 import { interactiveTutorialSteps, type InteractiveTutorialController } from '@/hooks/useInteractiveTutorial';
 
 const controller = (overrides: Partial<InteractiveTutorialController> = {}): InteractiveTutorialController => ({
@@ -14,6 +15,16 @@ const controller = (overrides: Partial<InteractiveTutorialController> = {}): Int
 });
 
 describe('InteractiveTutorial', () => {
+  it('centers the arrow on both normal and viewport-clipped target bounds', () => {
+    const centered = getTutorialGeometry({ left: 300, top: 240, width: 120, height: 80 }, 1280, 720);
+    expect(centered.arrow.left).toBe(360);
+    expect(centered.arrow.left).toBe(centered.highlight.left + centered.highlight.width / 2);
+
+    const clipped = getTutorialGeometry({ left: -30, top: 240, width: 80, height: 80 }, 390, 844);
+    expect(clipped.highlight.left).toBe(6);
+    expect(clipped.arrow.left).toBe(clipped.highlight.left + clipped.highlight.width / 2);
+  });
+
   it('shows instructions and visually highlights the current real control', async () => {
     const target = document.createElement('button');
     target.dataset.tutorialTarget = 'sun';
@@ -38,6 +49,9 @@ describe('InteractiveTutorial', () => {
     await waitFor(() => {
       expect(screen.getByTestId('interactive-tutorial').querySelector('.border-orange-300')).toBeInTheDocument();
     });
+    const arrow = screen.getByTestId('tutorial-arrow');
+    expect(arrow).not.toHaveClass('motion-safe:animate-bounce');
+    expect(arrow.firstElementChild).toHaveClass('motion-safe:animate-bounce');
     target.remove();
   });
 
