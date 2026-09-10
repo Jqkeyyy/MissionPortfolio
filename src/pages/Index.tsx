@@ -8,7 +8,7 @@ import { MissionAudioController } from '@/audio/MissionAudioController';
 import { telemetryClient } from '@/observability/telemetryClient';
 import { useExplorationProgress } from '@/hooks/useExplorationProgress';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { getPlanetById } from '@/data/planets';
+import { getPlanetById, planets } from '@/data/planets';
 import { useDocumentMetadata } from '@/hooks/useDocumentMetadata';
 import { SITE_URL } from '@/config/site';
 
@@ -18,6 +18,8 @@ const PlanetSurface = lazy(() => import('@/components/PlanetSurface').then((modu
 const SpaceHUD = lazy(() => import('@/components/SpaceHUD').then((module) => ({ default: module.SpaceHUD })));
 const ShipFlightLayer = lazy(() => import('@/components/ShipFlightLayer').then((module) => ({ default: module.ShipFlightLayer })));
 const QuickPortfolio = lazy(() => import('@/components/quick-portfolio').then((module) => ({ default: module.QuickPortfolio })));
+const NullSector = lazy(() => import('@/components/endgame/NullSector').then((module) => ({ default: module.NullSector })));
+const CosmicArchitectPanel = lazy(() => import('@/components/endgame/CosmicArchitectPanel').then((module) => ({ default: module.CosmicArchitectPanel })));
 
 type ExplorationMode = 'prompt' | 'active' | 'unavailable';
 type ExplorationNavigationState = { resumeExploration?: boolean };
@@ -132,6 +134,9 @@ const Index = () => {
   const [explorationMode, setExplorationMode] = useState<ExplorationMode>(
     planetId || navigationState?.resumeExploration ? 'active' : 'prompt',
   );
+  const [eventHorizonVisible, setEventHorizonVisible] = useState(false);
+  const [nullSectorOpen, setNullSectorOpen] = useState(false);
+  const [cosmicArchitectOpen, setCosmicArchitectOpen] = useState(false);
   const progress = useExplorationProgress();
   const previousView = useRef(currentView);
   const previousPlanet = useRef(selectedPlanet);
@@ -262,6 +267,13 @@ const Index = () => {
     completionReported.current = progress.isComplete;
   }, [progress.isComplete]);
 
+  useEffect(() => {
+    if (progress.isComplete) return;
+    setEventHorizonVisible(false);
+    setNullSectorOpen(false);
+    setCosmicArchitectOpen(false);
+  }, [progress.isComplete]);
+
   const spaceViewActive = explorationMode === 'active'
     && (currentView === 'space' || currentView === 'intercepting');
 
@@ -289,13 +301,19 @@ const Index = () => {
         {spaceViewActive && (
           <Suspense fallback={<StageFallback label="Initializing solar system..." />}>
             <SolarSystem
+              eventHorizonVisible={eventHorizonVisible && !nullSectorOpen && !cosmicArchitectOpen}
+              onEnterEventHorizon={() => setNullSectorOpen(true)}
               onUnavailable={() => {
                 telemetryClient.track({ type: 'webgl_unavailable', reason: 'context-lost' });
                 setExplorationMode('unavailable');
               }}
               onOpenQuickPortfolio={openQuickPortfolio}
             />
-            <SpaceHUD onStartTutorial={tutorial.start} />
+            <SpaceHUD
+              onStartTutorial={tutorial.start}
+              onRevealEventHorizon={() => setEventHorizonVisible(true)}
+              onOpenCosmicArchitect={() => setCosmicArchitectOpen(true)}
+            />
           </Suspense>
         )}
 
@@ -320,6 +338,22 @@ const Index = () => {
       {quickPortfolioOpen && (
         <Suspense fallback={<PortfolioFallback />}>
           <QuickPortfolio onClose={closeQuickPortfolio} />
+        </Suspense>
+      )}
+
+      {nullSectorOpen && (
+        <Suspense fallback={<StageFallback label="Crossing event horizon..." />}>
+          <NullSector open onReturn={() => setNullSectorOpen(false)} />
+        </Suspense>
+      )}
+
+      {cosmicArchitectOpen && (
+        <Suspense fallback={null}>
+          <CosmicArchitectPanel
+            open
+            onOpenChange={setCosmicArchitectOpen}
+            planets={planets}
+          />
         </Suspense>
       )}
     </div>

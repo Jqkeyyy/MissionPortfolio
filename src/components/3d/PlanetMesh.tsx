@@ -17,6 +17,7 @@ import {
   writeBodyPosition,
 } from './orbitalSimulation';
 import { MISSION_ROTATION_TIME_FACTOR, useSimulationState } from '@/hooks/useSimulationState';
+import type { ChaosSystemSnapshot } from '@/features/endgame/chaosMode';
 
 // Each shader module also calls extend() itself as a module-level side effect, but
 // tsconfig.app.json sets neither verbatimModuleSyntax nor preserveValueImports, so
@@ -32,6 +33,8 @@ interface PlanetMeshProps {
   planet: PlanetData;
   onClick?: () => void;
   onPositionUpdate?: (position: THREE.Vector3) => void;
+  chaosModeEnabled?: boolean;
+  chaosSnapshot?: ChaosSystemSnapshot;
 }
 
 const SUN_WORLD_POSITION = new THREE.Vector3(0, 15, 0);
@@ -43,8 +46,12 @@ const ATMOSPHERE_INTENSITY: Record<PlanetSurface, number> = {
   venusAtmo: 0.9,
 };
 
-const deriveAccentColor = (baseHex: string, surface: PlanetSurface): THREE.Color => {
-  const base = new THREE.Color(baseHex);
+const deriveAccentColor = (
+  baseHex: string,
+  surface: PlanetSurface,
+  target = new THREE.Color(),
+): THREE.Color => {
+  const base = target.set(baseHex);
   const hsl = { h: 0, s: 0, l: 0 };
   base.getHSL(hsl);
 
@@ -62,10 +69,19 @@ const deriveAccentColor = (baseHex: string, surface: PlanetSurface): THREE.Color
   }
 };
 
-export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProps) => {
+export const PlanetMesh = ({
+  planet,
+  onClick,
+  onPositionUpdate,
+  chaosModeEnabled = false,
+  chaosSnapshot,
+}: PlanetMeshProps) => {
   const groupRef = useRef<THREE.Group>(null);
+  const visualGroupRef = useRef<THREE.Group>(null);
   const planetRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<InstanceType<typeof PlanetSurfaceMaterial>>(null);
+  const atmosphereMaterialRef = useRef<InstanceType<typeof AtmosphereMaterial>>(null);
+  const ringMaterialRef = useRef<InstanceType<typeof RingBandMaterial>>(null);
   const { selectedPlanet } = useGameState();
   const isSelected = selectedPlanet === planet.id;
   const surface = planet.surface;
@@ -73,6 +89,8 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
   const seed = useRef(Math.random() * 100);
   const planetWorldPosRef = useRef(new THREE.Vector3());
   const lightDirRef = useRef(new THREE.Vector3());
+  const animatedBaseColorRef = useRef(new THREE.Color(planet.color));
+  const animatedAccentColorRef = useRef(new THREE.Color(planet.color));
   const initialPosition = useMemo(
     () => writeBodyPosition(planet, 0, new THREE.Vector3()).toArray() as [number, number, number],
     [planet],
@@ -92,9 +110,19 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
 
   useFrame((state) => {
     const { orbitElapsedSeconds, rotationElapsedSeconds } = useSimulationState.getState();
+    const chaosFrame = chaosModeEnabled ? chaosSnapshot?.frames.get(planet.id) : undefined;
+    const chaosPosition = chaosModeEnabled ? chaosSnapshot?.positions.get(planet.id) : undefined;
 
     if (groupRef.current && planet.orbitRadius > 0) {
-      writeBodyPosition(planet, orbitElapsedSeconds, groupRef.current.position);
+      if (chaosPosition) groupRef.current.position.copy(chaosPosition);
+      else writeBodyPosition(planet, orbitElapsedSeconds, groupRef.current.position);
+    }
+
+    if (visualGroupRef.current) {
+      visualGroupRef.current.rotation.z = THREE.MathUtils.degToRad(
+        chaosFrame?.axialTiltDeg ?? getVisualAxialTilt(planet.axialTiltDeg),
+      );
+      visualGroupRef.current.scale.setScalar(chaosFrame?.scale ?? 1);
     }
 
     if (planetRef.current) {
@@ -107,6 +135,18 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
 
     if (materialRef.current) {
       materialRef.current.uTime = rotationElapsedSeconds / MISSION_ROTATION_TIME_FACTOR;
+      const activeColor = chaosFrame?.color ?? planet.color;
+      animatedBaseColorRef.current.set(activeColor);
+      deriveAccentColor(activeColor, surface, animatedAccentColorRef.current);
+      materialRef.current.uBaseColor.copy(animatedBaseColorRef.current);
+      materialRef.current.uAccentColor.copy(animatedAccentColorRef.current);
+      if (atmosphereMaterialRef.current) {
+        atmosphereMaterialRef.current.uColor.copy(animatedBaseColorRef.current);
+      }
+      if (ringMaterialRef.current && chaosFrame) {
+        ringMaterialRef.current.uColorA.copy(animatedAccentColorRef.current);
+        ringMaterialRef.current.uColorB.copy(animatedBaseColorRef.current);
+      }
     }
 
     if (materialRef.current && groupRef.current) {
@@ -127,7 +167,10 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
 
   return (
     <group ref={groupRef} position={initialPosition}>
-      <group rotation={[0, 0, THREE.MathUtils.degToRad(getVisualAxialTilt(planet.axialTiltDeg))]}>
+      <group
+        ref={visualGroupRef}
+        rotation={[0, 0, THREE.MathUtils.degToRad(getVisualAxialTilt(planet.axialTiltDeg))]}
+      >
         <Sphere
           ref={planetRef}
           args={[planet.size, 64, 64]}
@@ -162,6 +205,7 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
             rotation={[Math.PI / 2, 0, 0]}
           >
             <ringBandMaterial
+              ref={ringMaterialRef}
               uColorA={ringColors.colorA}
               uColorB={ringColors.colorB}
               uSeed={seed.current}
@@ -177,6 +221,7 @@ export const PlanetMesh = ({ planet, onClick, onPositionUpdate }: PlanetMeshProp
 
         <Sphere args={[planet.size * 1.15, 32, 32]}>
           <atmosphereMaterial
+            ref={atmosphereMaterialRef}
             uColor={baseColor}
             uIntensity={ATMOSPHERE_INTENSITY[surface] * (hovered || isSelected ? 1.6 : 1)}
             transparent

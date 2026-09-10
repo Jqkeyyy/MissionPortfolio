@@ -18,7 +18,9 @@ export const getInitialOrbitAngle = (planetId: string) => {
 
 export const getOrbitDurationSeconds = (planet: PlanetData) => (
   planet.orbitalPeriodDays <= 0
-    ? Number.POSITIVE_INFINITY
+    ? planet.orbitalPeriodDays < 0
+      ? Math.abs(planet.orbitalPeriodDays) * EARTH_DAY_SECONDS
+      : Number.POSITIVE_INFINITY
     : planet.orbitalPeriodDays * EARTH_DAY_SECONDS
 );
 
@@ -49,8 +51,9 @@ const writeLocalOrbitPosition = (
   target: THREE.Vector3,
 ) => {
   const duration = getOrbitDurationSeconds(planet);
+  const direction = planet.orbitalPeriodDays < 0 ? -1 : 1;
   const meanAnomaly = getInitialOrbitAngle(planet.id)
-    + (Number.isFinite(duration) ? (elapsedSeconds / duration) * TAU : 0);
+    + (Number.isFinite(duration) ? direction * (elapsedSeconds / duration) * TAU : 0);
   const eccentricAnomaly = solveEccentricAnomaly(meanAnomaly, planet.orbitalEccentricity);
   const semiMajorAxis = planet.orbitRadius;
   const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - planet.orbitalEccentricity ** 2);

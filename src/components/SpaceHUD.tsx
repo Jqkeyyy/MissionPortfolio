@@ -15,6 +15,9 @@ import { ExplorationProgress } from '@/components/progress';
 import { useExplorationProgress } from '@/hooks/useExplorationProgress';
 import { MissionSoundControl } from '@/components/MissionSoundControl';
 import { GraphicsQualityControl } from '@/components/GraphicsQualityControl';
+import { AnomalyConsole } from '@/components/endgame/AnomalyConsole';
+import { useChaosMode } from '@/features/endgame/useChaosMode';
+import { useCosmicArchitect } from '@/features/endgame/useCosmicArchitect';
 
 const EARTH_YEAR_SECONDS = 365.25 * 24 * 60 * 60;
 const EARTH_DAY_SECONDS = 24 * 60 * 60;
@@ -29,9 +32,15 @@ const formatVisualDuration = (seconds: number) => {
 
 interface SpaceHUDProps {
   onStartTutorial?: () => void;
+  onRevealEventHorizon?: () => void;
+  onOpenCosmicArchitect?: () => void;
 }
 
-export const SpaceHUD = ({ onStartTutorial }: SpaceHUDProps) => {
+export const SpaceHUD = ({
+  onStartTutorial,
+  onRevealEventHorizon = () => {},
+  onOpenCosmicArchitect = () => {},
+}: SpaceHUDProps) => {
   const {
     announcement,
     currentView,
@@ -47,6 +56,10 @@ export const SpaceHUD = ({ onStartTutorial }: SpaceHUDProps) => {
   const isPaused = useSimulationState((state) => state.isPaused);
   const activePreset = getSimulationSpeedPreset(speedPresetId);
   const progress = useExplorationProgress();
+  const chaosModeEnabled = useChaosMode((state) => state.enabled);
+  const enableChaosMode = useChaosMode((state) => state.enable);
+  const disableChaosMode = useChaosMode((state) => state.disable);
+  const resetArchitect = useCosmicArchitect((state) => state.resetAll);
   const orbitScale = formatVisualDuration(EARTH_YEAR_SECONDS / activePreset.orbitTimeFactor);
   const spinScale = formatVisualDuration(EARTH_DAY_SECONDS / activePreset.rotationTimeFactor);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -129,6 +142,23 @@ export const SpaceHUD = ({ onStartTutorial }: SpaceHUDProps) => {
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announcement}
       </p>
+      <AnomalyConsole
+        isComplete={progress.isComplete}
+        chaosModeEnabled={chaosModeEnabled}
+        onChaosModeChange={(enabled) => {
+          if (enabled) enableChaosMode();
+          else {
+            disableChaosMode();
+            resetArchitect();
+          }
+        }}
+        onRevealEventHorizon={onRevealEventHorizon}
+        onOpenCosmicArchitect={() => {
+          disableChaosMode();
+          onOpenCosmicArchitect();
+        }}
+        className="fixed bottom-24 right-4 z-20 md:bottom-8"
+      />
       {/* Title overlay */}
       <div
         className="fixed left-1/2 top-6 z-10 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 px-4 text-center md:top-8"

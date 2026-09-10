@@ -13,6 +13,14 @@ import * as THREE from 'three';
 import { SimulationClock } from './SimulationClock';
 import { SolarSystemDetails } from './SolarSystemDetails';
 import { useGraphicsSettings, type GraphicsPreference, type GraphicsTier } from '@/hooks/useGraphicsSettings';
+import { EventHorizon } from './EventHorizon';
+import {
+  createChaosSystemSnapshotWriter,
+  type ChaosSystemSnapshotWriter,
+} from '@/features/endgame/chaosMode';
+import { getChaosModeSettings, useChaosMode } from '@/features/endgame/useChaosMode';
+import { applyCosmicArchitectOverrides } from '@/features/endgame/cosmicArchitect';
+import { useCosmicArchitect } from '@/features/endgame/useCosmicArchitect';
 
 const OPTIMIZED_SHUTTLE_URL = '/optimized/mission-shuttle.webp';
 
@@ -65,6 +73,19 @@ const FrameRateMonitor = ({ enabled, onSample }: { enabled: boolean; onSample: (
     sampleStartedAt.current = elapsed;
   });
 
+  return null;
+};
+
+const ChaosFrameUpdater = ({
+  enabled,
+  writer,
+}: {
+  enabled: boolean;
+  writer: ChaosSystemSnapshotWriter;
+}) => {
+  useFrame((state) => {
+    if (enabled) writer.update(state.clock.elapsedTime, getChaosModeSettings());
+  }, -1);
   return null;
 };
 
@@ -130,14 +151,28 @@ const CanvasUnavailable = ({
 interface SolarSystemProps {
   onUnavailable?: () => void;
   onOpenQuickPortfolio: () => void;
+  eventHorizonVisible?: boolean;
+  onEnterEventHorizon?: () => void;
 }
 
-export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystemProps) => {
+export const SolarSystem = ({
+  onUnavailable,
+  onOpenQuickPortfolio,
+  eventHorizonVisible = false,
+  onEnterEventHorizon,
+}: SolarSystemProps) => {
   const { currentView, travelToPlanet } = useGameState();
+  const chaosModeEnabled = useChaosMode((state) => state.enabled);
+  const architectOverrides = useCosmicArchitect((state) => state.overrides);
   const preference = useGraphicsSettings((state) => state.preference);
   const deviceProfile = useMemo(getGraphicsProfile, []);
   const initialTier: GraphicsTier = deviceProfile.powerPreference === 'low-power' ? 'low' : 'high';
   const [automaticTier, setAutomaticTier] = useState<GraphicsTier>(initialTier);
+  const chaosWriter = useMemo(() => createChaosSystemSnapshotWriter(planets), []);
+  const renderedPlanets = useMemo(
+    () => chaosModeEnabled ? planets : applyCosmicArchitectOverrides(planets, architectOverrides),
+    [architectOverrides, chaosModeEnabled],
+  );
   const reducedMotion = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
   const selectedGraphics = resolveGraphicsProfile(preference, automaticTier);
@@ -192,6 +227,7 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
           />
         )}
       >
+        <ChaosFrameUpdater enabled={chaosModeEnabled} writer={chaosWriter} />
         <FrameRateMonitor enabled={preference === 'auto'} onSample={handleFrameRateSample} />
         <SimulationClock />
         <PerspectiveCamera makeDefault position={[0, 30, 80]} fov={60} />
@@ -219,19 +255,31 @@ export const SolarSystem = ({ onUnavailable, onOpenQuickPortfolio }: SolarSystem
         <Sun onClick={() => handlePlanetClick('sun')} />
         
         {/* Orbit rings */}
-        {planets.filter(p => p.orbitRadius > 0).map((planet) => (
+        {!chaosModeEnabled && renderedPlanets.filter(p => p.orbitRadius > 0).map((planet) => (
           <OrbitRing key={`orbit-${planet.id}`} planet={planet} />
         ))}
         
         {/* Planets */}
-        {planets.filter(p => p.orbitRadius > 0).map((planet) => (
+        {renderedPlanets.filter(p => p.orbitRadius > 0).map((planet) => (
           <PlanetMesh
             key={planet.id}
             planet={planet}
+            chaosModeEnabled={chaosModeEnabled}
+            chaosSnapshot={chaosWriter.snapshot}
             onClick={() => handlePlanetClick(planet.id)}
             onPositionUpdate={(position) => updatePlanetPosition(planet.id, position)}
           />
         ))}
+
+        {eventHorizonVisible && (
+          <EventHorizon
+            position={[0, 17, -68]}
+            quality={preference === 'auto' ? automaticTier : preference}
+            decorativeMotion={graphics.decorativeMotion}
+            reducedMotion={reducedMotion}
+            onActivate={onEnterEventHorizon}
+          />
+        )}
 
         <SolarSystemShip planetPositions={planetPositions} />
       </Canvas>

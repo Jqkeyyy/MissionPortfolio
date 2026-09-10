@@ -2,6 +2,9 @@ import { afterEach, describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { SpaceHUD } from './SpaceHUD';
 import { useGameState } from '@/hooks/useGameState';
+import { PLANET_THEME_IDS } from '@/data/planetThemes';
+import { explorationProgressStore } from '@/lib/explorationProgress';
+import { useChaosMode } from '@/features/endgame/useChaosMode';
 
 describe('SpaceHUD', () => {
   beforeEach(() => {
@@ -14,6 +17,8 @@ describe('SpaceHUD', () => {
       quickPortfolioOpen: false,
       announcement: 'Solar system map ready. Select a destination to begin exploring.',
     });
+    explorationProgressStore.clearProgress();
+    useChaosMode.getState().reset();
   });
 
   afterEach(() => {
@@ -125,5 +130,27 @@ describe('SpaceHUD', () => {
     expect(tutorialButtons).toHaveLength(2);
     fireEvent.click(tutorialButtons[0]);
     expect(onStartTutorial).toHaveBeenCalledTimes(1);
+  });
+
+  it('unlocks the anomaly console after all ten destinations are visited', () => {
+    const onRevealEventHorizon = vi.fn();
+    const onOpenCosmicArchitect = vi.fn();
+    PLANET_THEME_IDS.forEach((id) => explorationProgressStore.markVisited(id));
+    render(
+      <SpaceHUD
+        onRevealEventHorizon={onRevealEventHorizon}
+        onOpenCosmicArchitect={onOpenCosmicArchitect}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enable Chaos Mode' }));
+    expect(useChaosMode.getState().enabled).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reveal the Event Horizon' }));
+    expect(onRevealEventHorizon).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Open Cosmic Architect' }));
+    expect(onOpenCosmicArchitect).toHaveBeenCalledOnce();
   });
 });

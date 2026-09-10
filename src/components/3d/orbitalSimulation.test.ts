@@ -42,6 +42,17 @@ describe('orbital simulation', () => {
     expect(getAxialRotationStep(venus, 1)).toBeLessThan(0);
   });
 
+  it('supports Cosmic Architect retrograde orbital periods', () => {
+    const earth = requiredPlanet('earth');
+    const retrogradeEarth = { ...earth, orbitalPeriodDays: -earth.orbitalPeriodDays };
+    const elapsed = getOrbitDurationSeconds(earth) / 4;
+    const prograde = writeBodyPosition(earth, elapsed, new THREE.Vector3());
+    const retrograde = writeBodyPosition(retrogradeEarth, elapsed, new THREE.Vector3());
+
+    expect(getOrbitDurationSeconds(retrogradeEarth)).toBe(getOrbitDurationSeconds(earth));
+    expect(retrograde.distanceTo(prograde)).toBeGreaterThan(1);
+  });
+
   it('derives the Moon spin from orbital time instead of the separate rotation clock', () => {
     const moon = requiredPlanet('moon');
     const quarterOrbit = getOrbitDurationSeconds(moon) / 4;
