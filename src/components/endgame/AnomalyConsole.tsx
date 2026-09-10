@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CircleDot, Hammer, Shuffle, Sparkles } from 'lucide-react';
+import { CircleDot, Hammer, MoonStar, Shuffle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,12 +11,13 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
-export type EndgameFeatureId = 'chaos' | 'event-horizon' | 'cosmic-architect';
+export type EndgameFeatureId = 'developer-moon' | 'chaos' | 'event-horizon' | 'cosmic-architect';
 
 export interface AnomalyConsoleProps {
   /** The console does not render until all ten destinations have been completed. */
   isComplete: boolean;
   chaosModeEnabled: boolean;
+  onOpenDeveloperMoon: () => void;
   onChaosModeChange: (enabled: boolean) => void;
   onRevealEventHorizon: () => void;
   onOpenCosmicArchitect: () => void;
@@ -33,6 +34,7 @@ const actionClassName =
 export const AnomalyConsole = ({
   isComplete,
   chaosModeEnabled,
+  onOpenDeveloperMoon,
   onChaosModeChange,
   onRevealEventHorizon,
   onOpenCosmicArchitect,
@@ -78,9 +80,24 @@ export const AnomalyConsole = ({
             </DialogDescription>
           </DialogHeader>
 
-          <ol className="grid gap-3 md:grid-cols-3" aria-label="Unlocked anomaly experiments">
+          <ol className="grid gap-3 md:grid-cols-2" aria-label="Unlocked anomaly experiments">
+            <li className={featureCardClassName} data-feature-id="developer-moon">
+              <FeatureHeading rank="01" title="Developer Moon" icon={<MoonStar aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Drive a rover through the real artifacts and decisions behind Mission Portfolio.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => launchAndClose(onOpenDeveloperMoon)}
+                className={actionClassName}
+              >
+                Land on Developer Moon
+              </Button>
+            </li>
+
             <li className={featureCardClassName} data-feature-id="chaos">
-              <FeatureHeading rank="01" title="Chaos Mode" icon={<Shuffle aria-hidden="true" />} />
+              <FeatureHeading rank="02" title="Chaos Mode" icon={<Shuffle aria-hidden="true" />} />
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Unstable speeds, wandering tilts, impossible orbits, and colors that refuse to behave.
               </p>
@@ -96,7 +113,7 @@ export const AnomalyConsole = ({
             </li>
 
             <li className={featureCardClassName} data-feature-id="event-horizon">
-              <FeatureHeading rank="02" title="The Event Horizon" icon={<CircleDot aria-hidden="true" />} />
+              <FeatureHeading rank="03" title="The Event Horizon" icon={<CircleDot aria-hidden="true" />} />
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Approach the hidden singularity and cross into a distorted universe beyond Neptune.
               </p>
@@ -111,7 +128,7 @@ export const AnomalyConsole = ({
             </li>
 
             <li className={featureCardClassName} data-feature-id="cosmic-architect">
-              <FeatureHeading rank="03" title="Cosmic Architect" icon={<Hammer aria-hidden="true" />} />
+              <FeatureHeading rank="04" title="Cosmic Architect" icon={<Hammer aria-hidden="true" />} />
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Rearrange worlds, tune gravity, create moons, and design a beautifully unstable system.
               </p>

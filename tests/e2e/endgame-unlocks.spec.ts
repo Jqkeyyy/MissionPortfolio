@@ -6,7 +6,7 @@ const completedProgress = {
   completionDismissed: true,
 };
 
-test('completed explorers can use all three anomaly experiments', async ({ page, browserName }) => {
+test('completed explorers can use every anomaly experiment', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'The endgame WebGL experiments are covered in Chromium.');
   await page.addInitScript((progress) => {
     localStorage.setItem('mission-portfolio:exploration-progress:v1', JSON.stringify(progress));
@@ -18,6 +18,13 @@ test('completed explorers can use all three anomaly experiments', async ({ page,
 
   const consoleButton = page.getByRole('button', { name: 'ANOMALY CONSOLE' });
   await expect(consoleButton).toBeVisible();
+  await consoleButton.click();
+  await page.getByRole('button', { name: 'Land on Developer Moon' }).click();
+  await expect(page.getByRole('dialog', { name: 'The Build Behind the Mission' })).toBeVisible();
+  await page.getByRole('button', { name: /next log/i }).click();
+  await expect(page.getByRole('heading', { name: 'Every idea needed somewhere to land' })).toBeVisible();
+  await page.keyboard.press('Escape');
+
   await consoleButton.click();
   await page.getByRole('button', { name: 'Enable Chaos Mode' }).click();
   await expect(page.getByRole('button', { name: 'Restore Stable Universe' })).toBeVisible();

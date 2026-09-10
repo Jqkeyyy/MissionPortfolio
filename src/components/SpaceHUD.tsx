@@ -32,12 +32,14 @@ const formatVisualDuration = (seconds: number) => {
 
 interface SpaceHUDProps {
   onStartTutorial?: () => void;
+  onOpenDeveloperMoon?: () => void;
   onRevealEventHorizon?: () => void;
   onOpenCosmicArchitect?: () => void;
 }
 
 export const SpaceHUD = ({
   onStartTutorial,
+  onOpenDeveloperMoon = () => {},
   onRevealEventHorizon = () => {},
   onOpenCosmicArchitect = () => {},
 }: SpaceHUDProps) => {
@@ -145,6 +147,7 @@ export const SpaceHUD = ({
       <AnomalyConsole
         isComplete={progress.isComplete}
         chaosModeEnabled={chaosModeEnabled}
+        onOpenDeveloperMoon={onOpenDeveloperMoon}
         onChaosModeChange={(enabled) => {
           if (enabled) enableChaosMode();
           else {

@@ -5,6 +5,7 @@ import { AnomalyConsole, type AnomalyConsoleProps } from './AnomalyConsole';
 const createProps = (overrides: Partial<AnomalyConsoleProps> = {}): AnomalyConsoleProps => ({
   isComplete: true,
   chaosModeEnabled: false,
+  onOpenDeveloperMoon: vi.fn(),
   onChaosModeChange: vi.fn(),
   onRevealEventHorizon: vi.fn(),
   onOpenCosmicArchitect: vi.fn(),
@@ -17,12 +18,12 @@ describe('AnomalyConsole', () => {
     expect(screen.queryByRole('button', { name: 'ANOMALY CONSOLE' })).not.toBeInTheDocument();
   });
 
-  it('presents the three experiments in priority order after completion', () => {
+  it('presents the four experiments in priority order after completion', () => {
     render(<AnomalyConsole {...createProps()} />);
     fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
 
     const features = screen.getByRole('list', { name: 'Unlocked anomaly experiments' });
-    expect(features).toHaveTextContent(/Chaos Mode.*The Event Horizon.*Cosmic Architect/);
+    expect(features).toHaveTextContent(/Developer Moon.*Chaos Mode.*The Event Horizon.*Cosmic Architect/);
     expect(screen.getByRole('dialog')).toHaveAccessibleName('Anomaly Console');
   });
 
@@ -44,15 +45,19 @@ describe('AnomalyConsole', () => {
     expect(onChaosModeChange).toHaveBeenLastCalledWith(false);
   });
 
-  it('dispatches the Event Horizon and Cosmic Architect actions', () => {
+  it('dispatches the Developer Moon, Event Horizon, and Cosmic Architect actions', () => {
+    const onOpenDeveloperMoon = vi.fn();
     const onRevealEventHorizon = vi.fn();
     const onOpenCosmicArchitect = vi.fn();
-    render(<AnomalyConsole {...createProps({ onRevealEventHorizon, onOpenCosmicArchitect })} />);
+    render(<AnomalyConsole {...createProps({ onOpenDeveloperMoon, onRevealEventHorizon, onOpenCosmicArchitect })} />);
     fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
 
+    fireEvent.click(screen.getByRole('button', { name: 'Land on Developer Moon' }));
+    fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
     fireEvent.click(screen.getByRole('button', { name: 'Reveal the Event Horizon' }));
     fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
     fireEvent.click(screen.getByRole('button', { name: 'Open Cosmic Architect' }));
+    expect(onOpenDeveloperMoon).toHaveBeenCalledOnce();
     expect(onRevealEventHorizon).toHaveBeenCalledOnce();
     expect(onOpenCosmicArchitect).toHaveBeenCalledOnce();
   });

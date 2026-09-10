@@ -20,6 +20,7 @@ const ShipFlightLayer = lazy(() => import('@/components/ShipFlightLayer').then((
 const QuickPortfolio = lazy(() => import('@/components/quick-portfolio').then((module) => ({ default: module.QuickPortfolio })));
 const NullSector = lazy(() => import('@/components/endgame/NullSector').then((module) => ({ default: module.NullSector })));
 const CosmicArchitectPanel = lazy(() => import('@/components/endgame/CosmicArchitectPanel').then((module) => ({ default: module.CosmicArchitectPanel })));
+const DeveloperMoonJourney = lazy(() => import('@/components/endgame/DeveloperMoonJourney').then((module) => ({ default: module.DeveloperMoonJourney })));
 
 type ExplorationMode = 'prompt' | 'active' | 'unavailable';
 type ExplorationNavigationState = { resumeExploration?: boolean };
@@ -137,6 +138,7 @@ const Index = () => {
   const [eventHorizonVisible, setEventHorizonVisible] = useState(false);
   const [nullSectorOpen, setNullSectorOpen] = useState(false);
   const [cosmicArchitectOpen, setCosmicArchitectOpen] = useState(false);
+  const [developerMoonOpen, setDeveloperMoonOpen] = useState(false);
   const progress = useExplorationProgress();
   const previousView = useRef(currentView);
   const previousPlanet = useRef(selectedPlanet);
@@ -272,6 +274,7 @@ const Index = () => {
     setEventHorizonVisible(false);
     setNullSectorOpen(false);
     setCosmicArchitectOpen(false);
+    setDeveloperMoonOpen(false);
   }, [progress.isComplete]);
 
   const spaceViewActive = explorationMode === 'active'
@@ -312,6 +315,7 @@ const Index = () => {
             />
             <SpaceHUD
               onStartTutorial={tutorial.start}
+              onOpenDeveloperMoon={() => setDeveloperMoonOpen(true)}
               onRevealEventHorizon={() => setEventHorizonVisible(true)}
               onOpenCosmicArchitect={() => setCosmicArchitectOpen(true)}
             />
@@ -355,6 +359,12 @@ const Index = () => {
             onOpenChange={setCosmicArchitectOpen}
             planets={planets}
           />
+        </Suspense>
+      )}
+
+      {developerMoonOpen && (
+        <Suspense fallback={<StageFallback label="Descending to Developer Moon..." />}>
+          <DeveloperMoonJourney open onOpenChange={setDeveloperMoonOpen} />
         </Suspense>
       )}
     </div>

@@ -18,9 +18,11 @@ main solar system without distracting from the portfolio journey.
   collisions before they return to their proper places.
 - **Planet Fusion** — Combine two worlds into a temporary hybrid with blended
   terrain, colors, names, descriptions, and habitat styles (for example, Marsurn).
-- **Developer Moon** — A newly revealed moon contains concept art, rejected ideas,
-  old screenshots, performance comparisons, and notes about how the experience was
-  built.
+- **Developer Moon** *(first rover route implemented)* — A newly revealed moon
+  contains a six-stop rover story about why the experience was built, real visual
+  development artifacts, the HAB v5-to-v6 interaction change, and notes about the
+  accessibility and performance work behind the finished mission. True early UI
+  screenshots can replace or extend the current artifact stops as they are added.
 - **Secret HAB Terminal Commands** — Undocumented commands such as `chaos`,
   `singularity`, `moonwalk`, `sudo launch`, `coffee`, and `open the pod bay doors`
   trigger small effects. The visible command list should not reveal every command.
