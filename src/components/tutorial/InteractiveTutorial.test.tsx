@@ -8,7 +8,7 @@ const controller = (overrides: Partial<InteractiveTutorialController> = {}): Int
   status: 'running',
   currentStepIndex: 0,
   currentStep: interactiveTutorialSteps[0],
-  announcement: 'Tutorial step 1 of 8.',
+  announcement: 'Tutorial step 1 of 12.',
   start: vi.fn(),
   exit: vi.fn(),
   ...overrides,
@@ -54,9 +54,10 @@ describe('InteractiveTutorial', () => {
     target.remove();
   });
 
-  it('shows a completion message after the final file is opened', () => {
+  it('shows a completion message after another destination is reached', () => {
     render(<InteractiveTutorial controller={controller({ status: 'complete' })} />);
     expect(screen.getByRole('heading', { name: 'You are ready to explore' })).toBeInTheDocument();
+    expect(screen.getByText(/reached a second destination/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Finish tutorial' })).toBeInTheDocument();
   });
 

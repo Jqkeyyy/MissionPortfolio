@@ -191,6 +191,7 @@ export const SpaceHUD = ({
       >
         <nav
           aria-label="Solar system destinations"
+          data-tutorial-target="choose-next-destination"
           className="hud-panel p-3 rounded-lg space-y-1 max-h-[70vh] overflow-y-auto"
         >
           <button
@@ -237,7 +238,7 @@ export const SpaceHUD = ({
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: '#FDB813' }}
               />
-              <span className="font-heading tracking-wide text-xs">☀ Intro</span>
+              <span className={`font-heading tracking-wide text-xs ${progress.hasVisited('sun') ? 'line-through opacity-55' : ''}`}>☀ Intro</span>
               <span className="sr-only">{progress.hasVisited('sun') ? 'Visited' : 'Not visited'}</span>
             </motion.button>
             <PlanetScienceConsole planetId="sun" />
@@ -265,7 +266,7 @@ export const SpaceHUD = ({
                   className="w-3 h-3 rounded-full flex-shrink-0"
                   style={{ backgroundColor: planet.color }}
                 />
-                <span className="font-heading tracking-wide text-xs">
+                <span className={`font-heading tracking-wide text-xs ${progress.hasVisited(planet.id) ? 'line-through opacity-55' : ''}`}>
                   {planet.displayName}
                 </span>
                 <span className="sr-only">{progress.hasVisited(planet.id) ? 'Visited' : 'Not visited'}</span>
@@ -306,6 +307,7 @@ export const SpaceHUD = ({
           <button
             ref={mobileMenuToggleRef}
             type="button"
+            data-tutorial-target="choose-next-destination"
             aria-label="Select destination"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-destination-menu"
@@ -348,7 +350,7 @@ export const SpaceHUD = ({
                       }}
                     >
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FDB813' }} />
-                      <span className="text-xs">☀ Intro</span>
+                      <span className={`text-xs ${progress.hasVisited('sun') ? 'line-through opacity-55' : ''}`}>☀ Intro</span>
                       <span className="sr-only">{progress.hasVisited('sun') ? 'Visited' : 'Not visited'}</span>
                     </button>
                     <PlanetScienceConsole planetId="sun" />
@@ -366,7 +368,7 @@ export const SpaceHUD = ({
                           className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{ backgroundColor: planet.color }}
                         />
-                        <span className="truncate text-xs">{planet.displayName}</span>
+                        <span className={`truncate text-xs ${progress.hasVisited(planet.id) ? 'line-through opacity-55' : ''}`}>{planet.displayName}</span>
                         <span className="sr-only">{progress.hasVisited(planet.id) ? 'Visited' : 'Not visited'}</span>
                       </button>
                       <PlanetScienceConsole planetId={planet.id} />

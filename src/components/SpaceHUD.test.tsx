@@ -47,6 +47,18 @@ describe('SpaceHUD', () => {
     expect(useGameState.getState().selectedPlanet).toBe('earth');
   });
 
+  it('crosses out visited destinations without disabling them', () => {
+    explorationProgressStore.markVisited('earth');
+    render(<SpaceHUD />);
+
+    const earthLabels = screen.getAllByText('Earth');
+    earthLabels.forEach((label) => expect(label).toHaveClass('line-through'));
+    const earthButton = earthLabels[0].closest('button');
+    expect(earthButton).not.toBeDisabled();
+    fireEvent.click(earthButton!);
+    expect(useGameState.getState().selectedPlanet).toBe('earth');
+  });
+
   it('shows a visible interception status while the shuttle crosses the solar system', () => {
     useGameState.setState({
       currentView: 'intercepting',

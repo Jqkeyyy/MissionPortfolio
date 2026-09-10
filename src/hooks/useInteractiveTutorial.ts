@@ -65,6 +65,31 @@ export const interactiveTutorialSteps = [
     target: 'file-intro-2',
     action: 'open-file-intro-2',
   },
+  {
+    id: 'stand-up',
+    title: 'Stand up from the computer',
+    instruction: 'Click Stand Up to leave HAB OS and return to the habitat.',
+    target: 'stand-up',
+    action: 'stand-up',
+  },
+  {
+    id: 'exit-base-camp',
+    title: 'Return to the surface',
+    instruction: 'Exit the base camp through the highlighted airlock control.',
+    target: 'exit-base-camp',
+    action: 'exit-base-camp',
+  },
+  {
+    id: 'choose-next-destination',
+    title: 'Choose another planet',
+    instruction: 'Use the right arrow to continue directly, or return to space and select any different planet.',
+    target: 'choose-next-destination',
+  },
+  {
+    id: 'travel-to-next-destination',
+    title: 'Travel to your next planet',
+    instruction: 'Your shuttle is taking you to the next destination. Watch the approach or use Skip travel.',
+  },
 ] as const satisfies readonly InteractiveTutorialStep[];
 
 interface UseInteractiveTutorialOptions {
@@ -116,7 +141,7 @@ export const useInteractiveTutorial = ({
   const complete = useCallback(() => {
     statusRef.current = 'complete';
     setStatus('complete');
-    publish('Tutorial complete. You opened the Sun mission brief and can now explore any destination.');
+    publish('Tutorial complete. You reached another planet and can now explore every destination at your own pace.');
     callbacksRef.current.onComplete?.();
   }, [publish]);
 
@@ -163,8 +188,29 @@ export const useInteractiveTutorial = ({
 
     if (step.id === 'travel-to-sun' && currentPlanetId === 'sun' && currentView === 'planet') {
       setStep(2);
+      return;
     }
-  }, [currentPlanetId, currentStepIndex, currentView, setStep, status]);
+
+    if (
+      step.id === 'choose-next-destination'
+      && currentPlanetId !== null
+      && currentPlanetId !== 'sun'
+      && (currentView === 'intercepting' || currentView === 'traveling' || currentView === 'planet')
+    ) {
+      if (currentView === 'planet') complete();
+      else setStep(currentStepIndex + 1);
+      return;
+    }
+
+    if (
+      step.id === 'travel-to-next-destination'
+      && currentPlanetId !== null
+      && currentPlanetId !== 'sun'
+      && currentView === 'planet'
+    ) {
+      complete();
+    }
+  }, [complete, currentPlanetId, currentStepIndex, currentView, setStep, status]);
 
   useEffect(() => {
     if (status !== 'running') return;

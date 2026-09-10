@@ -14,11 +14,14 @@ interface InteractiveTutorialProps {
 
 const getTargetRect = (target: string | undefined): TargetRect | null => {
   if (!target) return null;
-  const element = document.querySelector<HTMLElement>(`[data-tutorial-target="${target}"]`);
-  if (!element) return null;
-  const rect = element.getBoundingClientRect();
-  if (rect.width === 0 || rect.height === 0) return null;
-  return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+  const elements = document.querySelectorAll<HTMLElement>(`[data-tutorial-target="${target}"]`);
+  for (const element of elements) {
+    const rect = element.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+    }
+  }
+  return null;
 };
 
 export const InteractiveTutorial = ({ controller }: InteractiveTutorialProps) => {
@@ -56,7 +59,7 @@ export const InteractiveTutorial = ({ controller }: InteractiveTutorialProps) =>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-300">Tutorial complete</p>
             <h2 className="mt-1 font-heading text-lg tracking-wide">You are ready to explore</h2>
-            <p className="mt-1 text-sm leading-6 text-white/65">Open more files here, stand up, or travel to another planet.</p>
+            <p className="mt-1 text-sm leading-6 text-white/65">You reached a second destination. Revisit any crossed-out planet or keep exploring somewhere new.</p>
           </div>
           <button
             type="button"

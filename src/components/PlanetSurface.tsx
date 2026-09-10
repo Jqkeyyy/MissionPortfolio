@@ -155,7 +155,10 @@ export const PlanetSurface = () => {
       <BaseCamp planet={planet} onClick={handleEnterBaseCamp} />
 
       {/* Navigation HUD */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30">
+      <div
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-30"
+        data-tutorial-target="choose-next-destination"
+      >
         <motion.button
           type="button"
           aria-label="Travel to previous planet"

@@ -17,6 +17,8 @@ describe('ExplorationProgress', () => {
     const list = screen.getByRole('list', { name: /destination visit status/i });
     expect(within(list).getAllByText('Visited')).toHaveLength(1);
     expect(within(list).getAllByText('Not visited')).toHaveLength(9);
+    expect(within(list).getByText('Earth')).toHaveClass('line-through');
+    expect(within(list).getByText('Mars')).not.toHaveClass('line-through');
   });
 
   it('announces and dismisses the completion achievement', () => {

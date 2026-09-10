@@ -66,7 +66,7 @@ export const ExplorationProgress = ({
               const visited = progress.hasVisited(planet.id);
               return (
                 <li className="flex justify-between gap-4" key={planet.id}>
-                  <span>{planet.displayName}</span>
+                  <span className={visited ? 'line-through opacity-55' : undefined}>{planet.displayName}</span>
                   <span>{visited ? 'Visited' : 'Not visited'}</span>
                 </li>
               );

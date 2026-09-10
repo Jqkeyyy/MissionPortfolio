@@ -13,7 +13,7 @@ const expectArrowCentered = async (page: import('@playwright/test').Page) => {
   expect(Math.abs(highlightCenter - arrowCenter)).toBeLessThan(1);
 };
 
-test('tutorial points through the Sun, base camp, computer, and mission files', async ({ page, browserName }) => {
+test('tutorial points through the Sun, HAB workflow, and onward planet travel', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'The hands-on WebGL tutorial is covered in Chromium.');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
@@ -49,5 +49,14 @@ test('tutorial points through the Sun, base camp, computer, and mission files', 
   await expectArrowCentered(page);
   await page.locator('[data-tutorial-target="file-intro-2"]').click();
 
-  await expect(page.getByRole('heading', { name: 'You are ready to explore' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Stand up from the computer' })).toBeVisible();
+  await expectArrowCentered(page);
+  await page.getByRole('button', { name: 'Stand up from the mission computer' }).click();
+  await expect(page.getByRole('heading', { name: 'Return to the surface' })).toBeVisible();
+  await expectArrowCentered(page);
+  await page.getByRole('button', { name: 'Exit through the habitat airlock' }).click();
+  await expect(page.getByRole('heading', { name: 'Choose another planet' })).toBeVisible();
+  await expectArrowCentered(page);
+  await page.getByRole('button', { name: 'Travel to next planet' }).click();
+  await expect(page.getByRole('heading', { name: 'You are ready to explore' })).toBeVisible({ timeout: 10_000 });
 });

@@ -390,6 +390,8 @@ export const BaseCampInterior = ({
       <motion.button
         type="button"
         aria-label="Exit through the habitat airlock"
+        data-tutorial-target="exit-base-camp"
+        data-tutorial-action="exit-base-camp"
         onClick={onExit}
         className={`group absolute left-[15%] top-[55%] z-20 hidden -translate-x-1/2 -translate-y-1/2 focus:outline-none sm:block ${computerActive ? 'pointer-events-none' : ''}`}
         initial={prefersReducedMotion ? false : { opacity: 0, x: -14 }}
@@ -412,6 +414,8 @@ export const BaseCampInterior = ({
           <motion.button
             type="button"
             aria-label="Stand up from the mission computer"
+            data-tutorial-target="stand-up"
+            data-tutorial-action="stand-up"
             onClick={onLeaveComputer}
             className="camp-glass-panel flex min-h-12 items-center gap-2 border-amber-200/35 bg-[#160e05]/90 px-4 py-3 font-heading text-sm tracking-[0.12em] text-amber-50 shadow-[0_12px_32px_rgba(0,0,0,0.55),0_0_20px_rgba(245,158,11,0.12)] transition-colors hover:border-amber-200/65 hover:bg-amber-300/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
@@ -440,6 +444,8 @@ export const BaseCampInterior = ({
 
         <button
           type="button"
+          data-tutorial-target="exit-base-camp"
+          data-tutorial-action="exit-base-camp"
           onClick={onExit}
           className="camp-glass-panel ml-auto flex min-h-12 items-center gap-3 px-4 py-3 text-sm text-white/80 transition-all hover:border-amber-300/50 hover:bg-amber-300/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 sm:px-5"
         >
