@@ -25,7 +25,7 @@ describe('InteractiveTutorial', () => {
     expect(clipped.arrow.left).toBe(clipped.highlight.left + clipped.highlight.width / 2);
   });
 
-  it('shows instructions and visually highlights the current real control', async () => {
+  it('shows instructions and leaves the Sun box to the matching 3D highlight', async () => {
     const target = document.createElement('button');
     target.dataset.tutorialTarget = 'sun';
     target.getBoundingClientRect = () => ({
@@ -46,9 +46,8 @@ describe('InteractiveTutorial', () => {
     expect(screen.getByRole('heading', { name: 'Start with the Sun' })).toBeInTheDocument();
     expect(screen.getByText(/click the Sun in the center/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Exit tutorial' })).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByTestId('interactive-tutorial').querySelector('.border-orange-300')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('tutorial-arrow')).toBeInTheDocument());
+    expect(screen.queryByTestId('tutorial-highlight')).not.toBeInTheDocument();
     const arrow = screen.getByTestId('tutorial-arrow');
     expect(arrow).not.toHaveClass('motion-safe:animate-bounce');
     expect(arrow.firstElementChild).toHaveClass('motion-safe:animate-bounce');

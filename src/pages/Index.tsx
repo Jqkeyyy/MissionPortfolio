@@ -302,6 +302,7 @@ const Index = () => {
           <Suspense fallback={<StageFallback label="Initializing solar system..." />}>
             <SolarSystem
               eventHorizonVisible={eventHorizonVisible && !nullSectorOpen && !cosmicArchitectOpen}
+              tutorialSunActive={tutorial.status === 'running' && tutorial.currentStep.id === 'select-sun'}
               onEnterEventHorizon={() => setNullSectorOpen(true)}
               onUnavailable={() => {
                 telemetryClient.track({ type: 'webgl_unavailable', reason: 'context-lost' });

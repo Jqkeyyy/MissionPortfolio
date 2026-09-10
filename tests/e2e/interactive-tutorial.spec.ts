@@ -20,8 +20,11 @@ test('tutorial points through the Sun, base camp, computer, and mission files', 
 
   await page.getByRole('button', { name: 'Start tutorial' }).click();
   await expect(page.getByRole('heading', { name: 'Start with the Sun' })).toBeVisible();
-  await expect(page.locator('[data-tutorial-target="sun"]')).toBeVisible({ timeout: 15_000 });
-  await expectArrowCentered(page);
+  const sunTarget = page.locator('[data-tutorial-target="sun"]');
+  await expect(sunTarget).toBeVisible({ timeout: 15_000 });
+  await expect(sunTarget).toHaveAttribute('data-tutorial-highlight', 'three-dimensional');
+  await expect(page.getByTestId('tutorial-arrow')).toBeVisible();
+  await expect(page.getByTestId('tutorial-highlight')).toHaveCount(0);
 
   const destinations = page.getByRole('navigation', { name: 'Solar system destinations' });
   await destinations.getByRole('button', { name: /Intro (Visited|Not visited)$/ }).click();

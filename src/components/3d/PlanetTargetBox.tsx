@@ -8,9 +8,17 @@ interface PlanetTargetBoxProps {
   radius: number;
   active: boolean;
   locking: boolean;
+  color?: string;
+  glow?: boolean;
 }
 
-export const PlanetTargetBox = ({ radius, active, locking }: PlanetTargetBoxProps) => {
+export const PlanetTargetBox = ({
+  radius,
+  active,
+  locking,
+  color = '#38bdf8',
+  glow = false,
+}: PlanetTargetBoxProps) => {
   const boxRef = useRef<THREE.Mesh>(null);
   const boxSize = getPlanetTargetBoxSize(radius);
 
@@ -26,9 +34,19 @@ export const PlanetTargetBox = ({ radius, active, locking }: PlanetTargetBoxProp
     <mesh ref={boxRef} raycast={() => null}>
       <boxGeometry args={[boxSize, boxSize, boxSize]} />
       <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      {glow && (
+        <Edges
+          color={color}
+          lineWidth={4}
+          transparent
+          opacity={0.28}
+          depthTest={false}
+          renderOrder={19}
+        />
+      )}
       <Edges
-        color="#38bdf8"
-        lineWidth={1.25}
+        color={color}
+        lineWidth={glow ? 1.75 : 1.25}
         transparent
         opacity={locking ? 1 : 0.78}
         depthTest={false}

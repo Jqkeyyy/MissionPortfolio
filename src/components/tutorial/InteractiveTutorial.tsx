@@ -76,6 +76,7 @@ export const InteractiveTutorial = ({ controller }: InteractiveTutorialProps) =>
     : null;
   const targetStyle = geometry?.highlight satisfies CSSProperties | undefined;
   const arrowStyle = geometry ? ({ left: geometry.arrow.left, top: geometry.arrow.top } satisfies CSSProperties) : undefined;
+  const usesThreeDimensionalHighlight = step.id === 'select-sun';
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[1100]" data-testid="interactive-tutorial">
@@ -83,12 +84,14 @@ export const InteractiveTutorial = ({ controller }: InteractiveTutorialProps) =>
 
       {geometry && (
         <>
-          <div
-            aria-hidden="true"
-            data-testid="tutorial-highlight"
-            className="fixed rounded-xl border-2 border-orange-300 shadow-[0_0_0_4px_rgba(251,146,60,0.2),0_0_34px_rgba(251,146,60,0.7)] motion-safe:animate-pulse"
-            style={targetStyle}
-          />
+          {!usesThreeDimensionalHighlight && (
+            <div
+              aria-hidden="true"
+              data-testid="tutorial-highlight"
+              className="fixed rounded-xl border-2 border-orange-300 shadow-[0_0_0_4px_rgba(251,146,60,0.2),0_0_34px_rgba(251,146,60,0.7)] motion-safe:animate-pulse"
+              style={targetStyle}
+            />
+          )}
           <div
             aria-hidden="true"
             data-testid="tutorial-arrow"

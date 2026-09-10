@@ -11,13 +11,14 @@ import { useSimulationState } from '@/hooks/useSimulationState';
 
 interface SunProps {
   onClick?: () => void;
+  tutorialActive?: boolean;
 }
 
 const sun = getPlanetById('sun');
 
 if (!sun) throw new Error('Sun data is required to render the solar system.');
 
-export const Sun = ({ onClick }: SunProps) => {
+export const Sun = ({ onClick, tutorialActive = false }: SunProps) => {
   const sunRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
 
@@ -94,11 +95,29 @@ export const Sun = ({ onClick }: SunProps) => {
         decay={2}
       />
 
-      <PlanetTargetBox radius={4} active={hovered || locking} locking={locking} />
+      <PlanetTargetBox
+        radius={4}
+        active={hovered || locking || tutorialActive}
+        locking={locking}
+        color={tutorialActive ? '#fb923c' : undefined}
+        glow={tutorialActive}
+      />
+
+      {/* Screen-space anchor for the tutorial arrow, centered on the 3D target box. */}
+      {tutorialActive && (
+        <Html position={[0, 0, 0]} center style={{ pointerEvents: 'none' }}>
+          <div
+            data-tutorial-target="sun"
+            data-tutorial-highlight="three-dimensional"
+            aria-hidden="true"
+            className="h-[10vh] w-[10vh]"
+          />
+        </Html>
+      )}
 
       {/* Floating target label with lock-on status */}
       <Html position={[0, 5.2, 0]} center style={{ pointerEvents: 'none' }}>
-        <div data-tutorial-target="sun">
+        <div>
           <PlanetReticle
             name="The Sun"
             description="Identity / Introduction"

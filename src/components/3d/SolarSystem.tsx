@@ -153,6 +153,7 @@ interface SolarSystemProps {
   onOpenQuickPortfolio: () => void;
   eventHorizonVisible?: boolean;
   onEnterEventHorizon?: () => void;
+  tutorialSunActive?: boolean;
 }
 
 export const SolarSystem = ({
@@ -160,6 +161,7 @@ export const SolarSystem = ({
   onOpenQuickPortfolio,
   eventHorizonVisible = false,
   onEnterEventHorizon,
+  tutorialSunActive = false,
 }: SolarSystemProps) => {
   const { currentView, travelToPlanet } = useGameState();
   const chaosModeEnabled = useChaosMode((state) => state.enabled);
@@ -252,7 +254,10 @@ export const SolarSystem = ({
         />
         
         {/* Sun at center - clickable for introduction */}
-        <Sun onClick={() => handlePlanetClick('sun')} />
+        <Sun
+          onClick={() => handlePlanetClick('sun')}
+          tutorialActive={tutorialSunActive}
+        />
         
         {/* Orbit rings */}
         {!chaosModeEnabled && renderedPlanets.filter(p => p.orbitRadius > 0).map((planet) => (
