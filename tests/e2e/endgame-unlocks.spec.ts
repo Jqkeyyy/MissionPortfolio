@@ -6,9 +6,10 @@ const completedProgress = {
   completionDismissed: true,
 };
 
-test('Alien Signal Hunt completes its first navigation handoff', async ({ page, browserName }) => {
-  test.setTimeout(45_000);
+test('Alien Signal Hunt completes every navigation handoff and decodes the message', async ({ page, browserName }) => {
+  test.setTimeout(90_000);
   test.skip(browserName !== 'chromium', 'The signal navigation handoff uses the Chromium WebGL route.');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript((progress) => {
     localStorage.setItem('mission-portfolio:exploration-progress:v1', JSON.stringify(progress));
     localStorage.removeItem('mission-portfolio:alien-signal-hunt:v1');
@@ -19,13 +20,34 @@ test('Alien Signal Hunt completes its first navigation handoff', async ({ page, 
   await page.getByRole('button', { name: 'Return to Space' }).click();
   await expect(page.getByRole('heading', { name: 'Mission Portfolio' })).toBeVisible({ timeout: 10_000 });
 
+  const signalTargets = [
+    { name: 'Mercury', progress: '0' },
+    { name: 'The Moon', progress: '1' },
+    { name: 'Mars', progress: '2' },
+    { name: 'Saturn', progress: '3' },
+    { name: 'Neptune', progress: '4' },
+  ] as const;
+
+  for (const [index, target] of signalTargets.entries()) {
+    await page.getByRole('button', { name: 'ANOMALY CONSOLE' }).click();
+    await page.getByRole('button', { name: 'Open Signal Receiver' }).click();
+    if (index === 0) await page.getByRole('button', { name: 'Start Triangulation' }).click();
+    await expect(page.getByRole('progressbar', { name: 'Signal fragments recovered' }))
+      .toHaveAttribute('aria-valuenow', target.progress);
+    await page.getByRole('button', { name: `Plot Course to ${target.name}` }).click();
+    await expect(page.getByRole('heading', { name: `${target.name} planet surface` }))
+      .toBeVisible({ timeout: 15_000 });
+    await page.getByRole('button', { name: 'Return to Space' }).click();
+    await expect(page.getByRole('heading', { name: 'Mission Portfolio' }))
+      .toBeVisible({ timeout: 10_000 });
+  }
+
   await page.getByRole('button', { name: 'ANOMALY CONSOLE' }).click();
   await page.getByRole('button', { name: 'Open Signal Receiver' }).click();
-  await page.getByRole('button', { name: 'Start Triangulation' }).click();
-  await page.getByRole('button', { name: 'Plot Course to Mercury' }).click();
-
-  await expect(page.getByRole('heading', { name: 'Mercury planet surface' }))
-    .toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('progressbar', { name: 'Signal fragments recovered' }))
+    .toHaveAttribute('aria-valuenow', '5');
+  await expect(page.getByRole('heading', { name: 'STAY CURIOUS. BUILD USEFUL THINGS.' }))
+    .toBeVisible();
 });
 
 test('completed explorers can use every anomaly experiment', async ({ page, browserName }) => {
