@@ -8,6 +8,17 @@
 @tailwind components;
 @tailwind utilities;
 
+.new-game-plus canvas {
+  filter: hue-rotate(145deg) saturate(1.22) contrast(1.04);
+  transition: filter 900ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-game-plus canvas {
+    transition: none;
+  }
+}
+
 @layer base {
   :root {
     /* Space Mission Color Palette */

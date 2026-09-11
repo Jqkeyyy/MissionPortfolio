@@ -1,5 +1,16 @@
 import { useState } from 'react';
-import { CircleDot, Hammer, MoonStar, Shuffle, Sparkles } from 'lucide-react';
+import {
+  CircleDot,
+  Flame,
+  Hammer,
+  MoonStar,
+  Orbit,
+  RadioTower,
+  Satellite,
+  Shuffle,
+  Sparkles,
+  Terminal,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,6 +32,13 @@ export interface AnomalyConsoleProps {
   onChaosModeChange: (enabled: boolean) => void;
   onRevealEventHorizon: () => void;
   onOpenCosmicArchitect: () => void;
+  onOpenAlienSignal: () => void;
+  onOpenRoguePlanet: () => void;
+  onOpenOrbitReplay: () => void;
+  onOpenHabTerminal: () => void;
+  onOpenSupernova: () => void;
+  newGamePlusActive: boolean;
+  onRestoreNewGamePlus: () => void;
   className?: string;
   triggerClassName?: string;
 }
@@ -38,6 +56,13 @@ export const AnomalyConsole = ({
   onChaosModeChange,
   onRevealEventHorizon,
   onOpenCosmicArchitect,
+  onOpenAlienSignal,
+  onOpenRoguePlanet,
+  onOpenOrbitReplay,
+  onOpenHabTerminal,
+  onOpenSupernova,
+  newGamePlusActive,
+  onRestoreNewGamePlus,
   className,
   triggerClassName,
 }: AnomalyConsoleProps) => {
@@ -139,6 +164,65 @@ export const AnomalyConsole = ({
                 className={actionClassName}
               >
                 Open Cosmic Architect
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="alien-signal">
+              <FeatureHeading rank="05" title="Alien Signal Hunt" icon={<RadioTower aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Recover radio fragments hidden across the planets and decode coordinates to a secret destination.
+              </p>
+              <Button type="button" variant="outline" onClick={() => launchAndClose(onOpenAlienSignal)} className={actionClassName}>
+                Open Signal Receiver
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="rogue-planet">
+              <FeatureHeading rank="06" title="Rogue Planet" icon={<Orbit aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Intercept an unmarked world carrying a hidden build record from outside the catalog.
+              </p>
+              <Button type="button" variant="outline" onClick={() => launchAndClose(onOpenRoguePlanet)} className={actionClassName}>
+                Track Rogue Planet
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="orbit-replay">
+              <FeatureHeading rank="07" title="Orbit Replay" icon={<Satellite aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Launch an autopilot flyby of the completed mission, its milestones, and portfolio statistics.
+              </p>
+              <Button type="button" variant="outline" onClick={() => launchAndClose(onOpenOrbitReplay)} className={actionClassName}>
+                Start Orbit Replay
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="hab-terminal">
+              <FeatureHeading rank="08" title="Secret HAB Terminal" icon={<Terminal aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Enter the maintenance shell. Its documented command list is intentionally incomplete.
+              </p>
+              <Button type="button" variant="outline" onClick={() => launchAndClose(onOpenHabTerminal)} className={actionClassName}>
+                Access HAB Terminal
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="supernova">
+              <FeatureHeading rank="09" title="Supernova Button" icon={<Flame aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Collapse the system in a cinematic sequence and reform it with a New Game+ spectrum.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                aria-pressed={newGamePlusActive}
+                onClick={() => {
+                  if (newGamePlusActive) onRestoreNewGamePlus();
+                  else launchAndClose(onOpenSupernova);
+                }}
+                className={actionClassName}
+              >
+                {newGamePlusActive ? 'Restore Original Timeline' : 'Arm Supernova'}
               </Button>
             </li>
           </ol>

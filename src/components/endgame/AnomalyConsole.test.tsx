@@ -9,6 +9,13 @@ const createProps = (overrides: Partial<AnomalyConsoleProps> = {}): AnomalyConso
   onChaosModeChange: vi.fn(),
   onRevealEventHorizon: vi.fn(),
   onOpenCosmicArchitect: vi.fn(),
+  onOpenAlienSignal: vi.fn(),
+  onOpenRoguePlanet: vi.fn(),
+  onOpenOrbitReplay: vi.fn(),
+  onOpenHabTerminal: vi.fn(),
+  onOpenSupernova: vi.fn(),
+  newGamePlusActive: false,
+  onRestoreNewGamePlus: vi.fn(),
   ...overrides,
 });
 
@@ -18,12 +25,14 @@ describe('AnomalyConsole', () => {
     expect(screen.queryByRole('button', { name: 'ANOMALY CONSOLE' })).not.toBeInTheDocument();
   });
 
-  it('presents the four experiments in priority order after completion', () => {
+  it('presents the original and post-completion experiments in priority order', () => {
     render(<AnomalyConsole {...createProps()} />);
     fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
 
     const features = screen.getByRole('list', { name: 'Unlocked anomaly experiments' });
-    expect(features).toHaveTextContent(/Developer Moon.*Chaos Mode.*The Event Horizon.*Cosmic Architect/);
+    expect(features).toHaveTextContent(
+      /Developer Moon.*Chaos Mode.*The Event Horizon.*Cosmic Architect.*Alien Signal Hunt.*Rogue Planet.*Orbit Replay.*Secret HAB Terminal.*Supernova Button/,
+    );
     expect(screen.getByRole('dialog')).toHaveAccessibleName('Anomaly Console');
   });
 
@@ -60,5 +69,40 @@ describe('AnomalyConsole', () => {
     expect(onOpenDeveloperMoon).toHaveBeenCalledOnce();
     expect(onRevealEventHorizon).toHaveBeenCalledOnce();
     expect(onOpenCosmicArchitect).toHaveBeenCalledOnce();
+  });
+
+  it('dispatches all five new endgame actions', () => {
+    const actions = {
+      onOpenAlienSignal: vi.fn(),
+      onOpenRoguePlanet: vi.fn(),
+      onOpenOrbitReplay: vi.fn(),
+      onOpenHabTerminal: vi.fn(),
+      onOpenSupernova: vi.fn(),
+    };
+    render(<AnomalyConsole {...createProps(actions)} />);
+
+    for (const [name, callback] of [
+      ['Open Signal Receiver', actions.onOpenAlienSignal],
+      ['Track Rogue Planet', actions.onOpenRoguePlanet],
+      ['Start Orbit Replay', actions.onOpenOrbitReplay],
+      ['Access HAB Terminal', actions.onOpenHabTerminal],
+      ['Arm Supernova', actions.onOpenSupernova],
+    ] as const) {
+      fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+      fireEvent.click(screen.getByRole('button', { name }));
+      expect(callback).toHaveBeenCalledOnce();
+    }
+  });
+
+  it('restores the original timeline without reopening the cinematic', () => {
+    const onRestoreNewGamePlus = vi.fn();
+    const onOpenSupernova = vi.fn();
+    render(<AnomalyConsole {...createProps({ newGamePlusActive: true, onRestoreNewGamePlus, onOpenSupernova })} />);
+    fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+    const restore = screen.getByRole('button', { name: 'Restore Original Timeline' });
+    expect(restore).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(restore);
+    expect(onRestoreNewGamePlus).toHaveBeenCalledOnce();
+    expect(onOpenSupernova).not.toHaveBeenCalled();
   });
 });

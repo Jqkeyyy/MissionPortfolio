@@ -6,13 +6,13 @@ main solar system without distracting from the portfolio journey.
 
 ## Easter egg backlog
 
-- **Supernova Button** — A suspiciously unprotected terminal control destroys the
+- **Supernova Button** *(implemented)* — A suspiciously unprotected terminal control destroys the
   system in a cinematic sequence, then reforms it as a visually altered New Game+.
-- **Rogue Planet** — An unmarked world occasionally crosses the system. Catching it
+- **Rogue Planet** *(implemented)* — An unmarked world occasionally crosses the system. Catching it
   reveals a secret project, personal story, prototype collection, or experiment.
-- **Alien Signal Hunt** — Radio fragments hidden across the planets combine into a
+- **Alien Signal Hunt** *(implemented)* — Radio fragments hidden across the planets combine into a
   message, cipher, or coordinates leading to a secret destination.
-- **Orbit Replay** — An autopilot flyby of all completed destinations, highlighting
+- **Orbit Replay** *(implemented)* — An autopilot flyby of all completed destinations, highlighting
   project milestones, memorable mission moments, and portfolio statistics.
 - **Gravity Gun** — Pick up and throw planets into slingshots or harmless particle
   collisions before they return to their proper places.
@@ -23,7 +23,7 @@ main solar system without distracting from the portfolio journey.
   development artifacts, the HAB v5-to-v6 interaction change, and notes about the
   accessibility and performance work behind the finished mission. True early UI
   screenshots can replace or extend the current artifact stops as they are added.
-- **Secret HAB Terminal Commands** — Undocumented commands such as `chaos`,
+- **Secret HAB Terminal Commands** *(implemented)* — Undocumented commands such as `chaos`,
   `singularity`, `moonwalk`, `sudo launch`, `coffee`, and `open the pod bay doors`
   trigger small effects. The visible command list should not reveal every command.
 - **Space Pet** — A tiny alien or maintenance robot follows the ship, reacts when

@@ -11,6 +11,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getPlanetById, planets } from '@/data/planets';
 import { useDocumentMetadata } from '@/hooks/useDocumentMetadata';
 import { SITE_URL } from '@/config/site';
+import { useNewGamePlus } from '@/features/endgame/useNewGamePlus';
+import type { HabTerminalEffect } from '@/components/endgame/SecretHabTerminal';
 
 const SolarSystem = lazy(() => import('@/components/3d/SolarSystem').then((module) => ({ default: module.SolarSystem })));
 const TravelSequence = lazy(() => import('@/components/TravelSequence').then((module) => ({ default: module.TravelSequence })));
@@ -21,6 +23,11 @@ const QuickPortfolio = lazy(() => import('@/components/quick-portfolio').then((m
 const NullSector = lazy(() => import('@/components/endgame/NullSector').then((module) => ({ default: module.NullSector })));
 const CosmicArchitectPanel = lazy(() => import('@/components/endgame/CosmicArchitectPanel').then((module) => ({ default: module.CosmicArchitectPanel })));
 const DeveloperMoonJourney = lazy(() => import('@/components/endgame/DeveloperMoonJourney').then((module) => ({ default: module.DeveloperMoonJourney })));
+const AlienSignalHunt = lazy(() => import('@/components/endgame/AlienSignalHunt').then((module) => ({ default: module.AlienSignalHunt })));
+const RoguePlanetEncounter = lazy(() => import('@/components/endgame/RoguePlanetEncounter').then((module) => ({ default: module.RoguePlanetEncounter })));
+const OrbitReplay = lazy(() => import('@/components/endgame/OrbitReplay').then((module) => ({ default: module.OrbitReplay })));
+const SecretHabTerminal = lazy(() => import('@/components/endgame/SecretHabTerminal').then((module) => ({ default: module.SecretHabTerminal })));
+const SupernovaSequence = lazy(() => import('@/components/endgame/SupernovaSequence').then((module) => ({ default: module.SupernovaSequence })));
 
 type ExplorationMode = 'prompt' | 'active' | 'unavailable';
 type ExplorationNavigationState = { resumeExploration?: boolean };
@@ -126,6 +133,7 @@ const Index = () => {
     closeQuickPortfolio,
     resetExploration,
     arriveAtPlanet,
+    travelToPlanet,
     announce,
   } = useGameState();
   const { planetId } = useParams();
@@ -139,6 +147,16 @@ const Index = () => {
   const [nullSectorOpen, setNullSectorOpen] = useState(false);
   const [cosmicArchitectOpen, setCosmicArchitectOpen] = useState(false);
   const [developerMoonOpen, setDeveloperMoonOpen] = useState(false);
+  const [alienSignalOpen, setAlienSignalOpen] = useState(false);
+  const [roguePlanetOpen, setRoguePlanetOpen] = useState(false);
+  const [orbitReplayOpen, setOrbitReplayOpen] = useState(false);
+  const [habTerminalOpen, setHabTerminalOpen] = useState(false);
+  const [supernovaOpen, setSupernovaOpen] = useState(false);
+  const {
+    active: newGamePlusActive,
+    enable: enableNewGamePlus,
+    disable: disableNewGamePlus,
+  } = useNewGamePlus();
   const progress = useExplorationProgress();
   const previousView = useRef(currentView);
   const previousPlanet = useRef(selectedPlanet);
@@ -275,13 +293,50 @@ const Index = () => {
     setNullSectorOpen(false);
     setCosmicArchitectOpen(false);
     setDeveloperMoonOpen(false);
-  }, [progress.isComplete]);
+    setAlienSignalOpen(false);
+    setRoguePlanetOpen(false);
+    setOrbitReplayOpen(false);
+    setHabTerminalOpen(false);
+    setSupernovaOpen(false);
+    disableNewGamePlus();
+  }, [disableNewGamePlus, progress.isComplete]);
+
+  const handleHabTerminalEffect = (effect: HabTerminalEffect) => {
+    if (effect === 'chaos') {
+      void import('@/features/endgame/useChaosMode').then(({ useChaosMode }) => {
+        useChaosMode.getState().enable();
+      });
+      announce('Hidden command accepted. Chaos Mode enabled.');
+      return;
+    }
+    if (effect === 'singularity') {
+      setHabTerminalOpen(false);
+      setEventHorizonVisible(true);
+      announce('Hidden command accepted. Event Horizon revealed beyond Neptune.');
+      return;
+    }
+    if (effect === 'moonwalk') {
+      setHabTerminalOpen(false);
+      setDeveloperMoonOpen(true);
+      return;
+    }
+    if (effect === 'launch') {
+      setHabTerminalOpen(false);
+      setOrbitReplayOpen(true);
+    }
+  };
 
   const spaceViewActive = explorationMode === 'active'
     && (currentView === 'space' || currentView === 'intercepting');
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-background">
+    <div className={`relative h-screen w-screen overflow-hidden bg-background ${newGamePlusActive ? 'new-game-plus' : ''}`}>
+      {newGamePlusActive && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-[5] bg-[radial-gradient(circle_at_50%_20%,rgba(34,211,238,0.08),transparent_30%),radial-gradient(circle_at_20%_80%,rgba(217,70,239,0.08),transparent_35%)] mix-blend-screen"
+        />
+      )}
       <ExplorationProgressTracker />
       <MissionAudioController />
       {explorationMode === 'prompt' && currentView === 'space' && (
@@ -318,6 +373,13 @@ const Index = () => {
               onOpenDeveloperMoon={() => setDeveloperMoonOpen(true)}
               onRevealEventHorizon={() => setEventHorizonVisible(true)}
               onOpenCosmicArchitect={() => setCosmicArchitectOpen(true)}
+              onOpenAlienSignal={() => setAlienSignalOpen(true)}
+              onOpenRoguePlanet={() => setRoguePlanetOpen(true)}
+              onOpenOrbitReplay={() => setOrbitReplayOpen(true)}
+              onOpenHabTerminal={() => setHabTerminalOpen(true)}
+              onOpenSupernova={() => setSupernovaOpen(true)}
+              newGamePlusActive={newGamePlusActive}
+              onRestoreNewGamePlus={disableNewGamePlus}
             />
           </Suspense>
         )}
@@ -365,6 +427,62 @@ const Index = () => {
       {developerMoonOpen && (
         <Suspense fallback={<StageFallback label="Descending to Developer Moon..." />}>
           <DeveloperMoonJourney open onOpenChange={setDeveloperMoonOpen} />
+        </Suspense>
+      )}
+
+      {progress.isComplete && (
+        <Suspense fallback={null}>
+          <AlienSignalHunt
+            open={alienSignalOpen}
+            onOpenChange={setAlienSignalOpen}
+            activePlanetId={currentView === 'planet' ? selectedPlanet : null}
+            onNavigateToPlanet={travelToPlanet}
+            onFragmentCollected={(fragment) => announce(`Alien signal recovered on ${fragment.planetName}.`)}
+            onDecoded={() => announce('Alien transmission decoded. The Listening Post is unlocked.')}
+          />
+        </Suspense>
+      )}
+
+      {roguePlanetOpen && (
+        <Suspense fallback={null}>
+          <RoguePlanetEncounter
+            open
+            onOpenChange={setRoguePlanetOpen}
+            onCapture={() => announce('Rogue Planet captured. Hidden build record recovered.')}
+          />
+        </Suspense>
+      )}
+
+      {orbitReplayOpen && (
+        <Suspense fallback={null}>
+          <OrbitReplay
+            open
+            onOpenChange={setOrbitReplayOpen}
+            visitedPlanetIds={progress.visitedPlanetIds}
+            onReplayComplete={() => announce('Orbit Replay complete. All mission records reviewed.')}
+          />
+        </Suspense>
+      )}
+
+      {habTerminalOpen && (
+        <Suspense fallback={null}>
+          <SecretHabTerminal open onOpenChange={setHabTerminalOpen} onEffect={handleHabTerminalEffect} />
+        </Suspense>
+      )}
+
+      {supernovaOpen && (
+        <Suspense fallback={<StageFallback label="Stabilizing stellar core..." />}>
+          <SupernovaSequence
+            open
+            onOpenChange={setSupernovaOpen}
+            onReform={() => {
+              void import('@/features/endgame/useChaosMode').then(({ useChaosMode }) => {
+                useChaosMode.getState().disable();
+              });
+              enableNewGamePlus();
+              announce('New Game Plus active. Mission progress preserved.');
+            }}
+          />
         </Suspense>
       )}
     </div>

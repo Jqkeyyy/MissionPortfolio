@@ -35,6 +35,13 @@ interface SpaceHUDProps {
   onOpenDeveloperMoon?: () => void;
   onRevealEventHorizon?: () => void;
   onOpenCosmicArchitect?: () => void;
+  onOpenAlienSignal?: () => void;
+  onOpenRoguePlanet?: () => void;
+  onOpenOrbitReplay?: () => void;
+  onOpenHabTerminal?: () => void;
+  onOpenSupernova?: () => void;
+  newGamePlusActive?: boolean;
+  onRestoreNewGamePlus?: () => void;
 }
 
 export const SpaceHUD = ({
@@ -42,6 +49,13 @@ export const SpaceHUD = ({
   onOpenDeveloperMoon = () => {},
   onRevealEventHorizon = () => {},
   onOpenCosmicArchitect = () => {},
+  onOpenAlienSignal = () => {},
+  onOpenRoguePlanet = () => {},
+  onOpenOrbitReplay = () => {},
+  onOpenHabTerminal = () => {},
+  onOpenSupernova = () => {},
+  newGamePlusActive = false,
+  onRestoreNewGamePlus = () => {},
 }: SpaceHUDProps) => {
   const {
     announcement,
@@ -160,6 +174,13 @@ export const SpaceHUD = ({
           disableChaosMode();
           onOpenCosmicArchitect();
         }}
+        onOpenAlienSignal={onOpenAlienSignal}
+        onOpenRoguePlanet={onOpenRoguePlanet}
+        onOpenOrbitReplay={onOpenOrbitReplay}
+        onOpenHabTerminal={onOpenHabTerminal}
+        onOpenSupernova={onOpenSupernova}
+        newGamePlusActive={newGamePlusActive}
+        onRestoreNewGamePlus={onRestoreNewGamePlus}
         className="fixed bottom-24 right-4 z-20 md:bottom-8"
       />
       {/* Title overlay */}
