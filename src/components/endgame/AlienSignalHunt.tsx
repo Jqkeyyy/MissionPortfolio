@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Antenna,
@@ -68,6 +68,10 @@ export const AlienSignalHunt = ({
     readAlienSignalProgress(storage)
   ));
   const [view, setView] = useState<HuntView>('receiver');
+  const onFragmentCollectedRef = useRef(onFragmentCollected);
+  const onDecodedRef = useRef(onDecoded);
+  onFragmentCollectedRef.current = onFragmentCollected;
+  onDecodedRef.current = onDecoded;
   const decoded = isAlienSignalDecoded(progress);
   const nextFragment = getNextAlienSignalFragment(progress);
   const collectedCount = progress.collectedFragmentIds.length;
@@ -81,9 +85,9 @@ export const AlienSignalHunt = ({
     const found = getAlienSignalFragmentAtPlanet(activePlanetId);
     persistAlienSignalProgress(storage, nextProgress);
     setProgress(nextProgress);
-    if (found) onFragmentCollected?.(found, nextProgress);
-    if (isAlienSignalDecoded(nextProgress)) onDecoded?.(nextProgress);
-  }, [activePlanetId, onDecoded, onFragmentCollected, progress, storage]);
+    if (found) onFragmentCollectedRef.current?.(found, nextProgress);
+    if (isAlienSignalDecoded(nextProgress)) onDecodedRef.current?.(nextProgress);
+  }, [activePlanetId, progress, storage]);
 
   useEffect(() => {
     if (!open) setView('receiver');

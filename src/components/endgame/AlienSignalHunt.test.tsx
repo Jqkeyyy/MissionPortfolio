@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { useState } from 'react';
 import { ALIEN_SIGNAL_STORAGE_KEY, type AlienSignalStorage } from '@/features/endgame/alienSignalHunt';
 import { AlienSignalHunt, type AlienSignalHuntProps } from './AlienSignalHunt';
 
@@ -68,6 +69,28 @@ describe('AlienSignalHunt', () => {
       expect.objectContaining({ id: 'carrier-01', planetId: 'mercury' }),
       expect.objectContaining({ collectedFragmentIds: ['carrier-01'] }),
     );
+  });
+
+  it('does not repeat collection when the host announcement rerenders its callbacks', async () => {
+    const storage = createMemoryStorage();
+    storage.value = JSON.stringify({ version: 1, started: true, collectedFragmentIds: [] });
+
+    const Host = () => {
+      const [announcements, setAnnouncements] = useState(0);
+      return (
+        <>
+          <output aria-label="Collection announcements">{announcements}</output>
+          <AlienSignalHunt
+            {...createProps({ storage, activePlanetId: 'mercury' })}
+            onFragmentCollected={() => setAnnouncements((count) => count + 1)}
+          />
+        </>
+      );
+    };
+
+    render(<Host />);
+    await waitFor(() => expect(screen.getByLabelText('Collection announcements')).toHaveTextContent('1'));
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
   });
 
   it('decodes the complete message and opens the secret destination', async () => {

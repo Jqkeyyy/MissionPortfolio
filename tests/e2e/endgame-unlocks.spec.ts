@@ -6,6 +6,28 @@ const completedProgress = {
   completionDismissed: true,
 };
 
+test('Alien Signal Hunt completes its first navigation handoff', async ({ page, browserName }) => {
+  test.setTimeout(45_000);
+  test.skip(browserName !== 'chromium', 'The signal navigation handoff uses the Chromium WebGL route.');
+  await page.addInitScript((progress) => {
+    localStorage.setItem('mission-portfolio:exploration-progress:v1', JSON.stringify(progress));
+    localStorage.removeItem('mission-portfolio:alien-signal-hunt:v1');
+  }, completedProgress);
+
+  await page.goto('/explore/earth');
+  await expect(page.getByRole('heading', { name: 'Earth planet surface' })).toBeAttached({ timeout: 10_000 });
+  await page.getByRole('button', { name: 'Return to Space' }).click();
+  await expect(page.getByRole('heading', { name: 'Mission Portfolio' })).toBeVisible({ timeout: 10_000 });
+
+  await page.getByRole('button', { name: 'ANOMALY CONSOLE' }).click();
+  await page.getByRole('button', { name: 'Open Signal Receiver' }).click();
+  await page.getByRole('button', { name: 'Start Triangulation' }).click();
+  await page.getByRole('button', { name: 'Plot Course to Mercury' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Mercury planet surface' }))
+    .toBeVisible({ timeout: 15_000 });
+});
+
 test('completed explorers can use every anomaly experiment', async ({ page, browserName }) => {
   test.setTimeout(120_000);
   test.skip(browserName !== 'chromium', 'The endgame WebGL experiments are covered in Chromium.');
