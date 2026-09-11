@@ -11,6 +11,7 @@ import { useGameState } from '@/hooks/useGameState';
 import { SolarSystemShip } from './SolarSystemShip';
 import * as THREE from 'three';
 import { SimulationClock } from './SimulationClock';
+import { writeBodyPosition } from './orbitalSimulation';
 import { SolarSystemDetails } from './SolarSystemDetails';
 import { useGraphicsSettings, type GraphicsPreference, type GraphicsTier } from '@/hooks/useGraphicsSettings';
 import { EventHorizon } from './EventHorizon';
@@ -21,6 +22,13 @@ import {
 import { getChaosModeSettings, useChaosMode } from '@/features/endgame/useChaosMode';
 import { applyCosmicArchitectOverrides } from '@/features/endgame/cosmicArchitect';
 import { useCosmicArchitect } from '@/features/endgame/useCosmicArchitect';
+import { applyPlanetFusionToPlanets } from '@/features/endgame/planetFusion';
+import { usePlanetFusion } from '@/features/endgame/planetFusionState';
+import { useDiscoSun } from '@/features/endgame/discoSun';
+import { GravityGunFrameDriver } from '@/components/endgame/GravityGunFrameDriver';
+import { useGravityGun } from '@/features/endgame/gravityGunStore';
+import type { GravityGunBodyDescriptor } from '@/features/endgame/gravityGun';
+import { GravityGunCollisionEffects } from '@/components/endgame/GravityGunCollisionEffects';
 
 const OPTIMIZED_SHUTTLE_URL = '/optimized/mission-shuttle.webp';
 
@@ -166,15 +174,19 @@ export const SolarSystem = ({
   const { currentView, travelToPlanet } = useGameState();
   const chaosModeEnabled = useChaosMode((state) => state.enabled);
   const architectOverrides = useCosmicArchitect((state) => state.overrides);
+  const activeFusion = usePlanetFusion((state) => state.activeFusion);
+  const discoActive = useDiscoSun((state) => state.active);
   const preference = useGraphicsSettings((state) => state.preference);
   const deviceProfile = useMemo(getGraphicsProfile, []);
   const initialTier: GraphicsTier = deviceProfile.powerPreference === 'low-power' ? 'low' : 'high';
   const [automaticTier, setAutomaticTier] = useState<GraphicsTier>(initialTier);
   const chaosWriter = useMemo(() => createChaosSystemSnapshotWriter(planets), []);
-  const renderedPlanets = useMemo(
-    () => chaosModeEnabled ? planets : applyCosmicArchitectOverrides(planets, architectOverrides),
-    [architectOverrides, chaosModeEnabled],
-  );
+  const renderedPlanets = useMemo(() => {
+    const basePlanets = chaosModeEnabled
+      ? planets
+      : applyCosmicArchitectOverrides(planets, architectOverrides);
+    return applyPlanetFusionToPlanets(basePlanets, activeFusion);
+  }, [activeFusion, architectOverrides, chaosModeEnabled]);
   const reducedMotion = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
   const selectedGraphics = resolveGraphicsProfile(preference, automaticTier);
@@ -211,6 +223,23 @@ export const SolarSystem = ({
     }
   }, []);
 
+  const getGravityGunBodies = useCallback((): GravityGunBodyDescriptor[] => renderedPlanets
+    .filter((planet) => planet.orbitRadius > 0)
+    .map((planet) => {
+      const actualPosition = planetPositions.current.get(planet.id)
+        ?? writeBodyPosition(planet, 0, new THREE.Vector3());
+      const offset = useGravityGun.getState().readOffset(planet.id);
+      return {
+        id: planet.id,
+        canonicalPosition: {
+          x: actualPosition.x - offset.x,
+          y: actualPosition.y - offset.y,
+          z: actualPosition.z - offset.z,
+        },
+        radius: planet.size,
+      };
+    }), [renderedPlanets]);
+
   return (
     <div className="w-full h-full">
       <Canvas
@@ -232,6 +261,8 @@ export const SolarSystem = ({
         <ChaosFrameUpdater enabled={chaosModeEnabled} writer={chaosWriter} />
         <FrameRateMonitor enabled={preference === 'auto'} onSample={handleFrameRateSample} />
         <SimulationClock />
+        <GravityGunFrameDriver getBodies={getGravityGunBodies} />
+        <GravityGunCollisionEffects enabled={graphics.decorativeMotion} />
         <PerspectiveCamera makeDefault position={[0, 30, 80]} fov={60} />
         <OrbitControls
           enablePan={false}
@@ -242,7 +273,7 @@ export const SolarSystem = ({
         />
         
         {/* Ambient light */}
-        <ambientLight intensity={0.15} />
+        <ambientLight intensity={discoActive ? 0.34 : 0.15} color={discoActive ? '#d946ef' : '#ffffff'} />
         
         {/* Star background */}
         <StarField count={graphics.starCount} />
@@ -257,11 +288,12 @@ export const SolarSystem = ({
         <Sun
           onClick={() => handlePlanetClick('sun')}
           tutorialActive={tutorialSunActive}
+          discoActive={discoActive}
         />
         
         {/* Orbit rings */}
         {!chaosModeEnabled && renderedPlanets.filter(p => p.orbitRadius > 0).map((planet) => (
-          <OrbitRing key={`orbit-${planet.id}`} planet={planet} />
+          <OrbitRing key={`orbit-${planet.id}`} planet={planet} color={discoActive ? '#ec4899' : undefined} />
         ))}
         
         {/* Planets */}
@@ -271,6 +303,8 @@ export const SolarSystem = ({
             planet={planet}
             chaosModeEnabled={chaosModeEnabled}
             chaosSnapshot={chaosWriter.snapshot}
+            discoActive={discoActive}
+            decorativeMotion={graphics.decorativeMotion}
             onClick={() => handlePlanetClick(planet.id)}
             onPositionUpdate={(position) => updatePlanetPosition(planet.id, position)}
           />

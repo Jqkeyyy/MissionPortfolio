@@ -1,15 +1,20 @@
 import { useState } from 'react';
 import {
+  Bot,
   CircleDot,
+  Combine,
+  Disc3,
   Flame,
   Hammer,
   MoonStar,
+  Move3d,
   Orbit,
   RadioTower,
   Satellite,
   Shuffle,
   Sparkles,
   Terminal,
+  Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +27,21 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
-export type EndgameFeatureId = 'developer-moon' | 'chaos' | 'event-horizon' | 'cosmic-architect';
+export type EndgameFeatureId =
+  | 'developer-moon'
+  | 'chaos'
+  | 'event-horizon'
+  | 'cosmic-architect'
+  | 'alien-signal'
+  | 'rogue-planet'
+  | 'orbit-replay'
+  | 'hab-terminal'
+  | 'supernova'
+  | 'planet-fusion'
+  | 'gravity-gun'
+  | 'space-pet'
+  | 'disco-sun'
+  | 'impossible-achievement';
 
 export interface AnomalyConsoleProps {
   /** The console does not render until all ten destinations have been completed. */
@@ -37,6 +56,13 @@ export interface AnomalyConsoleProps {
   onOpenOrbitReplay: () => void;
   onOpenHabTerminal: () => void;
   onOpenSupernova: () => void;
+  onOpenPlanetFusion: () => void;
+  onOpenGravityGun: () => void;
+  spacePetEnabled: boolean;
+  onSpacePetChange: (enabled: boolean) => void;
+  discoSunActive: boolean;
+  onOpenDiscoSun: () => void;
+  onOpenImpossibleAchievement: () => void;
   newGamePlusActive: boolean;
   onRestoreNewGamePlus: () => void;
   className?: string;
@@ -61,6 +87,13 @@ export const AnomalyConsole = ({
   onOpenOrbitReplay,
   onOpenHabTerminal,
   onOpenSupernova,
+  onOpenPlanetFusion,
+  onOpenGravityGun,
+  spacePetEnabled,
+  onSpacePetChange,
+  discoSunActive,
+  onOpenDiscoSun,
+  onOpenImpossibleAchievement,
   newGamePlusActive,
   onRestoreNewGamePlus,
   className,
@@ -223,6 +256,62 @@ export const AnomalyConsole = ({
                 className={actionClassName}
               >
                 {newGamePlusActive ? 'Restore Original Timeline' : 'Arm Supernova'}
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="planet-fusion">
+              <FeatureHeading rank="10" title="Planet Fusion" icon={<Combine aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Combine two worlds into one temporary hybrid, including its terrain, palette, identity, and orbit.
+              </p>
+              <Button type="button" variant="outline" onClick={() => launchAndClose(onOpenPlanetFusion)} className={actionClassName}>
+                Open Fusion Chamber
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="gravity-gun">
+              <FeatureHeading rank="11" title="Gravity Gun" icon={<Move3d aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Throw planets through harmless slingshots and particle contacts before their return systems take over.
+              </p>
+              <Button type="button" variant="outline" onClick={() => launchAndClose(onOpenGravityGun)} className={actionClassName}>
+                Equip Gravity Gun
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="space-pet">
+              <FeatureHeading rank="12" title="Space Pet M-0" icon={<Bot aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Deploy a tiny maintenance companion that follows your clicks and reacts to the mission.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                aria-pressed={spacePetEnabled}
+                onClick={() => onSpacePetChange(!spacePetEnabled)}
+                className={actionClassName}
+              >
+                {spacePetEnabled ? 'Recall M-0' : 'Deploy M-0'}
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="disco-sun">
+              <FeatureHeading rank="13" title="Disco Sun" icon={<Disc3 aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Tap the classified solar rhythm to pulse the trails, lights, music, and planets in sync.
+              </p>
+              <Button type="button" variant="outline" aria-pressed={discoSunActive} onClick={() => launchAndClose(onOpenDiscoSun)} className={actionClassName}>
+                {discoSunActive ? 'Open Solar Controls' : 'Enter Rhythm Lock'}
+              </Button>
+            </li>
+
+            <li className={featureCardClassName} data-feature-id="impossible-achievement">
+              <FeatureHeading rank="14" title="Impossible Achievement" icon={<Trophy aria-hidden="true" />} />
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Verify five linked anomalies in one timeline and void reality's warranty.
+              </p>
+              <Button type="button" variant="outline" onClick={() => launchAndClose(onOpenImpossibleAchievement)} className={actionClassName}>
+                Inspect Classified Challenge
               </Button>
             </li>
           </ol>

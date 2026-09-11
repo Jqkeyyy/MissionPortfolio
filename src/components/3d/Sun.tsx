@@ -12,15 +12,19 @@ import { useSimulationState } from '@/hooks/useSimulationState';
 interface SunProps {
   onClick?: () => void;
   tutorialActive?: boolean;
+  discoActive?: boolean;
 }
 
 const sun = getPlanetById('sun');
 
 if (!sun) throw new Error('Sun data is required to render the solar system.');
 
-export const Sun = ({ onClick, tutorialActive = false }: SunProps) => {
+export const Sun = ({ onClick, tutorialActive = false, discoActive = false }: SunProps) => {
   const sunRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
+  const outerGlowRef = useRef<THREE.Mesh>(null);
+  const lightRef = useRef<THREE.PointLight>(null);
+  const discoColor = useRef(new THREE.Color());
 
   const { hovered, locking, setHovered, trigger } = usePlanetLockOn(() => onClick?.());
 
@@ -34,8 +38,34 @@ export const Sun = ({ onClick, tutorialActive = false }: SunProps) => {
       );
     }
     if (glowRef.current) {
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
+      const scale = 1 + Math.sin(state.clock.elapsedTime * (discoActive ? 8 : 0.5)) * (discoActive ? 0.16 : 0.05);
       glowRef.current.scale.setScalar(scale);
+    }
+    if (discoActive) {
+      const color = discoColor.current.setHSL((state.clock.elapsedTime * 0.18) % 1, 0.92, 0.62);
+      const setMaterialColor = (mesh: THREE.Mesh | null) => {
+        const material = mesh?.material;
+        if (material instanceof THREE.MeshBasicMaterial) material.color.copy(color);
+      };
+      setMaterialColor(sunRef.current);
+      setMaterialColor(glowRef.current);
+      setMaterialColor(outerGlowRef.current);
+      if (lightRef.current) {
+        lightRef.current.color.copy(color);
+        lightRef.current.intensity = 3.2 + Math.sin(state.clock.elapsedTime * 8) * 0.8;
+      }
+    } else {
+      const restoreColor = (mesh: THREE.Mesh | null, color: string) => {
+        const material = mesh?.material;
+        if (material instanceof THREE.MeshBasicMaterial) material.color.set(color);
+      };
+      restoreColor(sunRef.current, '#FDB813');
+      restoreColor(glowRef.current, '#FF9500');
+      restoreColor(outerGlowRef.current, '#FF6B00');
+      if (lightRef.current) {
+        lightRef.current.color.set('#FFF4E0');
+        lightRef.current.intensity = 2;
+      }
     }
   });
 
@@ -79,7 +109,7 @@ export const Sun = ({ onClick, tutorialActive = false }: SunProps) => {
       </Sphere>
 
       {/* Outer glow */}
-      <Sphere args={[4, 32, 32]}>
+      <Sphere ref={outerGlowRef} args={[4, 32, 32]}>
         <meshBasicMaterial
           color="#FF6B00"
           transparent
@@ -89,6 +119,7 @@ export const Sun = ({ onClick, tutorialActive = false }: SunProps) => {
 
       {/* Point light from sun */}
       <pointLight
+        ref={lightRef}
         color="#FFF4E0"
         intensity={2}
         distance={200}

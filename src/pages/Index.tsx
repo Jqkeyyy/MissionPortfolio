@@ -13,6 +13,11 @@ import { useDocumentMetadata } from '@/hooks/useDocumentMetadata';
 import { SITE_URL } from '@/config/site';
 import { useNewGamePlus } from '@/features/endgame/useNewGamePlus';
 import type { HabTerminalEffect } from '@/components/endgame/SecretHabTerminal';
+import { useDiscoSun } from '@/features/endgame/discoSun';
+import { useImpossibleAchievement } from '@/features/endgame/impossibleAchievement';
+import { useGravityGun } from '@/features/endgame/gravityGunStore';
+import { usePlanetFusion } from '@/features/endgame/planetFusionState';
+import { spacePetStore } from '@/features/endgame/spacePet';
 
 const SolarSystem = lazy(() => import('@/components/3d/SolarSystem').then((module) => ({ default: module.SolarSystem })));
 const TravelSequence = lazy(() => import('@/components/TravelSequence').then((module) => ({ default: module.TravelSequence })));
@@ -28,6 +33,11 @@ const RoguePlanetEncounter = lazy(() => import('@/components/endgame/RoguePlanet
 const OrbitReplay = lazy(() => import('@/components/endgame/OrbitReplay').then((module) => ({ default: module.OrbitReplay })));
 const SecretHabTerminal = lazy(() => import('@/components/endgame/SecretHabTerminal').then((module) => ({ default: module.SecretHabTerminal })));
 const SupernovaSequence = lazy(() => import('@/components/endgame/SupernovaSequence').then((module) => ({ default: module.SupernovaSequence })));
+const PlanetFusionPanel = lazy(() => import('@/components/endgame/PlanetFusionPanel').then((module) => ({ default: module.PlanetFusionPanel })));
+const GravityGunHUD = lazy(() => import('@/components/endgame/GravityGunHUD').then((module) => ({ default: module.GravityGunHUD })));
+const SpacePet = lazy(() => import('@/components/endgame/SpacePet').then((module) => ({ default: module.SpacePet })));
+const DiscoSunExperience = lazy(() => import('@/components/endgame/DiscoSunExperience').then((module) => ({ default: module.DiscoSunExperience })));
+const ImpossibleAchievement = lazy(() => import('@/components/endgame/ImpossibleAchievement').then((module) => ({ default: module.ImpossibleAchievement })));
 
 type ExplorationMode = 'prompt' | 'active' | 'unavailable';
 type ExplorationNavigationState = { resumeExploration?: boolean };
@@ -152,6 +162,14 @@ const Index = () => {
   const [orbitReplayOpen, setOrbitReplayOpen] = useState(false);
   const [habTerminalOpen, setHabTerminalOpen] = useState(false);
   const [supernovaOpen, setSupernovaOpen] = useState(false);
+  const [planetFusionOpen, setPlanetFusionOpen] = useState(false);
+  const [gravityGunOpen, setGravityGunOpen] = useState(false);
+  const [spacePetEnabled, setSpacePetEnabled] = useState(false);
+  const [discoSunOpen, setDiscoSunOpen] = useState(false);
+  const [impossibleAchievementOpen, setImpossibleAchievementOpen] = useState(false);
+  const discoSunActive = useDiscoSun((state) => state.active);
+  const deactivateDiscoSun = useDiscoSun((state) => state.deactivate);
+  const recordImpossibleMilestone = useImpossibleAchievement((state) => state.record);
   const {
     active: newGamePlusActive,
     enable: enableNewGamePlus,
@@ -298,8 +316,17 @@ const Index = () => {
     setOrbitReplayOpen(false);
     setHabTerminalOpen(false);
     setSupernovaOpen(false);
+    setPlanetFusionOpen(false);
+    setGravityGunOpen(false);
+    setSpacePetEnabled(false);
+    setDiscoSunOpen(false);
+    setImpossibleAchievementOpen(false);
+    spacePetStore.getState().setEnabled(false);
+    useGravityGun.getState().restoreAll();
+    usePlanetFusion.getState().release();
+    deactivateDiscoSun();
     disableNewGamePlus();
-  }, [disableNewGamePlus, progress.isComplete]);
+  }, [deactivateDiscoSun, disableNewGamePlus, progress.isComplete]);
 
   const handleHabTerminalEffect = (effect: HabTerminalEffect) => {
     if (effect === 'chaos') {
@@ -328,6 +355,23 @@ const Index = () => {
 
   const spaceViewActive = explorationMode === 'active'
     && (currentView === 'space' || currentView === 'intercepting');
+  const spacePetContext = useMemo(() => ({
+    view: currentView,
+    destinationId: selectedPlanet,
+    destinationName: selectedPlanet ? getPlanetById(selectedPlanet)?.displayName : null,
+    traveling: currentView === 'intercepting' || currentView === 'traveling',
+  }), [currentView, selectedPlanet]);
+
+  const handleSpacePetChange = (enabled: boolean) => {
+    spacePetStore.getState().setEnabled(enabled);
+    setSpacePetEnabled(enabled);
+    if (enabled) {
+      recordImpossibleMilestone('pet');
+      announce('Maintenance companion M-0 deployed. Friendship protocol nominal.');
+    } else {
+      announce('Maintenance companion M-0 recalled.');
+    }
+  };
 
   return (
     <div className={`relative h-screen w-screen overflow-hidden bg-background ${newGamePlusActive ? 'new-game-plus' : ''}`}>
@@ -378,6 +422,13 @@ const Index = () => {
               onOpenOrbitReplay={() => setOrbitReplayOpen(true)}
               onOpenHabTerminal={() => setHabTerminalOpen(true)}
               onOpenSupernova={() => setSupernovaOpen(true)}
+              onOpenPlanetFusion={() => setPlanetFusionOpen(true)}
+              onOpenGravityGun={() => setGravityGunOpen(true)}
+              spacePetEnabled={spacePetEnabled}
+              onSpacePetChange={handleSpacePetChange}
+              discoSunActive={discoSunActive}
+              onOpenDiscoSun={() => setDiscoSunOpen(true)}
+              onOpenImpossibleAchievement={() => setImpossibleAchievementOpen(true)}
               newGamePlusActive={newGamePlusActive}
               onRestoreNewGamePlus={disableNewGamePlus}
             />
@@ -448,7 +499,10 @@ const Index = () => {
           <RoguePlanetEncounter
             open
             onOpenChange={setRoguePlanetOpen}
-            onCapture={() => announce('Rogue Planet captured. Hidden build record recovered.')}
+            onCapture={() => {
+              recordImpossibleMilestone('rogue');
+              announce('Rogue Planet captured. Hidden build record recovered.');
+            }}
           />
         </Suspense>
       )}
@@ -483,6 +537,64 @@ const Index = () => {
               announce('New Game Plus active. Mission progress preserved.');
             }}
           />
+        </Suspense>
+      )}
+
+      {planetFusionOpen && (
+        <Suspense fallback={null}>
+          <PlanetFusionPanel
+            open
+            onOpenChange={setPlanetFusionOpen}
+            onFusionActivated={(fusion) => {
+              useGravityGun.getState().restoreAll();
+              recordImpossibleMilestone('fusion');
+              announce(`${fusion.name} stabilized in the live solar system.`);
+            }}
+            onFusionReleased={(fusion) => announce(`${fusion.name} released. Source worlds restored.`)}
+          />
+        </Suspense>
+      )}
+
+      {gravityGunOpen && (
+        <Suspense fallback={null}>
+          <GravityGunHUD
+            open
+            onOpenChange={setGravityGunOpen}
+            planets={planets}
+            onFire={(planetId) => {
+              recordImpossibleMilestone('gravity');
+              announce(`Gravity impulse applied to ${getPlanetById(planetId)?.displayName ?? planetId}.`);
+            }}
+          />
+        </Suspense>
+      )}
+
+      {progress.isComplete && spacePetEnabled && (
+        <Suspense fallback={null}>
+          <SpacePet
+            context={spacePetContext}
+            enabled
+            onEnabledChange={handleSpacePetChange}
+          />
+        </Suspense>
+      )}
+
+      {progress.isComplete && (
+        <Suspense fallback={null}>
+          <DiscoSunExperience
+            open={discoSunOpen}
+            onOpenChange={setDiscoSunOpen}
+            onActivated={() => {
+              recordImpossibleMilestone('disco');
+              announce('Disco Sun rhythm locked. Solar dance protocol active.');
+            }}
+          />
+        </Suspense>
+      )}
+
+      {impossibleAchievementOpen && (
+        <Suspense fallback={null}>
+          <ImpossibleAchievement open onOpenChange={setImpossibleAchievementOpen} />
         </Suspense>
       )}
     </div>

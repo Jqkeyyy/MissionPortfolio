@@ -18,6 +18,8 @@ import {
 } from './orbitalSimulation';
 import { MISSION_ROTATION_TIME_FACTOR, useSimulationState } from '@/hooks/useSimulationState';
 import type { ChaosSystemSnapshot } from '@/features/endgame/chaosMode';
+import { applyGravityGunOffsetToPosition } from '@/features/endgame/gravityGun';
+import { useGravityGun } from '@/features/endgame/gravityGunStore';
 
 // Each shader module also calls extend() itself as a module-level side effect, but
 // tsconfig.app.json sets neither verbatimModuleSyntax nor preserveValueImports, so
@@ -35,6 +37,8 @@ interface PlanetMeshProps {
   onPositionUpdate?: (position: THREE.Vector3) => void;
   chaosModeEnabled?: boolean;
   chaosSnapshot?: ChaosSystemSnapshot;
+  discoActive?: boolean;
+  decorativeMotion?: boolean;
 }
 
 const SUN_WORLD_POSITION = new THREE.Vector3(0, 15, 0);
@@ -75,6 +79,8 @@ export const PlanetMesh = ({
   onPositionUpdate,
   chaosModeEnabled = false,
   chaosSnapshot,
+  discoActive = false,
+  decorativeMotion = true,
 }: PlanetMeshProps) => {
   const groupRef = useRef<THREE.Group>(null);
   const visualGroupRef = useRef<THREE.Group>(null);
@@ -116,6 +122,11 @@ export const PlanetMesh = ({
     if (groupRef.current && planet.orbitRadius > 0) {
       if (chaosPosition) groupRef.current.position.copy(chaosPosition);
       else writeBodyPosition(planet, orbitElapsedSeconds, groupRef.current.position);
+
+      applyGravityGunOffsetToPosition(
+        groupRef.current.position,
+        useGravityGun.getState().readOffset(planet.id),
+      );
     }
 
     if (visualGroupRef.current) {
@@ -123,6 +134,13 @@ export const PlanetMesh = ({
         chaosFrame?.axialTiltDeg ?? getVisualAxialTilt(planet.axialTiltDeg),
       );
       visualGroupRef.current.scale.setScalar(chaosFrame?.scale ?? 1);
+      const danceActive = discoActive && decorativeMotion;
+      visualGroupRef.current.position.y = danceActive
+        ? Math.sin(state.clock.elapsedTime * 5 + seed.current) * Math.min(0.55, planet.size * 0.28)
+        : 0;
+      visualGroupRef.current.rotation.x = danceActive
+        ? Math.sin(state.clock.elapsedTime * 3 + seed.current) * 0.12
+        : 0;
     }
 
     if (planetRef.current) {

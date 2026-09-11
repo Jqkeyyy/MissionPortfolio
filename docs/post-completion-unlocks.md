@@ -14,9 +14,9 @@ main solar system without distracting from the portfolio journey.
   message, cipher, or coordinates leading to a secret destination.
 - **Orbit Replay** *(implemented)* — An autopilot flyby of all completed destinations, highlighting
   project milestones, memorable mission moments, and portfolio statistics.
-- **Gravity Gun** — Pick up and throw planets into slingshots or harmless particle
+- **Gravity Gun** *(implemented)* — Pick up and throw planets into slingshots or harmless particle
   collisions before they return to their proper places.
-- **Planet Fusion** — Combine two worlds into a temporary hybrid with blended
+- **Planet Fusion** *(implemented)* — Combine two worlds into a temporary hybrid with blended
   terrain, colors, names, descriptions, and habitat styles (for example, Marsurn).
 - **Developer Moon** *(first rover route implemented)* — A newly revealed moon
   contains a six-stop rover story about why the experience was built, real visual
@@ -26,15 +26,15 @@ main solar system without distracting from the portfolio journey.
 - **Secret HAB Terminal Commands** *(implemented)* — Undocumented commands such as `chaos`,
   `singularity`, `moonwalk`, `sudo launch`, `coffee`, and `open the pod bay doors`
   trigger small effects. The visible command list should not reveal every command.
-- **Space Pet** — A tiny alien or maintenance robot follows the ship, reacts when
+- **Space Pet** *(implemented)* — A tiny alien or maintenance robot follows the ship, reacts when
   clicked, and occasionally interferes with HUD messages.
-- **Disco Sun** — Clicking the Sun in a particular rhythm activates synchronized
+- **Disco Sun** *(implemented)* — Clicking the Sun in a particular rhythm activates synchronized
   music, pulsing orbital trails, colored lighting, and dancing planets.
 - **1990s Mode** — The experience switches to deliberately low-poly, pixelated CRT
   presentation with retro computer audio.
-- **Impossible Achievement** — A wonderfully specific challenge such as aligning
-  every planet, finding an object in every habitat, or sustaining a rogue moon’s
-  orbit for thirty seconds.
+- **Impossible Achievement** *(implemented)* — A persistent five-part challenge links Planet
+  Fusion, Gravity Gun, Space Pet, Disco Sun, and the Rogue Planet into one
+  wonderfully specific “Reality Warranty Voided” unlock.
 
 ## Product guardrails
 

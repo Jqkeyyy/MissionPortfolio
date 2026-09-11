@@ -7,7 +7,7 @@ const completedProgress = {
 };
 
 test('completed explorers can use every anomaly experiment', async ({ page, browserName }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
   test.skip(browserName !== 'chromium', 'The endgame WebGL experiments are covered in Chromium.');
   await page.addInitScript((progress) => {
     localStorage.setItem('mission-portfolio:exploration-progress:v1', JSON.stringify(progress));
@@ -75,6 +75,40 @@ test('completed explorers can use every anomaly experiment', async ({ page, brow
   await page.getByRole('textbox', { name: 'Enter terminal command' }).fill('coffee');
   await page.getByRole('button', { name: 'Execute' }).click();
   await expect(page.getByLabel('Terminal output')).toContainText('competent TypeScript');
+  await page.keyboard.press('Escape');
+
+  await consoleButton.click();
+  await page.getByRole('button', { name: 'Open Fusion Chamber' }).click();
+  await expect(page.getByRole('dialog', { name: 'Planet Fusion' })).toBeVisible();
+  await page.getByRole('button', { name: 'Fuse into Marsurn' }).click();
+  await expect(page.getByRole('button', { name: 'Release Marsurn' })).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  await consoleButton.click();
+  await page.getByRole('button', { name: 'Equip Gravity Gun' }).click();
+  await expect(page.getByRole('dialog', { name: 'Gravity Gun' })).toBeVisible();
+  await page.getByRole('button', { name: /Push right/ }).click();
+  await page.getByRole('button', { name: /Push right/ }).click();
+  await page.getByRole('button', { name: 'Restore all orbits' }).click();
+  await page.getByRole('button', { name: 'Close Gravity Gun' }).click();
+
+  await consoleButton.click();
+  await page.getByRole('button', { name: 'Deploy M-0' }).click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Interact with maintenance companion M-0' })).toBeVisible();
+  await page.getByRole('button', { name: 'Interact with maintenance companion M-0' }).click({ force: true });
+
+  await consoleButton.click();
+  await page.getByRole('button', { name: 'Enter Rhythm Lock' }).click();
+  await expect(page.getByRole('dialog', { name: 'Disco Sun' })).toBeVisible();
+  await page.getByRole('button', { name: 'Use accessible activation' }).click();
+  await expect(page.getByRole('button', { name: 'Restore quiet Sun' })).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  await consoleButton.click();
+  await page.getByRole('button', { name: 'Inspect Classified Challenge' }).click();
+  await expect(page.getByRole('dialog', { name: 'The Impossible Achievement' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: 'REALITY WARRANTY VOIDED' })).toBeVisible();
   await page.keyboard.press('Escape');
 
   await consoleButton.click();

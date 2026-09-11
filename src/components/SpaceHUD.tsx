@@ -40,6 +40,13 @@ interface SpaceHUDProps {
   onOpenOrbitReplay?: () => void;
   onOpenHabTerminal?: () => void;
   onOpenSupernova?: () => void;
+  onOpenPlanetFusion?: () => void;
+  onOpenGravityGun?: () => void;
+  spacePetEnabled?: boolean;
+  onSpacePetChange?: (enabled: boolean) => void;
+  discoSunActive?: boolean;
+  onOpenDiscoSun?: () => void;
+  onOpenImpossibleAchievement?: () => void;
   newGamePlusActive?: boolean;
   onRestoreNewGamePlus?: () => void;
 }
@@ -54,6 +61,13 @@ export const SpaceHUD = ({
   onOpenOrbitReplay = () => {},
   onOpenHabTerminal = () => {},
   onOpenSupernova = () => {},
+  onOpenPlanetFusion = () => {},
+  onOpenGravityGun = () => {},
+  spacePetEnabled = false,
+  onSpacePetChange = () => {},
+  discoSunActive = false,
+  onOpenDiscoSun = () => {},
+  onOpenImpossibleAchievement = () => {},
   newGamePlusActive = false,
   onRestoreNewGamePlus = () => {},
 }: SpaceHUDProps) => {
@@ -179,6 +193,13 @@ export const SpaceHUD = ({
         onOpenOrbitReplay={onOpenOrbitReplay}
         onOpenHabTerminal={onOpenHabTerminal}
         onOpenSupernova={onOpenSupernova}
+        onOpenPlanetFusion={onOpenPlanetFusion}
+        onOpenGravityGun={onOpenGravityGun}
+        spacePetEnabled={spacePetEnabled}
+        onSpacePetChange={onSpacePetChange}
+        discoSunActive={discoSunActive}
+        onOpenDiscoSun={onOpenDiscoSun}
+        onOpenImpossibleAchievement={onOpenImpossibleAchievement}
         newGamePlusActive={newGamePlusActive}
         onRestoreNewGamePlus={onRestoreNewGamePlus}
         className="fixed bottom-24 right-4 z-20 md:bottom-8"

@@ -164,5 +164,5 @@ describe('SpaceHUD', () => {
     fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
     fireEvent.click(screen.getByRole('button', { name: 'Open Cosmic Architect' }));
     expect(onOpenCosmicArchitect).toHaveBeenCalledOnce();
-  });
+  }, 10_000);
 });

@@ -14,6 +14,13 @@ const createProps = (overrides: Partial<AnomalyConsoleProps> = {}): AnomalyConso
   onOpenOrbitReplay: vi.fn(),
   onOpenHabTerminal: vi.fn(),
   onOpenSupernova: vi.fn(),
+  onOpenPlanetFusion: vi.fn(),
+  onOpenGravityGun: vi.fn(),
+  spacePetEnabled: false,
+  onSpacePetChange: vi.fn(),
+  discoSunActive: false,
+  onOpenDiscoSun: vi.fn(),
+  onOpenImpossibleAchievement: vi.fn(),
   newGamePlusActive: false,
   onRestoreNewGamePlus: vi.fn(),
   ...overrides,
@@ -31,7 +38,7 @@ describe('AnomalyConsole', () => {
 
     const features = screen.getByRole('list', { name: 'Unlocked anomaly experiments' });
     expect(features).toHaveTextContent(
-      /Developer Moon.*Chaos Mode.*The Event Horizon.*Cosmic Architect.*Alien Signal Hunt.*Rogue Planet.*Orbit Replay.*Secret HAB Terminal.*Supernova Button/,
+      /Developer Moon.*Chaos Mode.*The Event Horizon.*Cosmic Architect.*Alien Signal Hunt.*Rogue Planet.*Orbit Replay.*Secret HAB Terminal.*Supernova Button.*Planet Fusion.*Gravity Gun.*Space Pet M-0.*Disco Sun.*Impossible Achievement/,
     );
     expect(screen.getByRole('dialog')).toHaveAccessibleName('Anomaly Console');
   });
@@ -104,5 +111,38 @@ describe('AnomalyConsole', () => {
     fireEvent.click(restore);
     expect(onRestoreNewGamePlus).toHaveBeenCalledOnce();
     expect(onOpenSupernova).not.toHaveBeenCalled();
+  });
+
+  it('dispatches the five latest experiments and exposes reversible pet and disco state', () => {
+    const actions = {
+      onOpenPlanetFusion: vi.fn(),
+      onOpenGravityGun: vi.fn(),
+      onSpacePetChange: vi.fn(),
+      onOpenDiscoSun: vi.fn(),
+      onOpenImpossibleAchievement: vi.fn(),
+    };
+    render(<AnomalyConsole {...createProps(actions)} />);
+
+    for (const [name, callback] of [
+      ['Open Fusion Chamber', actions.onOpenPlanetFusion],
+      ['Equip Gravity Gun', actions.onOpenGravityGun],
+    ] as const) {
+      fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+      fireEvent.click(screen.getByRole('button', { name }));
+      expect(callback).toHaveBeenCalledOnce();
+    }
+
+    fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+    const deploy = screen.getByRole('button', { name: 'Deploy M-0' });
+    expect(deploy).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(deploy);
+    expect(actions.onSpacePetChange).toHaveBeenCalledWith(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Enter Rhythm Lock' }));
+    expect(actions.onOpenDiscoSun).toHaveBeenCalledOnce();
+
+    fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Inspect Classified Challenge' }));
+    expect(actions.onOpenImpossibleAchievement).toHaveBeenCalledOnce();
   });
 });
