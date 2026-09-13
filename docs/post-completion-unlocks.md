@@ -4,6 +4,33 @@ Finishing all ten destinations unlocks an **Anomaly Console**. The console is th
 home for playful, optional experiences that deliberately break the rules of the
 main solar system without distracting from the portfolio journey.
 
+## Anomaly progression
+
+The console starts with four available experiments: Developer Moon, Chaos Mode,
+Alien Signal Hunt, and Orbit Replay. Five more are visible as clue-locked
+challenges:
+
+| Experiment | Unlock challenge |
+| --- | --- |
+| Cosmic Architect | Finish the Developer Moon rover story. |
+| Gravity Gun | Enable Chaos Mode once. |
+| Planet Fusion | Fire the Gravity Gun once. |
+| Rogue Planet | Decode the Alien Signal Hunt transmission. |
+| The Event Horizon | Finish Orbit Replay. |
+
+Five experiments are initially absent from the manifest. The HAB Terminal
+appears after finding the maintenance note at rover stop 04; its undocumented
+`coffee` command reveals Space Pet M-0. Answer the short-short-long solar pulse
+in the console to reveal Disco Sun. Crossing the Event Horizon and capturing
+the Rogue Planet reveals Supernova. The first Impossible Achievement milestone
+reveals its classified challenge card.
+
+Unlock events and the optional **Reveal all experiments** bypass are saved in
+local storage. The bypass reveals every card without granting or erasing
+challenge progress, so visitors can inspect the portfolio without completing
+the game. **Restore stable universe** remains available in the console and
+does not erase discoveries.
+
 ## Easter egg backlog
 
 - **Supernova Button** *(implemented)* — A suspiciously unprotected terminal control destroys the

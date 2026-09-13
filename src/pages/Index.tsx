@@ -18,6 +18,10 @@ import { useImpossibleAchievement } from '@/features/endgame/impossibleAchieveme
 import { useGravityGun } from '@/features/endgame/gravityGunStore';
 import { usePlanetFusion } from '@/features/endgame/planetFusionState';
 import { spacePetStore } from '@/features/endgame/spacePet';
+import { ANOMALY_FEATURE_NAMES, useAnomalyProgress, type AnomalyEvent } from '@/features/endgame/anomalyProgress';
+import { isAlienSignalDecoded, readAlienSignalProgress, resolveAlienSignalStorage } from '@/features/endgame/alienSignalHunt';
+import { useChaosMode } from '@/features/endgame/useChaosMode';
+import { useCosmicArchitect } from '@/features/endgame/useCosmicArchitect';
 
 const SolarSystem = lazy(() => import('@/components/3d/SolarSystem').then((module) => ({ default: module.SolarSystem })));
 const TravelSequence = lazy(() => import('@/components/TravelSequence').then((module) => ({ default: module.TravelSequence })));
@@ -167,6 +171,7 @@ const Index = () => {
   const [spacePetEnabled, setSpacePetEnabled] = useState(false);
   const [discoSunOpen, setDiscoSunOpen] = useState(false);
   const [impossibleAchievementOpen, setImpossibleAchievementOpen] = useState(false);
+  const [unlockMessage, setUnlockMessage] = useState('');
   const discoSunActive = useDiscoSun((state) => state.active);
   const deactivateDiscoSun = useDiscoSun((state) => state.deactivate);
   const recordImpossibleMilestone = useImpossibleAchievement((state) => state.record);
@@ -176,6 +181,38 @@ const Index = () => {
     disable: disableNewGamePlus,
   } = useNewGamePlus();
   const progress = useExplorationProgress();
+
+  const recordAnomaly = (event: AnomalyEvent) => {
+    const unlocked = useAnomalyProgress.getState().record(event);
+    if (unlocked.length) {
+      const message = `Anomaly unlocked: ${unlocked.map((id) => ANOMALY_FEATURE_NAMES[id]).join(', ')}`;
+      setUnlockMessage(message);
+      announce(message);
+    }
+  };
+
+  const recordAchievement = (milestone: Parameters<typeof recordImpossibleMilestone>[0]) => {
+    recordImpossibleMilestone(milestone);
+    recordAnomaly('impossible-started');
+  };
+
+  useEffect(() => {
+    const completed = useImpossibleAchievement.getState().completed;
+    if (completed.length) useAnomalyProgress.getState().record('impossible-started');
+    if (completed.includes('gravity')) useAnomalyProgress.getState().record('gravity-fired');
+    if (completed.includes('rogue')) useAnomalyProgress.getState().record('rogue-captured');
+    if (completed.includes('pet')) useAnomalyProgress.getState().record('terminal-coffee');
+    if (completed.includes('disco')) useAnomalyProgress.getState().record('sun-rhythm');
+    if (isAlienSignalDecoded(readAlienSignalProgress(resolveAlienSignalStorage()))) {
+      useAnomalyProgress.getState().record('signal-decoded');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!unlockMessage) return;
+    const timeout = window.setTimeout(() => setUnlockMessage(''), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [unlockMessage]);
   const previousView = useRef(currentView);
   const previousPlanet = useRef(selectedPlanet);
   const previousPortfolioOpen = useRef(quickPortfolioOpen);
@@ -330,10 +367,13 @@ const Index = () => {
 
   const handleHabTerminalEffect = (effect: HabTerminalEffect) => {
     if (effect === 'chaos') {
-      void import('@/features/endgame/useChaosMode').then(({ useChaosMode }) => {
-        useChaosMode.getState().enable();
-      });
+      useChaosMode.getState().enable();
       announce('Hidden command accepted. Chaos Mode enabled.');
+      recordAnomaly('chaos-enabled');
+      return;
+    }
+    if (effect === 'coffee') {
+      recordAnomaly('terminal-coffee');
       return;
     }
     if (effect === 'singularity') {
@@ -366,7 +406,7 @@ const Index = () => {
     spacePetStore.getState().setEnabled(enabled);
     setSpacePetEnabled(enabled);
     if (enabled) {
-      recordImpossibleMilestone('pet');
+      recordAchievement('pet');
       announce('Maintenance companion M-0 deployed. Friendship protocol nominal.');
     } else {
       announce('Maintenance companion M-0 recalled.');
@@ -375,6 +415,7 @@ const Index = () => {
 
   return (
     <div className={`relative h-screen w-screen overflow-hidden bg-background ${newGamePlusActive ? 'new-game-plus' : ''}`}>
+      {unlockMessage && <div role="status" className="pointer-events-none fixed left-1/2 top-20 z-[2300] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border border-fuchsia-300/50 bg-slate-950/95 px-5 py-3 text-center font-heading text-sm text-fuchsia-100 shadow-[0_0_35px_rgba(217,70,239,0.35)]">{unlockMessage}</div>}
       {newGamePlusActive && (
         <div
           aria-hidden="true"
@@ -405,7 +446,7 @@ const Index = () => {
             <SolarSystem
               eventHorizonVisible={eventHorizonVisible && !nullSectorOpen && !cosmicArchitectOpen}
               tutorialSunActive={tutorial.status === 'running' && tutorial.currentStep.id === 'select-sun'}
-              onEnterEventHorizon={() => setNullSectorOpen(true)}
+              onEnterEventHorizon={() => { recordAnomaly('event-horizon-crossed'); setNullSectorOpen(true); }}
               onUnavailable={() => {
                 telemetryClient.track({ type: 'webgl_unavailable', reason: 'context-lost' });
                 setExplorationMode('unavailable');
@@ -431,6 +472,20 @@ const Index = () => {
               onOpenImpossibleAchievement={() => setImpossibleAchievementOpen(true)}
               newGamePlusActive={newGamePlusActive}
               onRestoreNewGamePlus={disableNewGamePlus}
+              onChaosModeEnabled={() => recordAnomaly('chaos-enabled')}
+              onAnomalyDiscovery={announce}
+              onRestoreStableUniverse={() => {
+                setEventHorizonVisible(false);
+                setDiscoSunOpen(false);
+                useChaosMode.getState().disable();
+                useCosmicArchitect.getState().resetAll();
+                useGravityGun.getState().restoreAll();
+                usePlanetFusion.getState().release();
+                deactivateDiscoSun();
+                handleSpacePetChange(false);
+                disableNewGamePlus();
+                announce('Stable universe restored. Anomaly discoveries preserved.');
+              }}
             />
           </Suspense>
         )}
@@ -477,7 +532,7 @@ const Index = () => {
 
       {developerMoonOpen && (
         <Suspense fallback={<StageFallback label="Descending to Developer Moon..." />}>
-          <DeveloperMoonJourney open onOpenChange={setDeveloperMoonOpen} />
+          <DeveloperMoonJourney open onOpenChange={setDeveloperMoonOpen} onMaintenanceClueFound={() => recordAnomaly('moon-clue')} onComplete={() => recordAnomaly('moon-complete')} />
         </Suspense>
       )}
 
@@ -489,7 +544,7 @@ const Index = () => {
             activePlanetId={currentView === 'planet' ? selectedPlanet : null}
             onNavigateToPlanet={travelToPlanet}
             onFragmentCollected={(fragment) => announce(`Alien signal recovered on ${fragment.planetName}.`)}
-            onDecoded={() => announce('Alien transmission decoded. The Listening Post is unlocked.')}
+            onDecoded={() => { recordAnomaly('signal-decoded'); announce('Alien transmission decoded. The Listening Post is unlocked.'); }}
           />
         </Suspense>
       )}
@@ -500,7 +555,8 @@ const Index = () => {
             open
             onOpenChange={setRoguePlanetOpen}
             onCapture={() => {
-              recordImpossibleMilestone('rogue');
+              recordAchievement('rogue');
+              recordAnomaly('rogue-captured');
               announce('Rogue Planet captured. Hidden build record recovered.');
             }}
           />
@@ -513,7 +569,7 @@ const Index = () => {
             open
             onOpenChange={setOrbitReplayOpen}
             visitedPlanetIds={progress.visitedPlanetIds}
-            onReplayComplete={() => announce('Orbit Replay complete. All mission records reviewed.')}
+            onReplayComplete={() => { recordAnomaly('orbit-replay-complete'); announce('Orbit Replay complete. All mission records reviewed.'); }}
           />
         </Suspense>
       )}
@@ -530,9 +586,7 @@ const Index = () => {
             open
             onOpenChange={setSupernovaOpen}
             onReform={() => {
-              void import('@/features/endgame/useChaosMode').then(({ useChaosMode }) => {
-                useChaosMode.getState().disable();
-              });
+              useChaosMode.getState().disable();
               enableNewGamePlus();
               announce('New Game Plus active. Mission progress preserved.');
             }}
@@ -547,7 +601,7 @@ const Index = () => {
             onOpenChange={setPlanetFusionOpen}
             onFusionActivated={(fusion) => {
               useGravityGun.getState().restoreAll();
-              recordImpossibleMilestone('fusion');
+              recordAchievement('fusion');
               announce(`${fusion.name} stabilized in the live solar system.`);
             }}
             onFusionReleased={(fusion) => announce(`${fusion.name} released. Source worlds restored.`)}
@@ -562,7 +616,8 @@ const Index = () => {
             onOpenChange={setGravityGunOpen}
             planets={planets}
             onFire={(planetId) => {
-              recordImpossibleMilestone('gravity');
+              recordAchievement('gravity');
+              recordAnomaly('gravity-fired');
               announce(`Gravity impulse applied to ${getPlanetById(planetId)?.displayName ?? planetId}.`);
             }}
           />
@@ -585,7 +640,8 @@ const Index = () => {
             open={discoSunOpen}
             onOpenChange={setDiscoSunOpen}
             onActivated={() => {
-              recordImpossibleMilestone('disco');
+              recordAchievement('disco');
+              recordAnomaly('sun-rhythm');
               announce('Disco Sun rhythm locked. Solar dance protocol active.');
             }}
           />

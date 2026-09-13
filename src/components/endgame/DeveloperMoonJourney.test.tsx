@@ -30,7 +30,12 @@ describe('DeveloperMoonJourney', () => {
 
   it('finishes the ride from the final stop', () => {
     const onOpenChange = vi.fn();
-    render(<DeveloperMoonJourney open onOpenChange={onOpenChange} />);
+    const onMaintenanceClueFound = vi.fn();
+    const onComplete = vi.fn();
+    render(<DeveloperMoonJourney open onOpenChange={onOpenChange} onMaintenanceClueFound={onMaintenanceClueFound} onComplete={onComplete} />);
+
+    fireEvent.click(screen.getByRole('button', { name: `Visit rover stop 5: ${stopTitles[4]}` }));
+    expect(onMaintenanceClueFound).toHaveBeenCalledOnce();
 
     fireEvent.click(screen.getByRole('button', {
       name: `Visit rover stop ${stopTitles.length}: ${stopTitles.at(-1)}`,
@@ -38,6 +43,7 @@ describe('DeveloperMoonJourney', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Finish ride' }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onComplete).toHaveBeenCalledOnce();
   });
 
 });

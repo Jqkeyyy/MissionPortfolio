@@ -64,6 +64,7 @@ test('completed explorers can use every anomaly experiment', async ({ page, brow
   const consoleButton = page.getByRole('button', { name: 'ANOMALY CONSOLE' });
   await expect(consoleButton).toBeVisible();
   await consoleButton.click();
+  await page.getByRole('checkbox', { name: 'Reveal all experiments' }).check();
   await page.getByRole('button', { name: 'Land on Developer Moon' }).click();
   await expect(page.getByRole('dialog', { name: 'The Build Behind the Mission' })).toBeVisible();
   await page.getByRole('button', { name: /next log/i }).click();
@@ -118,7 +119,7 @@ test('completed explorers can use every anomaly experiment', async ({ page, brow
   await expect(page.getByRole('dialog', { name: 'Secret HAB Terminal' })).toBeVisible();
   await page.getByRole('textbox', { name: 'Enter terminal command' }).fill('coffee');
   await page.getByRole('button', { name: 'Execute' }).click();
-  await expect(page.getByLabel('Terminal output')).toContainText('competent TypeScript');
+  await expect(page.getByLabel('Terminal output')).toContainText('maintenance companion M-0');
   await page.keyboard.press('Escape');
 
   await consoleButton.click();

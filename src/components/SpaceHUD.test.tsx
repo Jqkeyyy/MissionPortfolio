@@ -5,6 +5,7 @@ import { useGameState } from '@/hooks/useGameState';
 import { PLANET_THEME_IDS } from '@/data/planetThemes';
 import { explorationProgressStore } from '@/lib/explorationProgress';
 import { useChaosMode } from '@/features/endgame/useChaosMode';
+import { useAnomalyProgress } from '@/features/endgame/anomalyProgress';
 
 describe('SpaceHUD', () => {
   beforeEach(() => {
@@ -19,6 +20,7 @@ describe('SpaceHUD', () => {
     });
     explorationProgressStore.clearProgress();
     useChaosMode.getState().reset();
+    useAnomalyProgress.setState({ events: [], freeExplore: false });
   });
 
   afterEach(() => {
@@ -158,6 +160,8 @@ describe('SpaceHUD', () => {
     fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
     fireEvent.click(screen.getByRole('button', { name: 'Enable Chaos Mode' }));
     expect(useChaosMode.getState().enabled).toBe(true);
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Reveal all experiments' }));
 
     fireEvent.click(screen.getByRole('button', { name: 'Reveal the Event Horizon' }));
     expect(onRevealEventHorizon).toHaveBeenCalledOnce();

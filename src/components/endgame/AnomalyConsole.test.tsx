@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnomalyConsole, type AnomalyConsoleProps } from './AnomalyConsole';
+import { useAnomalyProgress } from '@/features/endgame/anomalyProgress';
 
 const createProps = (overrides: Partial<AnomalyConsoleProps> = {}): AnomalyConsoleProps => ({
   isComplete: true,
@@ -27,6 +28,10 @@ const createProps = (overrides: Partial<AnomalyConsoleProps> = {}): AnomalyConso
 });
 
 describe('AnomalyConsole', () => {
+  beforeEach(() => {
+    useAnomalyProgress.setState({ events: [], freeExplore: true });
+  });
+
   it('does not expose the console before all destinations are complete', () => {
     render(<AnomalyConsole {...createProps({ isComplete: false })} />);
     expect(screen.queryByRole('button', { name: 'ANOMALY CONSOLE' })).not.toBeInTheDocument();
@@ -36,7 +41,7 @@ describe('AnomalyConsole', () => {
     render(<AnomalyConsole {...createProps()} />);
     fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
 
-    const features = screen.getByRole('list', { name: 'Unlocked anomaly experiments' });
+    const features = screen.getByRole('list', { name: 'Anomaly experiments' });
     expect(features).toHaveTextContent(
       /Developer Moon.*Chaos Mode.*The Event Horizon.*Cosmic Architect.*Alien Signal Hunt.*Rogue Planet.*Orbit Replay.*Secret HAB Terminal.*Supernova Button.*Planet Fusion.*Gravity Gun.*Space Pet M-0.*Disco Sun.*Impossible Achievement/,
     );
@@ -76,6 +81,19 @@ describe('AnomalyConsole', () => {
     expect(onOpenDeveloperMoon).toHaveBeenCalledOnce();
     expect(onRevealEventHorizon).toHaveBeenCalledOnce();
     expect(onOpenCosmicArchitect).toHaveBeenCalledOnce();
+  });
+
+  it('shows challenge clues, conceals secrets, and allows a visitor bypass', () => {
+    useAnomalyProgress.setState({ events: [], freeExplore: false });
+    render(<AnomalyConsole {...createProps()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'ANOMALY CONSOLE' }));
+    expect(screen.getByText('Try Chaos Mode.')).toBeInTheDocument();
+    expect(screen.getByText(/5 unknown signals/)).toBeInTheDocument();
+    expect(screen.queryByText('Secret HAB Terminal')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Challenge locked' })[0]).toBeDisabled();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Reveal all experiments' }));
+    expect(screen.getByText('Secret HAB Terminal')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Access HAB Terminal' })).toBeEnabled();
   });
 
   it('dispatches all five new endgame actions', () => {

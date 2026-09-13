@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Bot, ChevronLeft, ChevronRight, Flag, Map, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ import {
 export interface DeveloperMoonJourneyProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onMaintenanceClueFound?: () => void;
+  onComplete?: () => void;
 }
 
 const developerMoonStops = [
@@ -104,7 +106,7 @@ const MoonBackdrop = () => (
   </div>
 );
 
-export const DeveloperMoonJourney = ({ open, onOpenChange }: DeveloperMoonJourneyProps) => {
+export const DeveloperMoonJourney = ({ open, onOpenChange, onMaintenanceClueFound, onComplete }: DeveloperMoonJourneyProps) => {
   const reducedMotion = Boolean(useReducedMotion());
   const [currentStopIndex, setCurrentStopIndex] = useState(0);
   const stop = developerMoonStops[currentStopIndex];
@@ -112,9 +114,11 @@ export const DeveloperMoonJourney = ({ open, onOpenChange }: DeveloperMoonJourne
   const isLast = currentStopIndex === developerMoonStops.length - 1;
   const roverProgress = (currentStopIndex / (developerMoonStops.length - 1)) * 100;
 
-  const visitStop = (index: number) => {
-    setCurrentStopIndex(Math.max(0, Math.min(developerMoonStops.length - 1, index)));
-  };
+  const visitStop = useCallback((index: number) => {
+    const nextIndex = Math.max(0, Math.min(developerMoonStops.length - 1, index));
+    if (nextIndex === 4) onMaintenanceClueFound?.();
+    setCurrentStopIndex(nextIndex);
+  }, [onMaintenanceClueFound]);
 
   useEffect(() => {
     if (!open) setCurrentStopIndex(0);
@@ -128,7 +132,7 @@ export const DeveloperMoonJourney = ({ open, onOpenChange }: DeveloperMoonJourne
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentStopIndex, isFirst, isLast, open]);
+  }, [currentStopIndex, isFirst, isLast, open, visitStop]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -208,6 +212,7 @@ export const DeveloperMoonJourney = ({ open, onOpenChange }: DeveloperMoonJourne
                   <p className="mt-5 text-sm leading-7 text-white/70 sm:text-base">
                     {stop.body}
                   </p>
+                  {stop.id === 'stool' && <p className="mt-3 font-mono text-xs text-emerald-200/80">Maintenance note: the HAB computer has a shell beneath its normal interface. Try the newly discovered console channel.</p>}
                   <p className="mt-6 border-l-2 border-cyan-300/60 pl-4 font-mono text-[10px] uppercase leading-5 tracking-[0.13em] text-cyan-100/55">
                     Use the route markers or your left and right arrow keys to drive.
                   </p>
@@ -245,7 +250,7 @@ export const DeveloperMoonJourney = ({ open, onOpenChange }: DeveloperMoonJourne
             {isLast ? (
               <Button
                 type="button"
-                onClick={() => onOpenChange(false)}
+                onClick={() => { onComplete?.(); onOpenChange(false); }}
                 className="min-h-11 bg-amber-300 text-slate-950 hover:bg-amber-200"
               >
                 <Flag className="h-4 w-4" />

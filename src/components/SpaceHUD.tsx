@@ -49,6 +49,9 @@ interface SpaceHUDProps {
   onOpenImpossibleAchievement?: () => void;
   newGamePlusActive?: boolean;
   onRestoreNewGamePlus?: () => void;
+  onRestoreStableUniverse?: () => void;
+  onAnomalyDiscovery?: (message: string) => void;
+  onChaosModeEnabled?: () => void;
 }
 
 export const SpaceHUD = ({
@@ -70,6 +73,9 @@ export const SpaceHUD = ({
   onOpenImpossibleAchievement = () => {},
   newGamePlusActive = false,
   onRestoreNewGamePlus = () => {},
+  onRestoreStableUniverse = () => {},
+  onAnomalyDiscovery = () => {},
+  onChaosModeEnabled = () => {},
 }: SpaceHUDProps) => {
   const {
     announcement,
@@ -177,7 +183,10 @@ export const SpaceHUD = ({
         chaosModeEnabled={chaosModeEnabled}
         onOpenDeveloperMoon={onOpenDeveloperMoon}
         onChaosModeChange={(enabled) => {
-          if (enabled) enableChaosMode();
+          if (enabled) {
+            enableChaosMode();
+            onChaosModeEnabled();
+          }
           else {
             disableChaosMode();
             resetArchitect();
@@ -202,6 +211,8 @@ export const SpaceHUD = ({
         onOpenImpossibleAchievement={onOpenImpossibleAchievement}
         newGamePlusActive={newGamePlusActive}
         onRestoreNewGamePlus={onRestoreNewGamePlus}
+        onRestoreStableUniverse={onRestoreStableUniverse}
+        onDiscovery={onAnomalyDiscovery}
         className="fixed bottom-24 right-4 z-20 md:bottom-8"
       />
       {/* Title overlay */}

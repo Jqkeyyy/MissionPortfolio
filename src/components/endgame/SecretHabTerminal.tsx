@@ -40,7 +40,7 @@ const commandResponse = (command: string): { message: string; effect?: HabTermin
     case 'sudo launch':
       return { message: 'Override accepted. Autopilot replay authorized.', effect: 'launch' };
     case 'coffee':
-      return { message: 'Fabricator error: coffee replaced with aggressively competent TypeScript.', effect: 'coffee' };
+      return { message: 'Fabricator error: coffee replaced with maintenance companion M-0. Check the Anomaly Console.', effect: 'coffee' };
     case 'open the pod bay doors':
       return { message: "I'm sorry, pilot. I absolutely can do that — the doors are already open.", effect: 'pod-bay' };
     case 'clear':
