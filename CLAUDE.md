@@ -136,4 +136,4 @@ Run `npm run check` before every handoff. Browser-facing changes must also pass 
 - The historical Lovable origin is documented in README, but Lovable metadata, tooling, and the unused placeholder asset have been removed
 - Vite dev server runs on port 8080 with HMR overlay disabled
 - Font loading: Space Grotesk (headings), Inter (body) from @fontsource packages
-- The temporary production alias is the fallback. Set `VITE_SITE_URL` when a custom domain is known; canonical, social, structured-data, robots, and sitemap URLs derive from it.
+- The production fallback is `https://www.jacobsass.dev`. Set `VITE_SITE_URL` to override it; canonical, social, structured-data, robots, and sitemap URLs derive from it.

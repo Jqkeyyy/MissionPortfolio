@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://mission-portfolio-amber.vercel.app/sitemap.xml
+Sitemap: https://www.jacobsass.dev/sitemap.xml

@@ -20,7 +20,7 @@ Old agent worktrees remain under `.worktrees/`. They are historical packet workt
 - Integration branch: `main`
 - Latest pushed commit: `3bc82d5` (`Rebalance base camp surface layout`)
 - The desktop base-camp group is being repositioned substantially right while preserving its verified doorway alignment; this correction awaits commit/push.
-- Public production URL: `https://mission-portfolio-amber.vercel.app/`
+- Public production URL: `https://www.jacobsass.dev/`
 - No development or preview server is expected to be running. Start a fresh server when needed.
 
 ## Completed roadmap work

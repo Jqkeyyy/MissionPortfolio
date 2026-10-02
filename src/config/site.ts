@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = 'https://mission-portfolio-amber.vercel.app';
+const DEFAULT_SITE_URL = 'https://www.jacobsass.dev';
 
 const resolveSiteUrl = (candidate: string | undefined): string => {
   if (!candidate) return DEFAULT_SITE_URL;

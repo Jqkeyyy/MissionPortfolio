@@ -1,6 +1,6 @@
 # Mission Portfolio
 
-**Live site:** [mission-portfolio-amber.vercel.app](https://mission-portfolio-amber.vercel.app/)
+**Live site:** [www.jacobsass.dev](https://www.jacobsass.dev/)
 
 An interactive space-themed portfolio with two entry paths: visitors can launch a navigable Three.js / React Three Fiber solar system or open a fast, recruiter-friendly Quick Portfolio without loading WebGL. Each planet is a mission stop that lands on a 2D surface and HAB desktop covering a different part of the portfolio:
 
@@ -58,7 +58,7 @@ addresses and publish a short retention/deletion policy.
 
 The repository includes an optional same-origin collector at `/api/telemetry`. It stores only daily aggregate counters in an Upstash-compatible Redis REST store. Configure `TELEMETRY_REDIS_REST_URL`, `TELEMETRY_REDIS_REST_TOKEN`, and a strong `TELEMETRY_DASHBOARD_TOKEN`, then set `VITE_TELEMETRY_ENDPOINT=/api/telemetry`. The protected `/mission-analytics` page reads those counters and is excluded from the generated sitemap with `noindex,nofollow` metadata.
 
-Set `VITE_SITE_URL` after connecting a custom HTTPS domain. Canonical URLs, social metadata, structured data, `robots.txt`, and the generated sitemap derive from that value during production builds.
+The production domain defaults to `https://www.jacobsass.dev`. Set `VITE_SITE_URL` to override it for another deployment. Canonical URLs, social metadata, structured data, `robots.txt`, and the generated sitemap derive from that value during production builds.
 
 ## Tech stack
 

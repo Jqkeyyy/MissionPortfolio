@@ -419,7 +419,7 @@ export const planets: PlanetData[] = [
       {
         id: 'contact-2',
         title: 'Contact & Profiles',
-        content: 'Janesville, WI\nEmail: jacobsass.dev@gmail.com\nPhone: 608-289-8826\nGitHub: github.com/Jqkeyyy\nLinkedIn: linkedin.com/in/jacob-sass\nWeb: sasswebdesign.dev',
+        content: 'Janesville, WI\nEmail: jacobsass.dev@gmail.com\nPhone: 608-289-8826\nGitHub: github.com/Jqkeyyy\nLinkedIn: linkedin.com/in/jacob-sass\nPortfolio: www.jacobsass.dev\nWeb: sasswebdesign.dev',
         type: 'tablet',
       },
       {

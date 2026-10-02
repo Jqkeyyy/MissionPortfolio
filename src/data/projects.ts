@@ -187,7 +187,7 @@ const projectCatalog = [
       {
         kind: 'live',
         label: 'Open live project',
-        href: 'https://mission-portfolio-amber.vercel.app',
+        href: 'https://www.jacobsass.dev',
         external: true,
       },
     ],

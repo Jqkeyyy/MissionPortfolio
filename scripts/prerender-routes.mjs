@@ -8,7 +8,7 @@ const distDirectory = path.join(projectRoot, 'dist');
 const templatePath = path.join(distDirectory, 'index.html');
 if (!fs.existsSync(templatePath)) throw new Error('Run Vite before prerendering routes.');
 
-const defaultSiteUrl = 'https://mission-portfolio-amber.vercel.app';
+const defaultSiteUrl = 'https://www.jacobsass.dev';
 const siteUrl = (process.env.VITE_SITE_URL ?? defaultSiteUrl).replace(/\/$/, '');
 const template = fs.readFileSync(templatePath, 'utf8').replaceAll(defaultSiteUrl, siteUrl);
 fs.writeFileSync(templatePath, template);

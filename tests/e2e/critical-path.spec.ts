@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const PRODUCTION_URL = 'https://mission-portfolio-amber.vercel.app/';
+const PRODUCTION_URL = 'https://www.jacobsass.dev/';
 
 test('Quick Portfolio is complete and returns to route selection', async ({ page }) => {
   await page.goto('/');

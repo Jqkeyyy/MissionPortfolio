@@ -8,7 +8,7 @@ const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, colorScheme: 'dark' });
 
 const captures = [
-  { name: 'mission-portfolio', url: 'https://mission-portfolio-amber.vercel.app/' },
+  { name: 'mission-portfolio', url: 'https://www.jacobsass.dev/' },
   {
     name: 'campus-marketplace',
     url: 'https://campus-marketplace-beta.vercel.app/',
