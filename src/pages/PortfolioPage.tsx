@@ -21,7 +21,7 @@ const PortfolioPage = () => {
 
   useDocumentMetadata({
     title: 'Software Developer Portfolio — Jake Sass',
-    description: 'Projects, engineering case studies, experience, technical skills, résumé, and contact details for software developer Jake Sass.',
+    description: 'Projects, AI alignment research, engineering case studies, experience, technical skills, résumé, and contact details for software developer Jake Sass.',
     path: '/portfolio',
     structuredData,
   });

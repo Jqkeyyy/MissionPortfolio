@@ -6,7 +6,7 @@ const projectCatalog = [
     name: 'Fantasy Football Decision-Support Platform',
     oneLineSummary: 'A league-aware analytics system for draft, lineup, waiver, trade, and rest-of-season decisions.',
     status: 'in-development',
-    technologies: ['Python', 'Streamlit', 'Polars', 'Parquet', 'LightGBM', 'scikit-learn', 'pytest'],
+    technologies: ['Python', 'Streamlit', 'Polars', 'Parquet', 'LightGBM', 'scikit-learn', 'PuLP/CBC', 'pytest', 'mypy', 'Ruff'],
     links: [
       {
         kind: 'repository',
@@ -37,7 +37,19 @@ const projectCatalog = [
       {
         value: '1,265',
         label: 'pytest tests',
-        detail: 'Test coverage reported across 85 modules.',
+        detail: '1,265 pytest tests across 85 modules, with strict mypy and Ruff checks.',
+        source: 'resume',
+      },
+      {
+        value: '3K',
+        label: 'season paths',
+        detail: 'Simulated season paths for season-level decision support.',
+        source: 'resume',
+      },
+      {
+        value: '9-10%',
+        label: 'DST projection error reduction',
+        detail: 'Reduction reported with leakage-safe pipelines and five-season walk-forward validation.',
         source: 'resume',
       },
     ],
@@ -45,10 +57,10 @@ const projectCatalog = [
       problem: 'Generic rankings do not account for a league\'s scoring, roster construction, keepers, waiver pool, or uncertainty.',
       approach: [
         'Normalize Sleeper, nflverse, and ranking-provider data into cached, provenance-aware tables.',
-        'Guard model features against target-week leakage and evaluate with chronological walk-forward splits.',
-        'Turn projections into league-aware VOR, tiers, lineup choices, and simulation-based decision support.',
+        'Build leakage-safe LightGBM/scikit-learn pipelines with roughly 50 features and five-season walk-forward validation.',
+        'Turn projections into league-aware VOR, tiers, PuLP/CBC lineup optimization, and simulation-based decision support.',
       ],
-      outcome: 'The project provides one offline-first workflow for draft preparation, weekly projections, roster decisions, and model evaluation.',
+      outcome: 'In development since August 2026, the project provides one offline-first workflow for draft preparation, weekly projections, roster decisions, and model evaluation.',
       engineeringHighlights: [
         'Point-in-time-safe feature registry and validation gates',
         'League-specific scoring and player identity resolution',

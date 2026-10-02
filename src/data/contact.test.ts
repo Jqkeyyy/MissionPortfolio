@@ -19,7 +19,7 @@ describe('contactActions', () => {
     for (const action of contactActions) {
       if (action.kind === 'email') {
         expect(action.href).toBe(
-          'mailto:jacobwork1129@gmail.com?subject=Portfolio%20inquiry',
+          'mailto:jacobsass.dev@gmail.com?subject=Portfolio%20inquiry',
         );
         expect(action.external).toBe(false);
       } else if (action.kind === 'resume') {

@@ -27,7 +27,7 @@ export const contactActions = [
     id: 'email',
     label: 'Email Jake',
     accessibleLabel: 'Email Jake Sass',
-    href: 'mailto:jacobwork1129@gmail.com?subject=Portfolio%20inquiry',
+    href: 'mailto:jacobsass.dev@gmail.com?subject=Portfolio%20inquiry',
     kind: 'email',
     group: 'contact',
     external: false,

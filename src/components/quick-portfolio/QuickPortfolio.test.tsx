@@ -15,7 +15,7 @@ describe('QuickPortfolio', () => {
 
     expect(screen.getByRole('heading', { name: 'Jake Sass' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Education' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Experience' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Research & experience' })).toBeInTheDocument();
     for (const project of projects) {
       expect(screen.getByRole('heading', { name: project.name })).toBeInTheDocument();
     }

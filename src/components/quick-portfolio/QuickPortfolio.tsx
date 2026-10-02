@@ -23,7 +23,7 @@ const FOCUSABLE_SELECTOR = [
 const portfolioSections = [
   { id: 'mercury', heading: 'Education' },
   { id: 'venus', heading: 'Technical toolkit' },
-  { id: 'earth', heading: 'Experience' },
+  { id: 'earth', heading: 'Research & experience' },
 ] as const;
 
 export const QuickPortfolio = ({ onClose, standalone = false }: QuickPortfolioProps) => {
@@ -195,6 +195,7 @@ export const QuickPortfolio = ({ onClose, standalone = false }: QuickPortfolioPr
           <h2 id="quick-contact-heading" className="font-heading text-2xl tracking-[0.1em] text-white sm:text-3xl">
             Contact
           </h2>
+          <p className="mt-4 text-sm text-white/60">Janesville, Wisconsin</p>
           <ContactActions actions={directContactActions} className="mt-6 max-w-2xl" />
           <p className="mt-6 max-w-2xl text-xs leading-5 text-white/45">
             Privacy: exploration progress and sound preferences stay in this browser. Optional aggregate telemetry is disabled by default, honors browser privacy signals, and never includes identifiers, contact details, or free-form input.

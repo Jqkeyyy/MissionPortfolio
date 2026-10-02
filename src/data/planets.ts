@@ -57,7 +57,7 @@ export const planets: PlanetData[] = [
       {
         id: 'intro-1',
         title: 'Welcome, Pilot',
-        content: "I'm Jake Sass, a computer science student, freelance developer, and IT professional who turns practical ideas into polished web products, data tools, and interactive experiences.",
+        content: "I'm Jake Sass, a B.S. / M.S. computer science student focused on artificial intelligence at UW-Whitewater, an undergraduate AI alignment researcher, and a developer based in Janesville, Wisconsin. I build full-stack products, machine-learning tools, and automation.",
         type: 'console',
       },
       {
@@ -86,7 +86,7 @@ export const planets: PlanetData[] = [
       {
         id: 'edu-1',
         title: 'UW-Whitewater',
-        content: 'University of Wisconsin-Whitewater | B.S. in Computer Science | Expected May 2027 | GPA: 3.8',
+        content: 'University of Wisconsin-Whitewater | B.S. / M.S. in Computer Science - Artificial Intelligence Emphasis | Expected May 2028 | GPA: 3.8',
         type: 'sign',
       },
       {
@@ -98,7 +98,7 @@ export const planets: PlanetData[] = [
       {
         id: 'edu-3',
         title: 'Relevant Coursework',
-        content: 'Machine Learning • Software Engineering • Advanced Databases • Data Science • Cloud Computing • Linear Algebra',
+        content: 'Machine Learning (PyTorch/TensorFlow classifiers) • Software Engineering • Advanced Databases • Data Science • Cloud Computing • Linear Algebra',
         type: 'crate',
       },
     ],
@@ -120,21 +120,27 @@ export const planets: PlanetData[] = [
     content: [
       {
         id: 'skills-1',
-        title: 'Languages & UI',
-        content: 'Python • Java • TypeScript • JavaScript • SQL • R • PowerShell • HTML/CSS • React • React Native • Tailwind CSS',
+        title: 'Languages',
+        content: 'Python • Java • C • C# • TypeScript • JavaScript • SQL • R • PowerShell • HTML/CSS',
         type: 'console',
       },
       {
         id: 'skills-2',
-        title: 'Data & Full Stack',
-        content: 'Node.js • PostgreSQL • Supabase • Firebase • REST APIs • Streamlit • Polars • pandas • NumPy • Parquet • Docker',
+        title: 'Frameworks & ML',
+        content: 'React • React Native • Node.js • .NET • Vite • Tailwind CSS • Streamlit • Polars • pandas • NumPy • scikit-learn • LightGBM • PyTorch • TensorFlow',
         type: 'tablet',
       },
       {
         id: 'skills-3',
-        title: 'ML & Automation',
-        content: 'scikit-learn • LightGBM • PyTorch • TensorFlow • Jupyter • pytest • mypy • Ruff • n8n • Twilio • Vapi',
+        title: 'AI & LLM',
+        content: 'Anthropic/Claude API • MCP • Vapi • n8n • LLM agent workflows',
         type: 'sign',
+      },
+      {
+        id: 'skills-4',
+        title: 'Data & Tools',
+        content: 'PostgreSQL • Supabase • Firebase • REST APIs • Git/GitHub • Docker • Vercel • Linux • Jupyter • pytest • Twilio • Figma • Postman • Active Directory',
+        type: 'crate',
       },
     ],
   },
@@ -154,21 +160,27 @@ export const planets: PlanetData[] = [
     description: 'Experience',
     content: [
       {
+        id: 'research-1',
+        title: 'AI Alignment Research',
+        content: 'Undergraduate Researcher | University of Wisconsin-Whitewater | September 2026-Present\nAdvised by Dr. Hairi. Researching personalized preference optimization (DPO) for AI alignment, modeling varied individual driver preferences in autonomous-driving scenarios. Presenting the Direct Preference Optimization paper (Rafailov et al.) and RLHF background in weekly meetings, and designing a simulated preference-data approach.',
+        type: 'console',
+      },
+      {
         id: 'exp-1',
-        title: 'Rock County IT',
-        content: 'IT Deskside Support Intern | July 2026-Present\nSupport 500+ county users through Active Directory, BitLocker recovery, workstation imaging, and deployment. Built a PowerShell migration tool that reduced user-directory transfers to about 30 seconds.',
+        title: 'Rock County Information Technology',
+        content: 'IT Deskside Support Intern | July 2026-Present\nSupport 500+ county users across 28 departments through Active Directory account and permission management and BitLocker recovery; helped image and deploy 100+ workstations. Built a PowerShell script that copies required user directories to cloud storage in about 30 seconds, replacing manual folder-by-folder transfers.',
         type: 'console',
       },
       {
         id: 'exp-2',
         title: 'Sass Web Design',
-        content: 'Freelance Web Developer | April 2024-Present\nEarned $5K+ across five clients, delivering full-stack React/Tailwind applications, databases, custom admin panels, deployment, and client communication.',
+        content: 'Freelance Web Developer | April 2024-Present\nGenerated $5K+ across five clients, with two production websites and five projects in active development. Build full-stack React/Tailwind applications with databases and custom admin panels, owning design through deployment and client communication. Built fitness assessment and contact forms generating 20+ submissions in month one for mycorestrong.com.',
         type: 'tablet',
       },
       {
         id: 'exp-3',
-        title: 'Summit Moving',
-        content: 'Co-Founder & Software Engineer | June 2025-July 2026\nCo-founded a moving and junk-removal company that generated $100K+ in gross revenue and coordinated more than 200 jobs across Wisconsin.',
+        title: 'Summit Moving & Junk Removal LLC',
+        content: 'Co-Founder & Software Engineer | June 2025-July 2026\nCo-founded a moving and junk-removal company generating $100K+ in gross revenue; built software to coordinate 200+ jobs across Wisconsin. Developed a React and Supabase/PostgreSQL logistics platform for a five-person team and an AI-assisted call and lead pipeline.',
         type: 'sign',
       },
     ],
@@ -239,7 +251,7 @@ export const planets: PlanetData[] = [
       {
         id: 'about-3',
         title: 'Favorite Territories',
-        content: 'Interactive experiences • Sports analytics • Learning tools • Community products • Data-informed decisions • Space-inspired design',
+        content: 'AI alignment • Personalized preference optimization • Interactive experiences • Sports analytics • Learning tools • Community products • Data-informed decisions • Space-inspired design',
         type: 'crate',
       },
     ],
@@ -268,8 +280,8 @@ export const planets: PlanetData[] = [
     content: [
       {
         id: 'summit-1',
-        title: 'Summit Moving',
-        content: 'Co-founded Summit Moving & Junk Removal and helped grow the operation to $100K+ in gross revenue while coordinating more than 200 jobs across Wisconsin.',
+        title: 'Summit Moving & Junk Removal LLC',
+        content: 'Co-founded Summit Moving & Junk Removal and helped grow the operation to $100K+ in gross revenue while coordinating 200+ jobs across Wisconsin.',
         type: 'console',
       },
       {
@@ -311,7 +323,7 @@ export const planets: PlanetData[] = [
       {
         id: 'proj-1',
         title: 'Fantasy Football Platform',
-        content: 'A Python decision system built on 740K+ historical records, with league-aware projections, draft and waiver analysis, leakage-safe ML, up to 20K matchup simulations, and 1,265 pytest tests.',
+        content: 'A Python decision system built on 740K+ historical records, with leakage-safe ML, roughly 50 features, five-season walk-forward validation, up to 20K matchup simulations, 3K season paths, PuLP/CBC lineup optimization, and 1,265 pytest tests across 85 modules.',
         type: 'console',
         projectId: 'fantasy-football',
       },
@@ -407,7 +419,7 @@ export const planets: PlanetData[] = [
       {
         id: 'contact-2',
         title: 'Contact & Profiles',
-        content: 'Email: jacobwork1129@gmail.com\nGitHub: github.com/Jqkeyyy\nLinkedIn: linkedin.com/in/jacob-sass\nWeb: sasswebdesign.dev',
+        content: 'Janesville, WI\nEmail: jacobsass.dev@gmail.com\nPhone: 608-289-8826\nGitHub: github.com/Jqkeyyy\nLinkedIn: linkedin.com/in/jacob-sass\nWeb: sasswebdesign.dev',
         type: 'tablet',
       },
       {

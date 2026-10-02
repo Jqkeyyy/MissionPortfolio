@@ -62,7 +62,7 @@ const writeRoute = (routePath, metadata, body) => {
 
 writeRoute('/portfolio', {
   title: 'Software Developer Portfolio — Jake Sass',
-  description: 'Projects, engineering case studies, experience, technical skills, résumé, and contact details for software developer Jake Sass.',
+  description: 'Projects, AI alignment research, engineering case studies, experience, technical skills, résumé, and contact details for software developer Jake Sass.',
   routePath: '/portfolio',
   structuredData: { '@context': 'https://schema.org', '@type': 'ProfilePage', name: 'Jake Sass — Software Developer Portfolio', url: `${siteUrl}/portfolio` },
 }, `<p>Recruiter overview</p><h1>Jake Sass — Software Developer</h1><p>Full-stack products, data tools, machine learning, and interactive experiences.</p><h2>Selected projects</h2><ul>${projects.map((project) => `<li><a href="/projects/${escapeHtml(project.id)}" style="color:#67e8f9">${escapeHtml(project.name)}</a> — ${escapeHtml(project.oneLineSummary)}</li>`).join('')}</ul>`);
